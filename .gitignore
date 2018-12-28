@@ -7,6 +7,7 @@ Assets/AssetStoreTools*
 
 # Exclude paid-for tools
 Assets/ErosionBrush
+Assets/ErosionBrush.*
 
 # Visual Studio cache directory
 .vs/
