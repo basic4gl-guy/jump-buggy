@@ -5,6 +5,9 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+# Exclude paid-for tools
+Assets/ErosionBrush
+
 # Visual Studio cache directory
 .vs/
 
