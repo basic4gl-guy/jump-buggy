@@ -45,7 +45,15 @@ As this is just a basic playable demo there's a mountain of things to do before 
 
 ## Proper car model
 
-Replace the "programmer art" stand-in with a decent looking model.
+Replace the "programmer art" stand-in with a decent looking model. Rig the wheels to move up and down etc.
+
+## Input
+
+The Oculus Go input is good.
+
+The Windows mouse input is almost unusable.
+
+And other platforms have been completely neglected.
 
 ## Smoother track
 
@@ -56,3 +64,19 @@ Ideally the collision model should be generated from a separate mesh that matche
 ## Road mesh Level Of Detail (LOD)
 
 Create multiple LOD versions of the road meshes. Warp each one to the road curves and hook them into Unity's LOD mechanism to improve performance.
+
+## Gameplay
+
+Track player progress along the track. Detect and count laps.
+
+Place player back on the track when they fall off.
+
+## Track selector
+
+## Create more tracks
+
+## Polish the existing tracks
+
+* More road types
+* More support types
+* More background stuff (trees, grass, buildings, scenery, ...)
