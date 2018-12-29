@@ -79,6 +79,7 @@ public class CurveBasedRoad : MonoBehaviour {
                 // Instantiate mesh instance
                 var meshFilter = Instantiate(seg.Mesh, gameObject.transform, false);
                 meshFilter.tag = "Generated";
+                meshFilter.name += " Curves[" + seg.CurveIndex + "]";
 
                 // Warp mesh around road cuves
                 float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
@@ -100,6 +101,7 @@ public class CurveBasedRoad : MonoBehaviour {
                 // Instantiate LOD instance
                 var lodGroup = Instantiate(seg.LODGroup, gameObject.transform, false);
                 lodGroup.tag = "Generated";
+                lodGroup.name += " Curves[" + seg.CurveIndex + "]";
 
                 // Position LOD group at segment position.
                 // Actual position doesn't really matter, because we transform all the vertices
@@ -247,6 +249,7 @@ public class CurveBasedRoad : MonoBehaviour {
         // Generate mesh
         var support = Instantiate(mesh, gameObject.transform, false);
         support.tag = "Generated";
+        support.name += " Curves[" + seg.CurveIndex + "]";
 
         // Calculate support position
         Vector3 segPos = new Vector3(x, 0.0f, z - segIndex * SegmentLength);                            // Position in segment space
@@ -286,8 +289,10 @@ public class CurveBasedRoad : MonoBehaviour {
         Vector3 pos = gameObject.transform.position;
         Vector3 dir = gameObject.transform.rotation.eulerAngles;
 
-        foreach (var c in Curves)
+        for (int i = 0; i < Curves.Length; i++)
         {
+            Curve c = Curves[i];
+
             // Note: Y axis angle is relative. So value = 90 will turn 90 degrees to the right.
             // X and Z axes are absolute. So Z=45 will bank the road to 45 degrees by the end of the curve. Z=0 will return it to level etc.
             Vector3 dirDelta = new Vector3(
@@ -308,7 +313,8 @@ public class CurveBasedRoad : MonoBehaviour {
                     Length = segmentLength,
                     Mesh = c.Mesh,
                     LODGroup = c.LODGroup,
-                    SupportIndex = c.SupportIndex
+                    SupportIndex = c.SupportIndex,
+                    CurveIndex = i
                 };
                 yield return segment;
 
@@ -334,7 +340,8 @@ public class CurveBasedRoad : MonoBehaviour {
             DirectionDelta = Vector3.zero,
             Length = lastSeg.Length,
             Mesh = lastSeg.Mesh,
-            LODGroup = lastSeg.LODGroup
+            LODGroup = lastSeg.LODGroup,
+            CurveIndex = lastSeg.CurveIndex
         };
     }
 
@@ -372,6 +379,8 @@ public class CurveBasedRoad : MonoBehaviour {
         public LODGroup LODGroup;
 
         public int SupportIndex;
+
+        public int CurveIndex;
 
         public Matrix4x4 GetTransform(float z)
         {            
