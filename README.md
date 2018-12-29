@@ -31,6 +31,7 @@ Each array entry stores:
     * Y - Generates corners. Negative values turn the road left. Positive right. 0 results in a straight piece of road.
     * Z - Banks the road. Negative values raise the left side of the road. Positive raise the right.
 * Mesh - The mesh prefab to use. This provides the mesh that will be copied and wrapped around the road curve. Setting this to "None" creates a gap in the road, and can be used to create jumps.
+* LOD Group - An alternative to "Mesh". Allows for different detail meshes at different distances.
 * Support Index - This indexes into the "Supports" array to generate supporting poles underneath the road. Setting this to -1 results in no supporting poles.
 
 In addition to the "Curves" array is the "Supports" array. This determines how support poles will be generated, so that the road isn't floating in the air. Each entry stores:
@@ -54,16 +55,6 @@ The Oculus Go input is good.
 The Windows mouse input is almost unusable.
 
 And other platforms have been completely neglected.
-
-## Smoother track
-
-The track collision surface is created by adding a MeshCollider to each mesh after warping it around the road curves. The initial mesh has enough polygons that it looks decent, however it can still be rough to drive on, particularly on banked corners.
-
-Ideally the collision model should be generated from a separate mesh that matches the visible mesh, but has a higher polygon count so that the surface is smoother after warping.
-
-## Road mesh Level Of Detail (LOD)
-
-Create multiple LOD versions of the road meshes. Warp each one to the road curves and hook them into Unity's LOD mechanism to improve performance.
 
 ## Gameplay
 
