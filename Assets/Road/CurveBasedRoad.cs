@@ -9,9 +9,9 @@ public class CurveBasedRoad : MonoBehaviour {
     [Header("Generation")]
     public float SegmentLength = 0.25f;
     public float MeshScale = 1.0f;
+    public MeshFilter CollisionMesh;
 
     [Header("Road")]
-    public Vector3 InitialDirection = Vector3.zero;
     public Curve[] Curves = { new Curve { Length = 10.0f } };
     public Support[] Supports;
 
@@ -32,7 +32,6 @@ public class CurveBasedRoad : MonoBehaviour {
     public override int GetHashCode()
     {
         return Util.GetHash(
-            InitialDirection,
             SegmentLength,
             MeshScale,
             Util.GetArrayHash(Curves));
@@ -85,7 +84,14 @@ public class CurveBasedRoad : MonoBehaviour {
                 float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
 
                 // Create collision mesh
-                meshFilter.gameObject.AddComponent<MeshCollider>();
+                var collider = meshFilter.gameObject.AddComponent<MeshCollider>();
+                if (CollisionMesh != null)
+                {
+                    var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
+                    collisionMesh.tag = "Generated";
+                    WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
+                    collider.sharedMesh = collisionMesh.sharedMesh;
+                }
 
                 // Move forward to next mesh
                 meshZOffset += meshLength;
