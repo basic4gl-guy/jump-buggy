@@ -72,69 +72,137 @@ public class CurveBasedRoad : MonoBehaviour {
             int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
             Segment seg = segments[segIndex];
 
-            // No mesh specified -> Skip ahead until segment found with a mesh
-            if (seg.Mesh == null)
+            if (seg.Mesh != null)
+            {
+                // Copy and warp single mesh
+
+                // Instantiate mesh instance
+                var meshFilter = Instantiate(seg.Mesh, gameObject.transform, false);
+                meshFilter.tag = "Generated";
+
+                // Warp mesh around road cuves
+                float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
+
+                // Create collision mesh
+                meshFilter.gameObject.AddComponent<MeshCollider>();
+
+                // Move forward to next mesh
+                meshZOffset += meshLength;
+            }
+            else
+            if (seg.LODGroup != null)
+            {
+                // Copy LOD group and warp its meshes.
+                // Note: This works, but does not result in any noticeable speedup in practice.
+                // Therefore I recommend using single meshes instead.
+                // I suspect the terrain is still the geometry bottleneck.
+
+                // Instantiate LOD instance
+                var lodGroup = Instantiate(seg.LODGroup, gameObject.transform, false);
+                lodGroup.tag = "Generated";
+
+                // Position LOD group at segment position.
+                // Actual position doesn't really matter, because we transform all the vertices
+                // to their world space position along the curve. However it's nice to keep the 
+                // game object position close to where the vertices are.
+                lodGroup.transform.position = seg.Position;
+                lodGroup.transform.rotation = Quaternion.Euler(seg.Direction);
+
+                // Clone LOD group and renderers, warping the meshes inside each renderer to the road curvature
+                float meshLength = 0.0f;
+                bool isFirstMesh = true;
+                LOD[] lods = lodGroup.GetLODs().Select(lod =>
+                {
+                    Renderer[] renderers = lod.renderers.Select(renderer =>
+                    {
+                        var meshFilter = renderer.GetComponent<MeshFilter>();
+                        if (meshFilter != null)
+                        {
+                            float newMeshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
+                            if (isFirstMesh)
+                            {
+                                meshLength = newMeshLength;
+
+                                // Create collision mesh
+                                meshFilter.gameObject.AddComponent<MeshCollider>();
+
+                                isFirstMesh = false;
+                            }
+                        }
+
+                        return renderer;
+                    }).ToArray();
+
+                    return new LOD(lod.screenRelativeTransitionHeight, renderers);
+                }).ToArray();
+
+                // Assign LODs to new group
+                lodGroup.SetLODs(lods);
+
+                meshZOffset += Mathf.Max(meshLength, 1.0f);
+            }
+            else
             {
                 meshZOffset = (segIndex + 1) * SegmentLength;
-                continue;
             }
-
-            // Instantiate mesh instance
-            var meshFilter = Instantiate(seg.Mesh, gameObject.transform, false);
-            meshFilter.tag = "Generated";
-
-            // Find length of mesh            
-            var mesh = meshFilter.mesh;
-            float meshMaxZ = mesh.vertices.Max(v => meshTransform.MultiplyPoint(v).z);
-            float meshMinZ = mesh.vertices.Min(v => meshTransform.MultiplyPoint(v).z);
-            float meshLength = meshMaxZ - meshMinZ;
-
-            // Position mesh at segment position.
-            // Actual position doesn't really matter, because we transform all the vertices
-            // to their world space position along the curve. However it's nice to keep the 
-            // mesh instance position close to where the vertices are.
-            meshFilter.transform.position = seg.Position;
-            meshFilter.transform.rotation = Quaternion.Euler(seg.Direction);
-            Matrix4x4 worldToMesh = meshFilter.transform.localToWorldMatrix.inverse;        // To convert back to meshFilter space once world space position has been calculated.
-
-            // Warp vertices around road curve
-            Debug.Assert(mesh.vertices.Length == mesh.normals.Length);
-            Debug.Assert(mesh.vertices.Length == mesh.tangents.Length);
-            var vertices = new Vector3[mesh.vertices.Length];
-            var normals = new Vector3[mesh.normals.Length];
-            for (int i = 0; i < mesh.vertices.Length; i++)
-            {
-                Vector3 v = meshTransform.MultiplyPoint(mesh.vertices[i]);
-                Vector3 n = meshTransform.MultiplyVector(mesh.normals[i]);
-
-                // z determines index in meshSegments array
-                float z = v.z - meshMinZ + meshZOffset;                                         // Total Z along all curves
-                segIndex = Mathf.FloorToInt(z / SegmentLength);
-                seg = GetSegment(segments, segIndex);
-
-                // Calculate warped position
-                Vector3 segPos = new Vector3(v.x, v.y, z - segIndex * SegmentLength);       // Position in segment space
-                Matrix4x4 segTransform = seg.GetTransform(segPos.z);
-                Vector3 worldPos = segTransform.MultiplyPoint(segPos);                      // => World space
-                vertices[i] = worldToMesh.MultiplyPoint(worldPos);                          // => Mesh space
-
-                // Warp normal
-                Vector3 worldNorm = segTransform.MultiplyVector(n);                         // Normal in world space
-                normals[i] = worldToMesh.MultiplyVector(worldNorm).normalized;              // => Mesh space
-            }
-
-            // Update vertices
-            mesh.vertices = vertices;
-            mesh.normals = normals;
-
-            // Fix up bounding and collision volumes
-            mesh.RecalculateBounds();
-            mesh.RecalculateTangents();
-            meshFilter.gameObject.AddComponent<MeshCollider>();
-
-            // Move forward to next mesh
-            meshZOffset += meshLength;
         }
+    }
+
+    private float WarpMeshToRoadCurves(List<Segment> segments, MeshFilter meshFilter, float meshZOffset, Matrix4x4 meshTransform)
+    {
+        var mesh = meshFilter.mesh;
+
+        // Lookup first segment
+        int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
+        Segment seg = segments[segIndex];
+
+        // Position mesh at segment position.
+        // Actual position doesn't really matter, because we transform all the vertices
+        // to their world space position along the curve. However it's nice to keep the 
+        // mesh instance position close to where the vertices are.
+        meshFilter.transform.position = seg.Position;
+        meshFilter.transform.rotation = Quaternion.Euler(seg.Direction);
+        Matrix4x4 worldToMesh = meshFilter.transform.localToWorldMatrix.inverse;        // To convert back to meshFilter space once world space position has been calculated.
+
+        // Find length of mesh            
+        float meshMaxZ = mesh.vertices.Max(v => meshTransform.MultiplyPoint(v).z);
+        float meshMinZ = mesh.vertices.Min(v => meshTransform.MultiplyPoint(v).z);
+        float meshLength = meshMaxZ - meshMinZ;
+
+        // Warp vertices around road curve
+        Debug.Assert(mesh.vertices.Length == mesh.normals.Length);
+        Debug.Assert(mesh.vertices.Length == mesh.tangents.Length);
+        var vertices = new Vector3[mesh.vertices.Length];
+        var normals = new Vector3[mesh.normals.Length];
+        for (int i = 0; i < mesh.vertices.Length; i++)
+        {
+            Vector3 v = meshTransform.MultiplyPoint(mesh.vertices[i]);
+            Vector3 n = meshTransform.MultiplyVector(mesh.normals[i]);
+
+            // z determines index in meshSegments array
+            float z = v.z - meshMinZ + meshZOffset;                                         // Total Z along all curves
+            var vertSegIndex = Mathf.FloorToInt(z / SegmentLength);
+            var vertSeg = GetSegment(segments, vertSegIndex);
+
+            // Calculate warped position
+            Vector3 segPos = new Vector3(v.x, v.y, z - vertSegIndex * SegmentLength);       // Position in segment space
+            Matrix4x4 segTransform = vertSeg.GetTransform(segPos.z);
+            Vector3 worldPos = segTransform.MultiplyPoint(segPos);                      // => World space
+            vertices[i] = worldToMesh.MultiplyPoint(worldPos);                          // => Mesh space
+
+            // Warp normal
+            Vector3 worldNorm = segTransform.MultiplyVector(n);                         // Normal in world space
+            normals[i] = worldToMesh.MultiplyVector(worldNorm).normalized;              // => Mesh space
+        }
+
+        // Update vertices
+        mesh.vertices = vertices;
+        mesh.normals = normals;
+
+        // Fix up bounding and collision volumes
+        mesh.RecalculateBounds();
+        mesh.RecalculateTangents();
+        return meshLength;
     }
 
     private void BuildSupportMeshes(List<Segment> segments)
@@ -239,6 +307,7 @@ public class CurveBasedRoad : MonoBehaviour {
                     DirectionDelta = dirDelta,
                     Length = segmentLength,
                     Mesh = c.Mesh,
+                    LODGroup = c.LODGroup,
                     SupportIndex = c.SupportIndex
                 };
                 yield return segment;
@@ -264,7 +333,8 @@ public class CurveBasedRoad : MonoBehaviour {
             Direction = lastSeg.Direction,
             DirectionDelta = Vector3.zero,
             Length = lastSeg.Length,
-            Mesh = lastSeg.Mesh
+            Mesh = lastSeg.Mesh,
+            LODGroup = lastSeg.LODGroup
         };
     }
 
@@ -274,6 +344,7 @@ public class CurveBasedRoad : MonoBehaviour {
         public float Length;
         public Vector3 Angles;
         public MeshFilter Mesh;
+        public LODGroup LODGroup;
         public int SupportIndex = -1;
     }
 
@@ -297,6 +368,8 @@ public class CurveBasedRoad : MonoBehaviour {
         public float Length;
 
         public MeshFilter Mesh;
+
+        public LODGroup LODGroup;
 
         public int SupportIndex;
 
