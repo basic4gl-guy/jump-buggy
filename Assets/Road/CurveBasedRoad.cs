@@ -11,9 +11,12 @@ public class CurveBasedRoad : MonoBehaviour {
     public float MeshScale = 1.0f;
     public MeshFilter CollisionMesh;
 
+    [Header("Debugging")]
+    public MeshFilter OverrideMesh;
+
     [Header("Road")]
-    public Curve[] Curves = { new Curve { Length = 10.0f } };
     public Support[] Supports;
+    public Curve[] Curves = { new Curve { Length = 10.0f } };
 
     // Use this for initialization
     void Start ()
@@ -71,27 +74,33 @@ public class CurveBasedRoad : MonoBehaviour {
             int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
             Segment seg = segments[segIndex];
 
-            if (seg.Mesh != null)
+            if (seg.Mesh != null || (seg.LODGroup != null && OverrideMesh != null))
             {
                 // Copy and warp single mesh
 
                 // Instantiate mesh instance
-                var meshFilter = Instantiate(seg.Mesh, gameObject.transform, false);
+                // Note: Don't try to simplify to "OverrideMesh ?? seg.Mesh". Unity appears to implement its own "null" which doesn't support the ?? operator.
+                var meshFilter = Instantiate(OverrideMesh != null ? OverrideMesh : seg.Mesh, gameObject.transform, false);
                 meshFilter.tag = "Generated";
                 meshFilter.name += " Curves[" + seg.CurveIndex + "]";
+                meshFilter.gameObject.isStatic = true;
 
                 // Warp mesh around road cuves
                 float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
 
                 // Create collision mesh
-                var collider = meshFilter.gameObject.AddComponent<MeshCollider>();
                 if (CollisionMesh != null)
                 {
+                    // Copy collision mesh and warp to road curves
                     var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
-                    collisionMesh.tag = "Generated";
                     WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
+
+                    // Create collider for new mesh
+                    var collider = meshFilter.gameObject.AddComponent<MeshCollider>();
                     collider.sharedMesh = collisionMesh.sharedMesh;
                 }
+                else
+                    meshFilter.gameObject.AddComponent<MeshCollider>();     // Add a default mesh collider. It will use the rendered mesh.
 
                 // Move forward to next mesh
                 meshZOffset += meshLength;
@@ -108,6 +117,7 @@ public class CurveBasedRoad : MonoBehaviour {
                 var lodGroup = Instantiate(seg.LODGroup, gameObject.transform, false);
                 lodGroup.tag = "Generated";
                 lodGroup.name += " Curves[" + seg.CurveIndex + "]";
+                lodGroup.gameObject.isStatic = true;
 
                 // Position LOD group at segment position.
                 // Actual position doesn't really matter, because we transform all the vertices
@@ -117,7 +127,8 @@ public class CurveBasedRoad : MonoBehaviour {
                 lodGroup.transform.rotation = Quaternion.Euler(seg.Direction);
 
                 // Clone LOD group and renderers, warping the meshes inside each renderer to the road curvature
-                float meshLength = 0.0f;
+                float firstMeshLength = 0.0f;
+                MeshFilter firstMeshFilter = null;
                 bool isFirstMesh = true;
                 LOD[] lods = lodGroup.GetLODs().Select(lod =>
                 {
@@ -126,14 +137,11 @@ public class CurveBasedRoad : MonoBehaviour {
                         var meshFilter = renderer.GetComponent<MeshFilter>();
                         if (meshFilter != null)
                         {
-                            float newMeshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
+                            float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
                             if (isFirstMesh)
                             {
-                                meshLength = newMeshLength;
-
-                                // Create collision mesh
-                                meshFilter.gameObject.AddComponent<MeshCollider>();
-
+                                firstMeshLength = meshLength;
+                                firstMeshFilter = meshFilter;
                                 isFirstMesh = false;
                             }
                         }
@@ -147,7 +155,26 @@ public class CurveBasedRoad : MonoBehaviour {
                 // Assign LODs to new group
                 lodGroup.SetLODs(lods);
 
-                meshZOffset += Mathf.Max(meshLength, 1.0f);
+                // Create collision mesh
+                if (CollisionMesh != null)
+                {
+                    // Copy collision mesh and warp to road curves
+                    var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
+                    collisionMesh.tag = "Generated";
+                    WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
+
+                    // Create collider for new mesh
+                    var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
+                    collider.sharedMesh = collisionMesh.sharedMesh;
+                }
+                else if (firstMeshFilter != null)
+                {
+                    // Create a mesh collider based on the first mesh (which should be in LOD0)
+                    var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
+                    collider.sharedMesh = firstMeshFilter.sharedMesh;
+                }
+
+                meshZOffset += Mathf.Max(firstMeshLength, 1.0f);
             }
             else
             {
@@ -256,6 +283,7 @@ public class CurveBasedRoad : MonoBehaviour {
         var support = Instantiate(mesh, gameObject.transform, false);
         support.tag = "Generated";
         support.name += " Curves[" + seg.CurveIndex + "]";
+        support.gameObject.isStatic = true;
 
         // Calculate support position
         Vector3 segPos = new Vector3(x, 0.0f, z - segIndex * SegmentLength);                            // Position in segment space
