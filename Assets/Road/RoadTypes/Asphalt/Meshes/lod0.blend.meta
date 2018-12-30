@@ -1,22 +1,28 @@
 fileFormatVersion: 2
-guid: 6bc44c0e8601a464bb2628c27753182a
+guid: a06d8e1e4d4c1e84bb1c463db6ecf122
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: Metal
+    2100000: Pavement
+    2100002: Asphalt
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Cylinder
+    4300000: Cube_001
     7400000: Default Take
     9500000: //RootNode
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Metal
-    second: {fileID: 2100000, guid: 3186913db4d29db4a902edb9c7ffafd5, type: 2}
+      name: Asphalt
+    second: {fileID: 2100000, guid: 1c8d1f7ea236e6f4197a1f9c63519fb7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pavement
+    second: {fileID: 2100000, guid: e01c652f54dc547448ff7c042b264248, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -52,7 +58,7 @@ ModelImporter:
     addColliders: 0
     importVisibility: 1
     importBlendShapes: 1
-    importCameras: 1
+    importCameras: 0
     importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 1
