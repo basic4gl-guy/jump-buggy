@@ -9,6 +9,9 @@ Assets/AssetStoreTools*
 Assets/ErosionBrush
 Assets/ErosionBrush.*
 
+# Exclude generated lighting
+Assets/Scenes/BigFastJumps/
+
 # Visual Studio cache directory
 .vs/
 
