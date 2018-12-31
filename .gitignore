@@ -10,7 +10,8 @@ Assets/ErosionBrush
 Assets/ErosionBrush.*
 
 # Exclude generated lighting
-Assets/Scenes/BigFastJumps/
+Assets/Scenes/Tracks/BigFastJumps/
+Assets/Scenes/Tracks/DesertRollercoaster/
 
 # Visual Studio cache directory
 .vs/
