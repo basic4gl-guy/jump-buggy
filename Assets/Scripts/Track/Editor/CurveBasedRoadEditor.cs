@@ -1,6 +1,6 @@
-﻿#if UNITY_EDITOR    
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [CustomEditor(typeof(CurveBasedRoad))]
 public class CurveBasedRoadEditor : Editor {
@@ -33,5 +33,3 @@ public class CurveBasedRoadEditor : Editor {
         }
     }
 }
-
-#endif
