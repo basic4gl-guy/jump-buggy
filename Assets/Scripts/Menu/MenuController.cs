@@ -21,6 +21,11 @@ public class MenuController : MonoBehaviour {
     private float angle = 0.0f;
     private bool isUIEnabled = true;
 
+    // Key states
+    private bool wasKeyLeftDown = false;
+    private bool wasKeyRightDown = false;
+    private bool wasKeySpaceDown = false;
+
 	// Use this for initialization
 	void Start () {
         DisplaySelectedTrack();
@@ -35,7 +40,20 @@ public class MenuController : MonoBehaviour {
         var track = TrackOverviews[trackIndex];
         var existingAngles = track.Model.transform.rotation.eulerAngles;
         track.Model.transform.localRotation = Quaternion.Euler(existingAngles.x, angle, existingAngles.z);
-	}
+
+        // Keyboard input
+        bool keyLeftDown = Input.GetKey(KeyCode.LeftArrow);
+        if (keyLeftDown && !wasKeyLeftDown) ShowPrevTrack();
+        wasKeyLeftDown = keyLeftDown;
+
+        bool keyRightDown = Input.GetKey(KeyCode.RightArrow);
+        if (keyRightDown && !wasKeyRightDown) ShowNextTrack();
+        wasKeyRightDown = keyRightDown;
+
+        bool keySpaceDown = Input.GetKey(KeyCode.Space);
+        if (keySpaceDown && !wasKeySpaceDown) GoRace();
+        wasKeySpaceDown = keySpaceDown;
+    }
 
     public void ShowNextTrack()
     {
