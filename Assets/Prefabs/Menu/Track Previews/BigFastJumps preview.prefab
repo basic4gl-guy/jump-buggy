@@ -1,0 +1,295 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1038846260278644}
+  m_IsPrefabAsset: 1
+--- !u!1 &1038846260278644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4760653640545400}
+  - component: {fileID: 114821424150565644}
+  m_Layer: 0
+  m_Name: BigFastJumps preview
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4760653640545400
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1038846260278644}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114821424150565644
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1038846260278644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5159bd810dfb17e4baf3c9b15152b6a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SegmentLength: 0.25
+  MeshScale: 3
+  CollisionMesh: {fileID: 0}
+  PreviewMesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+  OverrideMesh: {fileID: 0}
+  Supports: []
+  Curves:
+  - Length: 300
+    Angles: {x: 0, y: 90, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: -15, y: 0, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: -15, y: -90, z: 45}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: -15, y: 0, z: 45}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: -90, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 200
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: 45, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 180
+    Angles: {x: -45, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: 45, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: 0, y: 45, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 30
+    Angles: {x: 0, y: 0, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: -60, z: 50}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: -60, z: 50}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: -60, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 150
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 50
+    Angles: {x: -5, y: 0, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -5, y: -180, z: 45}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -5, y: -180, z: 45}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -5, y: -180, z: 45}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -5, y: -180, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 50
+    Angles: {x: 10, y: 0, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: 25, y: -45, z: 30}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 50
+    Angles: {x: 10, y: 0, z: 10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 250
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 45
+    Angles: {x: -45, y: 7.5, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 45
+    Angles: {x: -90, y: 7.5, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -180, y: 15, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 90
+    Angles: {x: -270, y: -15, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 45
+    Angles: {x: 45, y: -7.5, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 45
+    Angles: {x: 0, y: -7.5, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: 0, z: -10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: 0, y: 85, z: -50}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: 0, y: 85, z: -50}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 200
+    Angles: {x: -25, y: 10, z: 25}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 200
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 60
+    Angles: {x: 0, y: 0, z: -15}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 120
+    Angles: {x: 0, y: 135, z: -60}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 250
+    Angles: {x: 25, y: 135, z: -15}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 112
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 30
+    Angles: {x: 0, y: 0, z: -10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 50
+    Angles: {x: 0, y: 60, z: -60}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 42.25
+    Angles: {x: 0, y: 60, z: -60}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 50
+    Angles: {x: 0, y: 60, z: -10}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 30
+    Angles: {x: -21.075, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1
+  - Length: 170
+    Angles: {x: 0, y: 0, z: 0}
+    Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
+    LODGroup: {fileID: 0}
+    SupportIndex: -1

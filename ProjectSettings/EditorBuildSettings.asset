@@ -8,13 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Menus/Main Menu.unity
     guid: 6ac153febfa823f439fbd328e6a2c648
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Tracks/JumpAndLoop.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Tracks/DesertRollercoaster.unity
     guid: 0221b11aefbbafa4592b3381a4576572
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Tracks/BigFastJumps.unity
     guid: 2d7e48bb77427664fa5d222799d47376
   m_configObjects: {}
