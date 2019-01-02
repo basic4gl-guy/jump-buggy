@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CurveBasedRoad : MonoBehaviour {
 
@@ -11,6 +12,9 @@ public class CurveBasedRoad : MonoBehaviour {
     public float MeshScale = 1.0f;
     public MeshFilter CollisionMesh;
 
+    [Header("Preview")]
+    public MeshFilter PreviewMesh;
+
     [Header("Debugging")]
     public MeshFilter OverrideMesh;
 
@@ -18,10 +22,8 @@ public class CurveBasedRoad : MonoBehaviour {
     public Support[] Supports;
     public Curve[] Curves = { new Curve { Length = 10.0f } };
 
-    // Use this for initialization
     void Start ()
     {
-        //RebuildMeshes();
     }
 
     public void RebuildMeshes()
@@ -32,6 +34,30 @@ public class CurveBasedRoad : MonoBehaviour {
         BuildSupportMeshes(segments);
     }
 
+    /// <summary>
+    /// Create copy of road to display as preview in menu screen
+    /// </summary>
+    public CurveBasedRoad CreatePreviewCopy()
+    {
+        var copyObject = new GameObject();
+        copyObject.isStatic = false;
+        var copy = copyObject.AddComponent<CurveBasedRoad>();
+        copy.SegmentLength = SegmentLength;
+        copy.PreviewMesh = PreviewMesh;
+        copy.MeshScale = MeshScale;
+        copy.Curves = this.Curves.Select(c => new Curve
+            {
+                Length = c.Length,
+                Angles = c.Angles,
+                SupportIndex = -1,
+                Mesh = c.Mesh != null || c.LODGroup != null ? PreviewMesh : null
+            }).ToArray();
+
+        copy.gameObject.name = SceneManager.GetActiveScene().name + " preview";
+
+        return copy;
+    }
+
     public override int GetHashCode()
     {
         return Util.GetHash(
@@ -40,7 +66,7 @@ public class CurveBasedRoad : MonoBehaviour {
             Util.GetArrayHash(Curves));
     }
 
-    private void DeleteMeshes()
+    public void DeleteMeshes()
     {
         var children = GetComponentsInChildren<Transform>().Where(t => t.tag == "Generated").ToArray();
         foreach (var child in children)
@@ -83,7 +109,7 @@ public class CurveBasedRoad : MonoBehaviour {
                 var meshFilter = Instantiate(OverrideMesh != null ? OverrideMesh : seg.Mesh, gameObject.transform, false);
                 meshFilter.tag = "Generated";
                 meshFilter.name += " Curves[" + seg.CurveIndex + "]";
-                meshFilter.gameObject.isStatic = true;
+                meshFilter.gameObject.isStatic = gameObject.isStatic;
 
                 // Warp mesh around road cuves
                 float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
@@ -117,7 +143,7 @@ public class CurveBasedRoad : MonoBehaviour {
                 var lodGroup = Instantiate(seg.LODGroup, gameObject.transform, false);
                 lodGroup.tag = "Generated";
                 lodGroup.name += " Curves[" + seg.CurveIndex + "]";
-                lodGroup.gameObject.isStatic = true;
+                lodGroup.gameObject.isStatic = gameObject.isStatic;
 
                 // Position LOD group at segment position.
                 // Actual position doesn't really matter, because we transform all the vertices
@@ -197,7 +223,7 @@ public class CurveBasedRoad : MonoBehaviour {
         // mesh instance position close to where the vertices are.
         meshFilter.transform.position = seg.Position;
         meshFilter.transform.rotation = Quaternion.Euler(seg.Direction);
-        Matrix4x4 worldToMesh = meshFilter.transform.localToWorldMatrix.inverse;        // To convert back to meshFilter space once world space position has been calculated.
+        Matrix4x4 worldToMesh =  meshFilter.transform.localToWorldMatrix.inverse * meshFilter.transform.parent.localToWorldMatrix;      // To convert back to meshFilter space once world space position has been calculated.
 
         // Find length of mesh            
         float meshMaxZ = mesh.vertices.Max(v => meshTransform.MultiplyPoint(v).z);
@@ -283,7 +309,7 @@ public class CurveBasedRoad : MonoBehaviour {
         var support = Instantiate(mesh, gameObject.transform, false);
         support.tag = "Generated";
         support.name += " Curves[" + seg.CurveIndex + "]";
-        support.gameObject.isStatic = true;
+        support.gameObject.isStatic = gameObject.isStatic;
 
         // Calculate support position
         Vector3 segPos = new Vector3(x, 0.0f, z - segIndex * SegmentLength);                            // Position in segment space
@@ -314,14 +340,14 @@ public class CurveBasedRoad : MonoBehaviour {
             }
         }
 
-        support.transform.position = new Vector3(worldPos.x, minY, worldPos.z);
+        support.transform.localPosition = new Vector3(worldPos.x, minY, worldPos.z);
     }
 
     private IEnumerable<Segment> GetSegments(float segmentLength)
     {
         // Walk along curve in world space
-        Vector3 pos = gameObject.transform.position;
-        Vector3 dir = gameObject.transform.rotation.eulerAngles;
+        Vector3 pos = Vector3.zero;
+        Vector3 dir = Vector3.forward;
 
         for (int i = 0; i < Curves.Length; i++)
         {
