@@ -8,6 +8,9 @@ public class CurveBasedRoadEditor : Editor {
     {
         CurveBasedRoad road = ((CurveBasedRoad)target);
         DrawDefaultInspector();
+
+        GUILayout.Space(20);
+
         if (GUILayout.Button("Update road"))
         {
             road.RebuildMeshes();
@@ -26,7 +29,7 @@ public class CurveBasedRoadEditor : Editor {
         {
             if (EditorUtility.DisplayDialog("Confirm override", "Really override all meshes all corners?", "Override", "Cancel"))
                 foreach (var curve in road.Curves)
-                    if (curve.Mesh != null || curve.LODGroup != null)           // (Don't set mesh on jumps)
+                    if (!curve.IsJump)
                         curve.Mesh = road.OverrideMesh;
         }
         if (GUILayout.Button("Clear meshes"))

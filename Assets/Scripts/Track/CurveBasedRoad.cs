@@ -22,8 +22,24 @@ public class CurveBasedRoad : MonoBehaviour {
     public Support[] Supports;
     public Curve[] Curves = { new Curve { Length = 10.0f } };
 
+    [Header("Runtime")]
+    public float RespawnHeight = 0.75f;
+
+    // Runtime info
+    [HideInInspector]
+    public CurveRuntimeInfo[] CurveInfos;
+
+    public static CurveBasedRoad Instance;
+
     void Start ()
     {
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     public void RebuildMeshes()
@@ -32,6 +48,7 @@ public class CurveBasedRoad : MonoBehaviour {
         var segments = this.GetSegments(SegmentLength).ToList();
         BuildRoadMeshes(segments);
         BuildSupportMeshes(segments);
+        BuildCurveRuntimeInfo(segments);
     }
 
     /// <summary>
@@ -128,6 +145,13 @@ public class CurveBasedRoad : MonoBehaviour {
                 else
                     meshFilter.gameObject.AddComponent<MeshCollider>();     // Add a default mesh collider. It will use the rendered mesh.
 
+                // Add RoadMeshInfo linking mesh back to generating curve(s)
+                int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
+                Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                var roadInfo = meshFilter.gameObject.AddComponent<RoadMeshInfo>();
+                roadInfo.StartCurveIndex = seg.CurveIndex;
+                roadInfo.EndCurveIndex = endSeg.CurveIndex;
+
                 // Move forward to next mesh
                 meshZOffset += meshLength;
             }
@@ -200,7 +224,16 @@ public class CurveBasedRoad : MonoBehaviour {
                     collider.sharedMesh = firstMeshFilter.sharedMesh;
                 }
 
-                meshZOffset += Mathf.Max(firstMeshLength, 1.0f);
+                firstMeshLength = Mathf.Max(firstMeshLength, 1.0f);
+
+                // Add RoadMeshInfo linking LOD group back to generating curve(s)
+                int endSegIndex = Mathf.FloorToInt((meshZOffset + firstMeshLength) / SegmentLength - 0.00001f);
+                Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                var roadInfo = lodGroup.gameObject.AddComponent<RoadMeshInfo>();
+                roadInfo.StartCurveIndex = seg.CurveIndex;
+                roadInfo.EndCurveIndex = endSeg.CurveIndex;
+
+                meshZOffset += firstMeshLength;
             }
             else
             {
@@ -343,6 +376,51 @@ public class CurveBasedRoad : MonoBehaviour {
         support.transform.localPosition = new Vector3(worldPos.x, minY, worldPos.z);
     }
 
+    private void BuildCurveRuntimeInfo(List<Segment> segments)
+    {
+        // Runtime info for determining player progress along track, detecting when they've fallen off and respawning them.
+        CurveInfos = new CurveRuntimeInfo[Curves.Length];
+        int curveStartSeg = 0;
+        for (int i = 0; i < Curves.Length; i++)
+        {
+            var curve = Curves[i];
+
+            // Find end of curve
+            int curveEndSeg = curveStartSeg;
+            while (curveEndSeg < segments.Count() && segments[curveEndSeg].CurveIndex <= i)
+                curveEndSeg++;
+
+            // Find middle segment for sampling normal.
+            // Choose respawn segment. Ideally 2 meters from the start of the curve (so that vehicle is fully above the curve)
+            // but no further forward than the middle segment
+            int midSeg = (curveStartSeg + curveEndSeg) / 2;
+            int respawnSeg = Math.Min(curveStartSeg + Mathf.CeilToInt(2.0f / SegmentLength), midSeg);
+
+            // Calculate normal in road local space
+            Vector3 normal = segments[midSeg].GetTransform(0.0f).MultiplyVector(Vector3.up);
+
+            // Calculate respawn point and direction vectors in road local space
+            Matrix4x4 respawnTransform = segments[respawnSeg].GetTransform(0.0f);
+            Vector3 respawn = respawnTransform.MultiplyPoint(new Vector3(0.0f, RespawnHeight, 0.0f));
+            Vector3 respawnForward = respawnTransform.MultiplyVector(Vector3.forward);
+            Vector3 respawnUp = respawnTransform.MultiplyVector(Vector3.up);
+
+            // Write curve info in world space
+            Matrix4x4 localToWorld = transform.localToWorldMatrix;
+            CurveInfos[i] = new CurveRuntimeInfo
+            {
+                Normal = localToWorld.MultiplyVector(normal).normalized,
+                RespawnPosition = localToWorld.MultiplyPoint(respawn),
+                RespawnRotation = Quaternion.LookRotation(
+                    localToWorld.MultiplyVector(respawnForward).normalized,
+                    localToWorld.MultiplyVector(respawnUp).normalized)
+            };
+
+            // Setup for next curve
+            curveStartSeg = curveEndSeg;
+        }
+    }
+
     private IEnumerable<Segment> GetSegments(float segmentLength)
     {
         // Walk along curve in world space
@@ -413,6 +491,25 @@ public class CurveBasedRoad : MonoBehaviour {
         public MeshFilter Mesh;
         public LODGroup LODGroup;
         public int SupportIndex = -1;
+        public bool CanRespawn = true;
+
+        public bool IsJump
+        {
+            get { return Mesh == null && LODGroup == null; }        // A curve is a "jump" if it has no associated meshes
+        }
+
+        public bool CanSpawnPlayer
+        {
+            get { return !IsJump && CanRespawn; }                   
+        }
+    }
+
+    [Serializable]
+    public class CurveRuntimeInfo
+    {
+        public Vector3 Normal;
+        public Vector3 RespawnPosition;
+        public Quaternion RespawnRotation;
     }
 
     [Serializable]
