@@ -114,7 +114,7 @@ public class RoadProgressTracker : MonoBehaviour {
         // Update lap times
         LastLapTime = CurrentLapTime;
         CurrentLapTime = 0.0f;
-        if (BestLapTime == 0.0f || CurrentLapTime < BestLapTime)
-            BestLapTime = CurrentLapTime;
+        if (BestLapTime == 0.0f || LastLapTime < BestLapTime)
+            BestLapTime = LastLapTime;
     }
 }
