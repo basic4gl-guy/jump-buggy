@@ -4569,7 +4569,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114643924821447650}
         m_MethodName: ResetCar
         m_Mode: 1
         m_Arguments:
@@ -4952,7 +4952,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114643924821447650}
         m_MethodName: MainMenu
         m_Mode: 1
         m_Arguments:
@@ -5536,7 +5536,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114643924821447650}
         m_MethodName: RestartLevel
         m_Mode: 1
         m_Arguments:
