@@ -2,7 +2,7 @@
 
 "Jump Buggy" (for lack of a better working title) is the result of me obtaining an Oculus Go, and wanting to play something like the classic "Stunt Car Racer" in VR.
 
-The result is a Unity3D script that warps 3D meshes around a sequence of curves to generate a smooth racing track, which combines with the Unity3D example car controller to produce gameplay not unlike the original Stunt Car Racer.
+The result is a Unity3D script that warps 3D meshes around a sequence of curves to generate a smooth racing track combined with the Unity3D example car controller.
 
 ![Jump buggy in Oculus Go](Documentation/Screenshots/desert3.jpg)
 
@@ -10,9 +10,7 @@ People have expressed interest in this project and building it out into somethin
 
 # Current state
 
-Currently the game is just a tech demo. There are two tracks, each stored in a separate Unity scene (in the "Assets\Scenes" folder), which you can run to play the different tracks. Or you can build a release for the Oculus Go containing the scene you want to play in VR.
-
-Note that there's no gameplay logic at all, so if you fall off the track, you usually have to exit and restart the game.
+Currently the game is just mainly a tech demo. There are three tracks, each stored in a separate Unity scene (in the "Assets\Scenes\Tracks" folder), and a track selection scene (Assets\Scenes\Menus). There are no AI cars or multiplayer, so all you can do is drive on the tracks and attempt to improve your best lap times.
 
 In theory it should also be playable on any Unity supported platform, with a little bit of work on the input code.
 
