@@ -86,25 +86,7 @@ public class MenuController : MonoBehaviour {
         if (!IsUIEnabled) return;
         isUIEnabled = false;                        // Disable UI while fadeout is playing
         var track = TrackOverviews[trackIndex];
-        StartCoroutine(FadeOutThenLoadTrack(track));
-    }
-
-    private IEnumerator FadeOutThenLoadTrack(TrackOverview track)
-    {
-        // Perform fadeout
-        if (Fade != null)
-        {
-            float elapsedTime = 0.0f;
-            while (elapsedTime < Fade.fadeTime)
-            {
-                elapsedTime += Time.deltaTime;
-                Fade.SetFadeLevel(Mathf.Clamp01(elapsedTime / Fade.fadeTime));
-                yield return new WaitForEndOfFrame();
-            }
-        }
-
-        // Load selected track
-        SceneManager.LoadScene(track.SceneName);
+        StartCoroutine(CoroutineUtils.FadeOut().Then(() => SceneManager.LoadScene(track.SceneName)));
     }
 
     private void DisplaySelectedTrack()

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -24,6 +25,8 @@ public class RoadProgressTracker : MonoBehaviour {
     public float LastLapTime = 0.0f;
     public float BestLapTime = 0.0f;
     public float CurrentLapTime = 0.0f;
+
+    private bool isPuttingCarOnRoad = false;
 
 	void Start () {
         carBody = GetComponent<Rigidbody>();
@@ -73,14 +76,29 @@ public class RoadProgressTracker : MonoBehaviour {
         {
             offRoadTimer += Time.fixedDeltaTime;
             if (offRoadTimer > OffRoadTimeout)
-                PutCarOnRoad();
+                StartCoroutine(PutCarOnRoadWithFade());
         }
 
         // Update lap timer
         CurrentLapTime += Time.fixedDeltaTime;
 	}
 
-    private void PutCarOnRoad()
+    public IEnumerator PutCarOnRoadWithFade()
+    {
+        // Abort if already in the process of placing the car on the road
+        if (isPuttingCarOnRoad)
+            return CoroutineUtils.EmptyCoroutine();
+
+        isPuttingCarOnRoad = true;
+        return CoroutineUtils.FadeOut()
+            .Then(() => {
+                PutCarOnRoad();
+                isPuttingCarOnRoad = false;
+            })
+            .Then(CoroutineUtils.FadeIn());
+    }
+
+    public void PutCarOnRoad()
     {
         var road = CurveBasedRoad.Instance;
 
