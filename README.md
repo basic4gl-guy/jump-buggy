@@ -58,11 +58,9 @@ And other platforms have been completely neglected.
 
 ## Gameplay
 
-Track player progress along the track. Detect and count laps.
-
-Place player back on the track when they fall off.
-
-## Track selector
+* AI?
+* Multiplayer?
+* Career mode :) ?
 
 ## Create more tracks
 
