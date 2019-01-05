@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class CurveBasedRoad : MonoBehaviour {
 
+    public RoadType Type = RoadType.Game;
+
     [Header("Generation")]
     public float SegmentLength = 0.25f;
     public float MeshScale = 1.0f;
@@ -59,6 +61,7 @@ public class CurveBasedRoad : MonoBehaviour {
         var copyObject = new GameObject();
         copyObject.isStatic = false;
         var copy = copyObject.AddComponent<CurveBasedRoad>();
+        copy.Type = RoadType.MenuPreview;
         copy.SegmentLength = SegmentLength;
         copy.PreviewMesh = PreviewMesh;
         copy.MeshScale = MeshScale;
@@ -131,26 +134,30 @@ public class CurveBasedRoad : MonoBehaviour {
                 // Warp mesh around road cuves
                 float meshLength = WarpMeshToRoadCurves(segments, meshFilter, meshZOffset, meshTransform);
 
-                // Create collision mesh
-                if (CollisionMesh != null)
+                // Add gameplay content
+                if (Type == RoadType.Game)
                 {
-                    // Copy collision mesh and warp to road curves
-                    var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
-                    WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
+                    // Create collision mesh
+                    if (CollisionMesh != null)
+                    {
+                        // Copy collision mesh and warp to road curves
+                        var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
+                        WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
 
-                    // Create collider for new mesh
-                    var collider = meshFilter.gameObject.AddComponent<MeshCollider>();
-                    collider.sharedMesh = collisionMesh.sharedMesh;
+                        // Create collider for new mesh
+                        var collider = meshFilter.gameObject.AddComponent<MeshCollider>();
+                        collider.sharedMesh = collisionMesh.sharedMesh;
+                    }
+                    else
+                        meshFilter.gameObject.AddComponent<MeshCollider>();     // Add a default mesh collider. It will use the rendered mesh.
+
+                    // Add RoadMeshInfo linking mesh back to generating curve(s)
+                    int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
+                    Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                    var roadInfo = meshFilter.gameObject.AddComponent<RoadMeshInfo>();
+                    roadInfo.StartCurveIndex = seg.CurveIndex;
+                    roadInfo.EndCurveIndex = endSeg.CurveIndex;
                 }
-                else
-                    meshFilter.gameObject.AddComponent<MeshCollider>();     // Add a default mesh collider. It will use the rendered mesh.
-
-                // Add RoadMeshInfo linking mesh back to generating curve(s)
-                int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
-                Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
-                var roadInfo = meshFilter.gameObject.AddComponent<RoadMeshInfo>();
-                roadInfo.StartCurveIndex = seg.CurveIndex;
-                roadInfo.EndCurveIndex = endSeg.CurveIndex;
 
                 // Move forward to next mesh
                 meshZOffset += meshLength;
@@ -205,33 +212,36 @@ public class CurveBasedRoad : MonoBehaviour {
                 // Assign LODs to new group
                 lodGroup.SetLODs(lods);
 
-                // Create collision mesh
-                if (CollisionMesh != null)
-                {
-                    // Copy collision mesh and warp to road curves
-                    var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
-                    collisionMesh.tag = "Generated";
-                    WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
-
-                    // Create collider for new mesh
-                    var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
-                    collider.sharedMesh = collisionMesh.sharedMesh;
-                }
-                else if (firstMeshFilter != null)
-                {
-                    // Create a mesh collider based on the first mesh (which should be in LOD0)
-                    var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
-                    collider.sharedMesh = firstMeshFilter.sharedMesh;
-                }
-
+                // Add gameplay content
                 firstMeshLength = Mathf.Max(firstMeshLength, 1.0f);
+                if (Type == RoadType.Game)
+                {
+                    // Create collision mesh
+                    if (CollisionMesh != null)
+                    {
+                        // Copy collision mesh and warp to road curves
+                        var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
+                        collisionMesh.tag = "Generated";
+                        WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
 
-                // Add RoadMeshInfo linking LOD group back to generating curve(s)
-                int endSegIndex = Mathf.FloorToInt((meshZOffset + firstMeshLength) / SegmentLength - 0.00001f);
-                Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
-                var roadInfo = lodGroup.gameObject.AddComponent<RoadMeshInfo>();
-                roadInfo.StartCurveIndex = seg.CurveIndex;
-                roadInfo.EndCurveIndex = endSeg.CurveIndex;
+                        // Create collider for new mesh
+                        var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
+                        collider.sharedMesh = collisionMesh.sharedMesh;
+                    }
+                    else if (firstMeshFilter != null)
+                    {
+                        // Create a mesh collider based on the first mesh (which should be in LOD0)
+                        var collider = lodGroup.gameObject.AddComponent<MeshCollider>();
+                        collider.sharedMesh = firstMeshFilter.sharedMesh;
+                    }
+
+                    // Add RoadMeshInfo linking LOD group back to generating curve(s)
+                    int endSegIndex = Mathf.FloorToInt((meshZOffset + firstMeshLength) / SegmentLength - 0.00001f);
+                    Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                    var roadInfo = lodGroup.gameObject.AddComponent<RoadMeshInfo>();
+                    roadInfo.StartCurveIndex = seg.CurveIndex;
+                    roadInfo.EndCurveIndex = endSeg.CurveIndex;
+                }
 
                 meshZOffset += firstMeshLength;
             }
@@ -519,6 +529,12 @@ public class CurveBasedRoad : MonoBehaviour {
         public float Spacing;
         public float HorizontalSpacing;
         public float Radius;
+    }
+
+    public enum RoadType
+    {
+        Game,
+        MenuPreview
     }
 
     private class Segment

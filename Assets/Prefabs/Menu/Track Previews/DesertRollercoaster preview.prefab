@@ -51,11 +51,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5159bd810dfb17e4baf3c9b15152b6a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Type: 1
   SegmentLength: 0.25
-  MeshScale: 3
+  MeshScale: 7
   CollisionMesh: {fileID: 0}
   PreviewMesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
-  OverrideMesh: {fileID: 0}
+  OverrideMesh: {fileID: 3300000, guid: a29fd2fe442542c47b72eb67c1900171, type: 3}
   Supports: []
   Curves:
   - Length: 60
@@ -63,323 +64,586 @@ MonoBehaviour:
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 60, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 0, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 45
     Angles: {x: 0, y: -45, z: 45}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 0, y: -60, z: 45}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 45
     Angles: {x: 0, y: -45, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: -60, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: -60, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 25
     Angles: {x: 30, y: 0, z: 0}
     Mesh: {fileID: 0}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 25
     Angles: {x: -30, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 0, y: 0, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 0, y: -30, z: 20}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 0, y: -30, z: 20}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 0, y: -30, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 60, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 70, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: -45, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 90
     Angles: {x: 10, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 30, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 0, z: 15}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: -50, z: 40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: -60, z: 40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: -50, z: 15}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: -45, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: -10, y: 0, z: 0}
     Mesh: {fileID: 0}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 10, y: 0, z: -10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 20, y: 40, z: -30}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 20, y: 40, z: -30}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 20, y: 40, z: -10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 5, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 40
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 55
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 15
     Angles: {x: -40, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 25
     Angles: {x: -40, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 100
     Angles: {x: 40, y: 0, z: 0}
     Mesh: {fileID: 0}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 40
     Angles: {x: 30, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 70
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: -15, y: 0, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 75
     Angles: {x: -20, y: -90, z: 20}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 75
     Angles: {x: -15, y: -90, z: 20}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 75
     Angles: {x: 0, y: -80, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 35
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 15
     Angles: {x: 30, y: 0, z: 0}
     Mesh: {fileID: 0}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 15
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 0}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 50
     Angles: {x: 0, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 10, y: 0, z: 10}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 45
     Angles: {x: 20, y: -45, z: 40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 45
     Angles: {x: 25, y: -45, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 10, y: 45, z: -45}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 45
     Angles: {x: 5, y: 80, z: -45}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: 0, y: 40, z: -40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 60
     Angles: {x: -5, y: 0, z: -40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 100
     Angles: {x: 0, y: 0, z: -40}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 45, z: -50}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 30
     Angles: {x: 0, y: 45, z: -25}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 90
     Angles: {x: 2.2, y: 0, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 25.5
     Angles: {x: 0, y: 0, z: 5}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 10, y: -25, z: 5}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
   - Length: 20
     Angles: {x: 0, y: -20, z: 0}
     Mesh: {fileID: 3300000, guid: 82cb0216846ed314299eaa26f1ec159d, type: 3}
     LODGroup: {fileID: 0}
     SupportIndex: -1
+    CanRespawn: 1
+  RespawnHeight: 0.75
+  CurveInfos:
+  - Normal: {x: -0.008726542, y: 0.9999619, z: 0}
+    RespawnPosition: {x: -0.000024590421, y: 1.0176394, z: 0.38088685}
+    RespawnRotation: {x: 0, y: 0, z: 0.008435658, w: 0.9999644}
+  - Normal: {x: -0.000000011866852, y: 1, z: 0.000000006851333}
+    RespawnPosition: {x: 0.000118675795, y: 1.0176396, z: 0.4974907}
+    RespawnRotation: {x: 2.3910798e-10, y: 0.034899488, z: 0.0000000068471584, w: 0.99939084}
+  - Normal: {x: -0.0000000068513306, y: 1, z: 0.000000011866856}
+    RespawnPosition: {x: 0.0309933, y: 1.0176396, z: 0.5438875}
+    RespawnRotation: {x: 0.0000000034256658, y: 0.49999994, z: 0.000000005933428,
+      w: 0.86602545}
+  - Normal: {x: -0.043577857, y: 0.99619466, z: 0.0754791}
+    RespawnPosition: {x: 0.1319692, y: 1.0176395, z: 0.6022054}
+    RespawnRotation: {x: 0.0029088682, y: 0.49999148, z: 0.0050383084, w: 0.8660108}
+  - Normal: {x: -0.36632994, y: 0.8870107, z: 0.2810949}
+    RespawnPosition: {x: 0.1822849, y: 1.0176101, z: 0.63164103}
+    RespawnRotation: {x: 0.048805982, y: 0.48234665, z: 0.088048354, w: 0.87017655}
+  - Normal: {x: -0.68301153, y: 0.70710796, z: -0.18301247}
+    RespawnPosition: {x: 0.2310767, y: 1.0172127, z: 0.7008997}
+    RespawnRotation: {x: 0.04332091, y: 0.10458617, z: 0.38022277, w: 0.91794103}
+  - Normal: {x: -0.14644599, y: 0.92388016, z: -0.353552}
+    RespawnPosition: {x: 0.19907953, y: 1.017248, z: 0.8064973}
+    RespawnRotation: {x: -0.14614172, y: -0.3710032, z: 0.3361029, w: 0.85324913}
+  - Normal: {x: 0.49999988, y: 0.8660255, z: 0.00000040233138}
+    RespawnPosition: {x: 0.12009902, y: 1.0177548, z: 0.8373038}
+    RespawnRotation: {x: -0.024677418, y: -0.70667607, z: -0.02467794, w: 0.706676}
+  - Normal: {x: 0.8660253, y: 0.5000001, z: 0}
+    RespawnPosition: {x: 0.07486301, y: 1.0479041, z: 0.8373038}
+    RespawnRotation: {x: -0.3535534, y: -0.61237234, z: -0.35355347, w: 0.61237246}
+  - Normal: {x: 0.49999985, y: 0.8660255, z: 0}
+    RespawnPosition: {x: 0.01640441, y: 1.1489133, z: 0.8373038}
+    RespawnRotation: {x: -0.33196658, y: -0.62433827, z: -0.3319666, w: 0.6243382}
+  - Normal: {x: 0, y: 1, z: -9.643257e-13}
+    RespawnPosition: {x: -0.034740526, y: 1.1742992, z: 0.8373038}
+    RespawnRotation: {x: -3.409406e-13, y: -0.7071067, z: 3.4094063e-13, w: 0.7071068}
+  - Normal: {x: -0.2588191, y: 0.96592575, z: 0}
+    RespawnPosition: {x: -0.13197264, y: 1.1742266, z: 0.8373038}
+    RespawnRotation: {x: 0.014808529, y: -0.7069517, z: 0.01480853, w: 0.70695174}
+  - Normal: {x: 0.00000041195761, y: 1, z: -9.663381e-13}
+    RespawnPosition: {x: -0.17850909, y: 1.1600318, z: 0.8373038}
+    RespawnRotation: {x: 0.1542504, y: -0.69007736, z: 0.15425041, w: 0.6900774}
+  - Normal: {x: 0.25783446, y: 0.9622501, z: -0.08715572}
+    RespawnPosition: {x: -0.22352442, y: 1.1634808, z: 0.83729535}
+    RespawnRotation: {x: -0.1790362, y: -0.6840658, z: -0.17505346, w: 0.68509585}
+  - Normal: {x: 0.066987425, y: 0.9659258, z: -0.25}
+    RespawnPosition: {x: -0.33603933, y: 1.191677, z: 0.8369371}
+    RespawnRotation: {x: -0.06952416, y: -0.7220349, z: 0.065975785, w: 0.68518555}
+  - Normal: {x: 0.24184471, y: 0.9396926, z: -0.24184477}
+    RespawnPosition: {x: -0.37236673, y: 1.1916158, z: 0.825042}
+    RespawnRotation: {x: 0.15260503, y: 0.86546594, z: -0.08285774, w: -0.46990958}
+  - Normal: {x: 0.24999997, y: 0.9659258, z: -0.066987336}
+    RespawnPosition: {x: -0.3980211, y: 1.1916243, z: 0.7967726}
+    RespawnRotation: {x: 0.16048732, y: 0.95903444, z: -0.038529597, w: -0.23024383}
+  - Normal: {x: 0.0871558, y: 0.8627299, z: -0.49809733}
+    RespawnPosition: {x: -0.40641707, y: 1.1915, z: 0.7592815}
+    RespawnRotation: {x: 0.078351565, y: 0.9955511, z: -0.05217463, w: 0.0041062753}
+  - Normal: {x: 0.00000011252147, y: 0.42261732, z: -0.90630823}
+    RespawnPosition: {x: -0.4066451, y: 1.1692487, z: 0.7278464}
+    RespawnRotation: {x: 0.000000036356234, y: 0.8645673, z: -0.5025171, w: 0.00000004615571}
+  - Normal: {x: 0.000000052211224, y: 0.97629607, z: -0.21643932}
+    RespawnPosition: {x: -0.4066451, y: 1.0633466, z: 0.67902315}
+    RespawnRotation: {x: 0.000000037806434, y: 0.83787864, z: -0.5458566, w: 0.00000004571048}
+  - Normal: {x: 0.0000000070011184, y: 0.95371747, z: 0.30070418}
+    RespawnPosition: {x: -0.4066451, y: 1.048534, z: 0.58444273}
+    RespawnRotation: {x: -8.51081e-10, y: 0.927909, z: 0.37280682, w: 0.000000034354912}
+  - Normal: {x: 0.000000063189894, y: 0.9396924, z: -0.34202075}
+    RespawnPosition: {x: -0.4066451, y: 1.0963061, z: 0.42169586}
+    RespawnRotation: {x: 0.000000020684505, y: 0.99556196, z: -0.094108775, w: 0.00000004508381}
+  - Normal: {x: 0.13052621, y: 0.95766187, z: -0.25660598}
+    RespawnPosition: {x: -0.40661964, y: 1.0619806, z: 0.3308354}
+    RespawnRotation: {x: 0.008467342, y: 0.97025865, z: -0.24191336, w: 0.0021111914}
+  - Normal: {x: 0.41848585, y: 0.8870106, z: 0.19514559}
+    RespawnPosition: {x: -0.40612882, y: 1.0489422, z: 0.27541128}
+    RespawnRotation: {x: 0.14487055, y: 0.9890231, z: 0.0042151012, w: 0.028777972}
+  - Normal: {x: 0.11161217, y: 0.7660445, z: 0.6330233}
+    RespawnPosition: {x: -0.37936297, y: 1.0486624, z: 0.226358}
+    RespawnRotation: {x: 0.30474135, y: 0.83727, z: 0.15527551, w: 0.42661598}
+  - Normal: {x: -0.32650584, y: 0.8870106, z: 0.32650602}
+    RespawnPosition: {x: -0.32491946, y: 1.0486892, z: 0.22035116}
+    RespawnRotation: {x: 0.180412, y: 0.51904464, z: 0.27430594, w: 0.78917706}
+  - Normal: {x: -0.12265432, y: 0.9914448, z: 0.04464402}
+    RespawnPosition: {x: -0.28711346, y: 1.0489576, z: 0.26166117}
+    RespawnRotation: {x: 0.021764547, y: 0.17228414, z: 0.12342904, w: 0.97704136}
+  - Normal: {x: -0.13088948, y: 0.92387956, z: -0.35960338}
+    RespawnPosition: {x: -0.25356263, y: 1.0490905, z: 0.35277525}
+    RespawnRotation: {x: -0.025779204, y: 0.17359391, z: 0.004545932, w: 0.9844694}
+  - Normal: {x: -0.15793167, y: 0.8870112, z: -0.43389946}
+    RespawnPosition: {x: -0.23626877, y: 1.0728873, z: 0.4002879}
+    RespawnRotation: {x: -0.35826597, y: 0.16175462, z: 0.06317389, w: 0.91732764}
+  - Normal: {x: -0.029809784, y: 0.9961947, z: -0.08189901}
+    RespawnPosition: {x: -0.21826926, y: 1.0978514, z: 0.44973952}
+    RespawnRotation: {x: -0.08240627, y: 0.1730444, z: 0.014530896, w: 0.981353}
+  - Normal: {x: 0.11159578, y: 0.99240386, z: 0.05177781}
+    RespawnPosition: {x: -0.18508755, y: 1.1056972, z: 0.54087275}
+    RespawnRotation: {x: 0.0028314681, y: 0.17366332, z: -0.004043762, w: 0.9847927}
+  - Normal: {x: 0.41833523, y: 0.9076732, z: -0.033540748}
+    RespawnPosition: {x: -0.15155786, y: 1.0965306, z: 0.63174134}
+    RespawnRotation: {x: 0.071604595, y: 0.21562566, z: -0.12159241, w: 0.9662265}
+  - Normal: {x: 0.37851787, y: 0.8137975, z: -0.4409738}
+    RespawnPosition: {x: -0.12601368, y: 1.0856856, z: 0.65764904}
+    RespawnRotation: {x: 0.0071731242, y: 0.5422048, z: -0.30504075, w: 0.7828874}
+  - Normal: {x: 0.10732028, y: 0.883022, z: -0.45689666}
+    RespawnPosition: {x: -0.09088473, y: 1.0724149, z: 0.6612401}
+    RespawnRotation: {x: -0.084009506, y: 0.77885383, z: -0.279451, w: 0.55519027}
+  - Normal: {x: 0.07182823, y: 0.97258085, z: -0.22119495}
+    RespawnPosition: {x: -0.061179165, y: 1.05928, z: 0.6416689}
+    RespawnRotation: {x: -0.020318681, y: 0.9277085, z: -0.18697229, w: 0.32246783}
+  - Normal: {x: 0.02803802, y: 0.99904823, z: -0.033414632}
+    RespawnPosition: {x: 0.011873856, y: 1.0351341, z: 0.55498654}
+    RespawnRotation: {x: 0.014173338, y: 0.9388873, z: -0.038940754, w: 0.34172124}
+  - Normal: {x: 0.00000001502824, y: 1, z: 0.000000079194166}
+    RespawnPosition: {x: 0.061709486, y: 1.0320594, z: 0.49559334}
+    RespawnRotation: {x: 0.000000012515532, y: 0.9396945, z: 0.00000005686185, w: 0.342015}
+  - Normal: {x: -0.21984337, y: 0.9396926, z: 0.26200503}
+    RespawnPosition: {x: 0.13032542, y: 1.0322113, z: 0.4138179}
+    RespawnRotation: {x: -0.01591233, y: 0.9386769, z: 0.043719593, w: 0.34164467}
+  - Normal: {x: -0.41317043, y: 0.7660445, z: 0.4924083}
+    RespawnPosition: {x: 0.14651771, y: 1.0438298, z: 0.39452034}
+    RespawnRotation: {x: -0.11697601, y: 0.883024, z: 0.32139444, w: 0.321389}
+  - Normal: {x: 0.0000009455194, y: 1, z: -0.0000010297466}
+    RespawnPosition: {x: 0.17048119, y: 1.0750493, z: 0.36596134}
+    RespawnRotation: {x: -0.11247727, y: 0.8874253, z: 0.3090341, w: 0.32299086}
+  - Normal: {x: 0.36868456, y: 0.81915045, z: -0.43939078}
+    RespawnPosition: {x: 0.28666294, y: 1.0703949, z: 0.22749831}
+    RespawnRotation: {x: 0.115573086, y: 0.8844175, z: -0.31753972, w: 0.3218962}
+  - Normal: {x: 0.1663641, y: 0.9659256, z: -0.1982693}
+    RespawnPosition: {x: 0.32763308, y: 1.0265857, z: 0.17867088}
+    RespawnRotation: {x: 0.08274139, y: 0.91178125, z: -0.22733384, w: 0.33185565}
+  - Normal: {x: -0.00000006469152, y: 1, z: 0.00000017420258}
+    RespawnPosition: {x: 0.36327508, y: 1.0136083, z: 0.13619322}
+    RespawnRotation: {x: -0.000000028826195, y: 0.9396945, z: 0.00000017044923, w: 0.342015}
+  - Normal: {x: -0.016814467, y: 0.9876721, z: 0.15563123}
+    RespawnPosition: {x: 0.4507116, y: 1.0136521, z: 0.032024693}
+    RespawnRotation: {x: 0.0037229317, y: 0.9396173, z: 0.015284113, w: 0.34186536}
+  - Normal: {x: -0.26679277, y: 0.92121977, z: 0.28315324}
+    RespawnPosition: {x: 0.4753274, y: 1.0195411, z: 0.0031346953}
+    RespawnRotation: {x: 0.035265356, y: 0.924761, z: 0.15434973, w: 0.3460486}
+  - Normal: {x: -0.3653653, y: 0.8962009, z: -0.25165883}
+    RespawnPosition: {x: 0.59957683, y: 1.0635567, z: -0.0037348699}
+    RespawnRotation: {x: -0.08640474, y: 0.41888362, z: 0.22505604, w: 0.8754545}
+  - Normal: {x: 0.07918652, y: 0.9576619, z: -0.27679068}
+    RespawnPosition: {x: 0.6056782, y: 1.1071016, z: 0.12071418}
+    RespawnRotation: {x: -0.1779075, y: -0.3308995, z: 0.113618314, w: 0.91975284}
+  - Normal: {x: 0.04356787, y: 0.99619466, z: -0.075484864}
+    RespawnPosition: {x: 0.47430664, y: 1.125251, z: 0.1391297}
+    RespawnRotation: {x: 0.07117329, y: 0.8630638, z: -0.04109834, w: -0.4983635}
+  - Normal: {x: -0.22416043, y: 0.9659258, z: -0.12938097}
+    RespawnPosition: {x: 0.41518974, y: 1.1251485, z: 0.10528504}
+    RespawnRotation: {x: -0.017451715, y: 0.865466, z: -0.030222798, w: -0.49975055}
+  - Normal: {x: -0.22416043, y: 0.9659258, z: -0.12938097}
+    RespawnPosition: {x: 0.39098585, y: 1.1159463, z: 0.09131499}
+    RespawnRotation: {x: -0.11248798, y: 0.8437982, z: -0.19480623, w: -0.48723876}
+  - Normal: {x: -0.00000011532673, y: 1, z: -0.00000006656431}
+    RespawnPosition: {x: 0.36705613, y: 1.1103526, z: 0.07750335}
+    RespawnRotation: {x: 0.00000003329319, y: -0.86599356, z: 0.00000005765701, w: 0.5000552}
+  - Normal: {x: -0.03162925, y: 0.99240386, z: -0.118887156}
+    RespawnPosition: {x: 0.28289038, y: 1.1103326, z: 0.02890604}
+    RespawnRotation: {x: -0.0021288625, y: -0.8659812, z: 0.007947224, w: 0.50000894}
+  - Normal: {x: 0.19243143, y: 0.87542635, z: -0.44339466}
+    RespawnPosition: {x: 0.23266843, y: 1.1045798, z: -0.00046990396}
+    RespawnRotation: {x: 0.04208296, y: 0.87105995, z: -0.12689233, w: -0.47263297}
+  - Normal: {x: 0.38599336, y: 0.8681621, z: -0.31193542}
+    RespawnPosition: {x: 0.18550885, y: 1.0810359, z: -0.067221016}
+    RespawnRotation: {x: 0.3014534, y: 0.93073463, z: -0.20132178, w: -0.048253875}
+  - Normal: {x: -0.3431879, y: 0.8811199, z: -0.3253455}
+    RespawnPosition: {x: 0.19741571, y: 1.0475736, z: -0.14485088}
+    RespawnRotation: {x: 0.023609592, y: 0.95207995, z: -0.20807737, w: 0.22291298}
+  - Normal: {x: -0.48110482, y: 0.70105815, z: 0.5263607}
+    RespawnPosition: {x: 0.20031992, y: 1.0306642, z: -0.19826655}
+    RespawnRotation: {x: -0.3889978, y: 0.90320694, z: -0.016208656, w: -0.18065226}
+  - Normal: {x: 0.25646454, y: 0.73657453, z: 0.62584656}
+    RespawnPosition: {x: 0.13335057, y: 1.0195806, z: -0.23927909}
+    RespawnRotation: {x: 0.28313553, y: -0.60397893, z: -0.25790426, w: 0.6989486}
+  - Normal: {x: 0.47820437, y: 0.76531255, z: 0.4308332}
+    RespawnPosition: {x: 0.031625494, y: 1.0149002, z: -0.18916658}
+    RespawnRotation: {x: 0.12960303, y: -0.36000824, z: -0.31651828, w: 0.86799383}
+  - Normal: {x: 0.4782045, y: 0.76531255, z: 0.4308331}
+    RespawnPosition: {x: -0.050637797, y: 1.0202905, z: -0.10688229}
+    RespawnRotation: {x: 0.09363352, y: -0.37272847, z: -0.33107674, w: 0.8617972}
+  - Normal: {x: 0.65331805, y: 0.7071047, z: 0.27051526}
+    RespawnPosition: {x: -0.18783745, y: 1.0284436, z: 0.030495109}
+    RespawnRotation: {x: 0.12450598, y: -0.33598068, z: -0.32441148, w: 0.87542707}
+  - Normal: {x: 0.5623916, y: 0.79335403, z: -0.23303448}
+    RespawnPosition: {x: -0.20659006, y: 1.028307, z: 0.08330008}
+    RespawnRotation: {x: -0.010742804, y: 0.023941023, z: -0.4092519, w: 0.91204405}
+  - Normal: {x: 0.1662793, y: 0.9761166, z: -0.13981275}
+    RespawnPosition: {x: -0.18301344, y: 1.0286634, z: 0.13435364}
+    RespawnRotation: {x: -0.08064234, y: 0.37415063, z: -0.1957421, w: 0.9028805}
+  - Normal: {x: -0.017276447, y: 0.9988641, z: 0.044407714}
+    RespawnPosition: {x: -0.059748, y: 1.0253022, z: 0.25845453}
+    RespawnRotation: {x: 0.017654462, y: 0.38262442, z: -0.0036099835, w: 0.9237283}
+  - Normal: {x: -0.026840582, y: 0.99240386, z: 0.120058745}
+    RespawnPosition: {x: -0.024866978, y: 1.0244511, z: 0.29359847}
+    RespawnRotation: {x: 0.023936504, y: 0.36178395, z: 0.03749074, w: 0.93120027}
+  - Normal: {x: -0.02782474, y: 0.9952466, z: 0.09332782}
+    RespawnPosition: {x: -0.005542217, y: 1.0204774, z: 0.32685703}
+    RespawnRotation: {x: 0.083557665, y: 0.15285246, z: 0.026387354, w: 0.98435664}
