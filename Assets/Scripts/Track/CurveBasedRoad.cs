@@ -145,6 +145,9 @@ public class CurveBasedRoad : MonoBehaviour {
                     {
                         // Copy collision mesh and warp to road curves
                         var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
+                        collisionMesh.tag = "Generated";
+                        collisionMesh.name += " Curves[" + seg.CurveIndex + "]";
+                        collisionMesh.gameObject.isStatic = gameObject.isStatic;
                         WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
 
                         // Create collider for new mesh
@@ -230,6 +233,8 @@ public class CurveBasedRoad : MonoBehaviour {
                         // Copy collision mesh and warp to road curves
                         var collisionMesh = Instantiate(CollisionMesh, gameObject.transform, false);
                         collisionMesh.tag = "Generated";
+                        collisionMesh.name += " Curves[" + seg.CurveIndex + "]";
+                        collisionMesh.gameObject.isStatic = gameObject.isStatic;
                         WarpMeshToRoadCurves(segments, collisionMesh, meshZOffset, meshTransform);
 
                         // Create collider for new mesh
