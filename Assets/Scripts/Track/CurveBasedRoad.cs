@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -157,6 +160,11 @@ public class CurveBasedRoad : MonoBehaviour {
                     var roadInfo = meshFilter.gameObject.AddComponent<RoadMeshInfo>();
                     roadInfo.StartCurveIndex = seg.CurveIndex;
                     roadInfo.EndCurveIndex = endSeg.CurveIndex;
+
+                    // Generate UVs for baked lighting
+#if UNITY_EDITOR
+                    Unwrapping.GenerateSecondaryUVSet(meshFilter.mesh);
+#endif
                 }
 
                 // Move forward to next mesh
