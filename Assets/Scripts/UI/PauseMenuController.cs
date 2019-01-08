@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour {
 
@@ -11,11 +12,13 @@ public class PauseMenuController : MonoBehaviour {
     public GameObject[] ShowOnPause;
     public GameObject[] HideOnPause;
     public RoadProgressTracker Car;
+    public Toggle AutoResetToggle;
 
     // Working 
     public bool IsPaused = false;
     private bool wasBackDown = false;
     private bool isBusy = false;
+    private bool wasADown = false;
 
     private void Start()
     {
@@ -36,12 +39,19 @@ public class PauseMenuController : MonoBehaviour {
         }
         wasBackDown = isBackDown;
 
-        if (IsPaused && Input.GetKey(KeyCode.R) && !isBusy)
-            ResetCar();
-        if (IsPaused && Input.GetKey(KeyCode.L) && !isBusy)
-            RestartLevel();
-        if (IsPaused && Input.GetKey(KeyCode.M) && !isBusy)
-            MainMenu();
+        if (IsPaused)
+        {
+            if (Input.GetKey(KeyCode.R) && !isBusy)
+                ResetCar();
+            if (Input.GetKey(KeyCode.L) && !isBusy)
+                RestartLevel();
+            if (Input.GetKey(KeyCode.M) && !isBusy)
+                MainMenu();
+            bool aDown = Input.GetKey(KeyCode.A);
+            if (aDown && !wasADown)
+                AutoResetToggle.isOn = !AutoResetToggle.isOn;
+            wasADown = aDown;
+        }
     }
 
     // Pause menu actions
@@ -88,6 +98,14 @@ public class PauseMenuController : MonoBehaviour {
                     SceneManager.LoadScene("Main Menu");
                 })
             );
+    }
+
+    public void SetAutoReset(bool value)
+    {
+        if (Car != null)
+        {
+            Car.AutoReset = value;
+        }
     }
 
     public void Pause()

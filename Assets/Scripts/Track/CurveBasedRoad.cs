@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[ExecuteInEditMode]
 public class CurveBasedRoad : MonoBehaviour {
 
     public RoadType Type = RoadType.Game;
@@ -41,7 +42,7 @@ public class CurveBasedRoad : MonoBehaviour {
         Instance = this;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (Instance == this)
             Instance = null;

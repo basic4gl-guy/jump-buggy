@@ -14,6 +14,7 @@ public class RoadProgressTracker : MonoBehaviour {
     [Header("Parameters")]
     public int CurveSearchAhead = 2;            // # of curves to search ahead when checking whether player has progressed to the next curve. Does not count jumps (which are skipped)
     public float OffRoadTimeout = 10.0f;        // # of seconds player is off the road before they will be placed back on.
+    public bool AutoReset = true;               // Flag to auto-reset player
 
     // Working
     [Header("Working")]
@@ -68,7 +69,7 @@ public class RoadProgressTracker : MonoBehaviour {
         }
 
         // Off-road timer logic
-        if (isAboveRoad)
+        if (isAboveRoad || !AutoReset)
         {
             offRoadTimer = 0.0f;
         }
