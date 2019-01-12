@@ -14,6 +14,10 @@ Assets/Scenes/Tracks/BigFastJumps/
 Assets/Scenes/Tracks/DesertRollercoaster/
 Assets/Scenes/Tracks/JumpAndLoop/
 
+# Upgrade stuff
+Assets/_TerrainAutoUpgrade/
+Assets/_TerrainAutoUpgrade.meta
+
 # Visual Studio cache directory
 .vs/
 
