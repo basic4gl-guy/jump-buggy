@@ -19,7 +19,8 @@ public class CurveEditor : Editor
 
             if (GUILayout.Button("Add curve"))
             {
-                track.AddCurve();
+                var newCurve = track.AddCurve();
+                Selection.activeGameObject = newCurve.gameObject;
             }
 
             if (GUILayout.Button("Update track"))

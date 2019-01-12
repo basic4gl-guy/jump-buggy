@@ -14,7 +14,8 @@ public class TrackEditor : Editor {
 
         if (GUILayout.Button("Add curve"))
         {
-            track.AddCurve();
+            var curve = track.AddCurve();
+            Selection.activeGameObject = curve.gameObject;
         }
 
         if (GUILayout.Button("Delete meshes"))

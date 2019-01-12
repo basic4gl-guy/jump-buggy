@@ -8,6 +8,7 @@ public class Curve : MonoBehaviour {
     public float Length = 10.0f;
     public Vector3 Angles = new Vector3();
     public MeshFilter MeshFilter;                 // TODO: "Mesh templates"
+    public Template Template;
     public bool IsJump = false;
     public bool CanRespawn = true;
 

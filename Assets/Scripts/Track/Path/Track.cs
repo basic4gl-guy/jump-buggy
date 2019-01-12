@@ -31,7 +31,7 @@ public class Track : MonoBehaviour {
         BuildMeshes();
     }
 
-    public void AddCurve()
+    public Curve AddCurve()
     {
         var lastCurve = Curves.LastOrDefault();
 
@@ -51,13 +51,17 @@ public class Track : MonoBehaviour {
             curve.CanRespawn = lastCurve.CanRespawn;
         }
 
+        // Reposition curves
+        segments = GenerateSegments().ToList();
         PositionCurves();
+
+        return curve;
     }
 
     public void DeleteMeshes()
     {
         var children = Curves
-            .SelectMany(c => c.gameObject.GetComponentsInChildren<MeshTemplateCopy>())
+            .SelectMany(c => c.gameObject.GetComponentsInChildren<TemplateCopy>())
             .Where(t => t.gameObject.tag == "Generated")
             .ToList();
 
@@ -92,6 +96,7 @@ public class Track : MonoBehaviour {
         var totalLength = segments.Count * SegmentLength;
         float meshZOffset = 0.0f;
         MeshFilter meshFilter = null;
+        Template template = null;
         while (meshZOffset < totalLength)
         {
             // Find segment where mesh starts
@@ -99,12 +104,81 @@ public class Track : MonoBehaviour {
             var seg = segments[segIndex];
             var curve = seg.Curve;
 
-            // Look for mesh
+            // Look for mesh template
+            if (curve.Template != null)
+                template = curve.Template;
             if (curve.MeshFilter != null)
-                meshFilter = seg.Curve.MeshFilter;
+                meshFilter = curve.MeshFilter;
 
             // Generate meshes
-            if (!curve.IsJump && meshFilter != null)
+            if (!curve.IsJump && template != null)
+            {
+                // Create template copy object
+                var templateCopyObj = new GameObject();
+                templateCopyObj.transform.parent = curve.transform;
+                templateCopyObj.isStatic = gameObject.isStatic;
+                templateCopyObj.name = curve.name + " > " + template.name;
+                templateCopyObj.tag = "Generated";
+                GetSegmentTransform(seg, templateCopyObj.transform);
+
+                // Add template copy component
+                var templateCopy = templateCopyObj.AddComponent<TemplateCopy>();
+                templateCopy.Template = template;
+
+                // Pass 1: Generate continuous meshes
+                bool isFirstMesh = true;
+                float mainMeshLength = 0.0f;
+                foreach (var subtree in template.FindSubtrees<ContinuousMesh>())
+                {
+                    // Duplicate subtree
+                    var subtreeCopy = Instantiate(subtree);
+                    subtreeCopy.transform.parent = templateCopyObj.transform;
+                    subtreeCopy.gameObject.isStatic = gameObject.isStatic;
+                    subtreeCopy.name += " Continuous";
+                    GetSegmentTransform(seg, subtreeCopy.transform);
+
+                    // Need to take into account relative position of continuous subtree within template object
+                    Matrix4x4 templateFromSubtree = template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
+
+                    // Clone and warp displayed meshes
+                    var meshFilters = subtreeCopy.GetComponentsInChildren<MeshFilter>();
+                    foreach (var mf in meshFilters)
+                    {
+                        mf.sharedMesh = CloneMesh(mf.sharedMesh);
+                        Matrix4x4 subtreeFromMesh = subtreeCopy.transform.localToWorldMatrix.inverse * mf.transform.localToWorldMatrix;
+                        Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
+                        Matrix4x4 meshFromWorld = mf.transform.localToWorldMatrix.inverse;
+                        float meshLength = WarpMeshToCurves(mf.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
+#if UNITY_EDITOR
+                        Unwrapping.GenerateSecondaryUVSet(mf.sharedMesh);
+#endif
+
+                        // First continuous mesh is considered to be the main track surface,
+                        // and determines the length of the template copy
+                        if (isFirstMesh)
+                        {
+                            mf.gameObject.AddComponent<TrackSurfaceMesh>();
+                            mainMeshLength = meshLength;
+                            isFirstMesh = false;
+                        }
+                    }
+
+                    // Clone and warp mesh colliders
+                    var meshColliders = subtreeCopy.GetComponentsInChildren<MeshCollider>();
+                    foreach (var mc in meshColliders)
+                    {
+                        mc.sharedMesh = CloneMesh(mc.sharedMesh);
+                        Matrix4x4 subtreeFromMesh = subtreeCopy.transform.localToWorldMatrix.inverse * mc.transform.localToWorldMatrix;
+                        Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
+                        Matrix4x4 meshFromWorld = mc.transform.localToWorldMatrix.inverse;
+                        float meshLength = WarpMeshToCurves(mc.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
+                    }
+
+                    // Move forward to start of next mesh template
+                    meshZOffset += mainMeshLength;
+                };
+            }
+            else if (!curve.IsJump && meshFilter != null)
             {
                 // Create template copy object
                 var templateCopyObj = new GameObject();
@@ -113,7 +187,7 @@ public class Track : MonoBehaviour {
                 templateCopyObj.name = curve.name + " > " + meshFilter.name;
                 templateCopyObj.tag = "Generated";
                 GetSegmentTransform(seg, templateCopyObj.transform);
-                var templateCopy = templateCopyObj.AddComponent<MeshTemplateCopy>();
+                var templateCopy = templateCopyObj.AddComponent<TemplateCopy>();
 
                 // Copy mesh and warp to road curves
                 var meshFilterCopy = Instantiate(meshFilter);
@@ -121,8 +195,10 @@ public class Track : MonoBehaviour {
                 meshFilterCopy.gameObject.isStatic = gameObject.isStatic;
                 meshFilterCopy.transform.parent = templateCopyObj.transform;
                 meshFilterCopy.sharedMesh = CloneMesh(meshFilterCopy.sharedMesh);
+                Matrix4x4 meshToTemplate = Matrix4x4.Scale(new Vector3(MeshScale, MeshScale, MeshScale))
+                                        * Matrix4x4.Rotate(Quaternion.Euler(-90.0f, 0.0f, 0.0f));       // Account for Blender Y vs Z axis
                 Matrix4x4 worldToMesh = meshFilterCopy.transform.localToWorldMatrix.inverse;
-                float meshLength = WarpMeshToCurves(meshFilterCopy.sharedMesh, meshZOffset, worldToMesh);
+                float meshLength = WarpMeshToCurves(meshFilterCopy.sharedMesh, meshZOffset, meshToTemplate, worldToMesh);
 #if UNITY_EDITOR
                 Unwrapping.GenerateSecondaryUVSet(meshFilterCopy.sharedMesh);
 #endif
@@ -130,28 +206,24 @@ public class Track : MonoBehaviour {
                 if (meshColliderCopy != null)
                 {
                     meshColliderCopy.sharedMesh = CloneMesh(meshColliderCopy.sharedMesh);
-                    WarpMeshToCurves(meshColliderCopy.sharedMesh, meshZOffset, worldToMesh);
+                    WarpMeshToCurves(meshColliderCopy.sharedMesh, meshZOffset, meshToTemplate, worldToMesh);
                 }
 
                 // Advance to start of next template
                 meshZOffset += Mathf.Max(meshLength, SegmentLength);
             }
-            else
-            {
-                meshZOffset = (segIndex + 1) * SegmentLength;
-            }
+
+            // Ensure Z offset is advanced at least to the next segment.
+            // (Otherwise 0 length templates would cause an infinite loop)
+            meshZOffset = Mathf.Max(meshZOffset, (segIndex + 1) * SegmentLength);
         }
     }
 
-    private float WarpMeshToCurves(Mesh mesh, float meshZOffset, Matrix4x4 worldToMesh)
+    private float WarpMeshToCurves(Mesh mesh, float meshZOffset, Matrix4x4 meshToTemplate, Matrix4x4 worldToMesh)
     {
-        // Transform to apply to mesh
-        Matrix4x4 meshTransform = Matrix4x4.Scale(new Vector3(MeshScale, MeshScale, MeshScale))
-                                * Matrix4x4.Rotate(Quaternion.Euler(-90.0f, 0.0f, 0.0f));       // Account for Blender Y vs Z axis
-
         // Find length of mesh            
-        float meshMaxZ = mesh.vertices.Max(v => meshTransform.MultiplyPoint(v).z);
-        float meshMinZ = mesh.vertices.Min(v => meshTransform.MultiplyPoint(v).z);
+        float meshMaxZ = mesh.vertices.Max(v => meshToTemplate.MultiplyPoint(v).z);
+        float meshMinZ = mesh.vertices.Min(v => meshToTemplate.MultiplyPoint(v).z);
         float meshLength = meshMaxZ - meshMinZ;
 
         // Lookup first segment
@@ -165,8 +237,8 @@ public class Track : MonoBehaviour {
         var normals = new Vector3[mesh.normals.Length];
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
-            Vector3 v = meshTransform.MultiplyPoint(mesh.vertices[i]);
-            Vector3 n = meshTransform.MultiplyVector(mesh.normals[i]);
+            Vector3 v = meshToTemplate.MultiplyPoint(mesh.vertices[i]);
+            Vector3 n = meshToTemplate.MultiplyVector(mesh.normals[i]);
 
             // z determines index in meshSegments array
             float z = v.z - meshMinZ + meshZOffset;                                         // Total Z along all curves
