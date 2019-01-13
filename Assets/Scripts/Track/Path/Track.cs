@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Track : MonoBehaviour {
 
-    private const int MaxSpacingGroups = 10;
+    private const int MaxSpacingGroups = 100;
 
     public float SegmentLength = 0.25f;
     public float MeshScale = 3.0f;
