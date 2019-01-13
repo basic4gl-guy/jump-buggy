@@ -7,20 +7,20 @@ using UnityEngine;
 
 public class Track : MonoBehaviour {
 
+    private const int MaxSpacingGroups = 10;
+
     public float SegmentLength = 0.25f;
     public float MeshScale = 3.0f;
 
     // Working
     private List<Segment> segments;
+    private SpacingGroup[] spacingGroups;
 
-    // Use this for initialization
-    void Start() {
-
-    }
-
-    // Update is called once per frame
-    void Update() {
-
+    public Track()
+    {
+        spacingGroups = new SpacingGroup[MaxSpacingGroups];
+        for (int i = 0; i < MaxSpacingGroups; i++)
+            spacingGroups[i] = new SpacingGroup();
     }
 
     public void CreateMeshes()
@@ -92,10 +92,12 @@ public class Track : MonoBehaviour {
     {
         if (!segments.Any()) return;
 
+        foreach (var group in spacingGroups)
+            group.IsActive = false;
+
         // Work down the curve. Add meshes as we go.
         var totalLength = segments.Count * SegmentLength;
         float meshZOffset = 0.0f;
-        MeshFilter meshFilter = null;
         Template template = null;
         while (meshZOffset < totalLength)
         {
@@ -107,8 +109,10 @@ public class Track : MonoBehaviour {
             // Look for mesh template
             if (curve.Template != null)
                 template = curve.Template;
-            if (curve.MeshFilter != null)
-                meshFilter = curve.MeshFilter;
+
+            // Initialise spacing groups for this template
+            foreach (var group in spacingGroups)
+                group.IsActiveThisTemplate = false;
 
             // Generate meshes
             if (!curve.IsJump && template != null)
@@ -173,45 +177,97 @@ public class Track : MonoBehaviour {
                         Matrix4x4 meshFromWorld = mc.transform.localToWorldMatrix.inverse;
                         float meshLength = WarpMeshToCurves(mc.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
                     }
-
-                    // Move forward to start of next mesh template
-                    meshZOffset += mainMeshLength;
                 };
-            }
-            else if (!curve.IsJump && meshFilter != null)
-            {
-                // Create template copy object
-                var templateCopyObj = new GameObject();
-                templateCopyObj.transform.parent = curve.transform;
-                templateCopyObj.isStatic = gameObject.isStatic;
-                templateCopyObj.name = curve.name + " > " + meshFilter.name;
-                templateCopyObj.tag = "Generated";
-                GetSegmentTransform(seg, templateCopyObj.transform);
-                var templateCopy = templateCopyObj.AddComponent<TemplateCopy>();
 
-                // Copy mesh and warp to road curves
-                var meshFilterCopy = Instantiate(meshFilter);
-                GetSegmentTransform(seg, meshFilterCopy.transform);
-                meshFilterCopy.gameObject.isStatic = gameObject.isStatic;
-                meshFilterCopy.transform.parent = templateCopyObj.transform;
-                meshFilterCopy.sharedMesh = CloneMesh(meshFilterCopy.sharedMesh);
-                Matrix4x4 meshToTemplate = Matrix4x4.Scale(new Vector3(MeshScale, MeshScale, MeshScale))
-                                        * Matrix4x4.Rotate(Quaternion.Euler(-90.0f, 0.0f, 0.0f));       // Account for Blender Y vs Z axis
-                Matrix4x4 worldToMesh = meshFilterCopy.transform.localToWorldMatrix.inverse;
-                float meshLength = WarpMeshToCurves(meshFilterCopy.sharedMesh, meshZOffset, meshToTemplate, worldToMesh);
-#if UNITY_EDITOR
-                Unwrapping.GenerateSecondaryUVSet(meshFilterCopy.sharedMesh);
-#endif
-                var meshColliderCopy = meshFilterCopy.GetComponent<MeshCollider>();
-                if (meshColliderCopy != null)
+                // Pass 2: Generate spaced meshes
+                foreach (var subtree in template.FindSubtrees<SpacedMesh>())
                 {
-                    meshColliderCopy.sharedMesh = CloneMesh(meshColliderCopy.sharedMesh);
-                    WarpMeshToCurves(meshColliderCopy.sharedMesh, meshZOffset, meshToTemplate, worldToMesh);
+                    // Validate
+                    if (subtree.SpacingGroup < 0 || subtree.SpacingGroup >= MaxSpacingGroups)
+                    {
+                        Debug.LogError("Invalid spacing group " + subtree.SpacingGroup + " found in template: " + template.name);
+                        continue;
+                    }
+                    if (subtree.Spacing < SegmentLength)
+                    {
+                        Debug.LogError("Spacing too small in spacing group, in template: " + template.name);
+                        continue;
+                    }
+
+                    // Activate spacing group
+                    var group = spacingGroups[subtree.SpacingGroup];
+                    group.IsActiveThisTemplate = true;
+                    if (!group.IsActive)
+                        group.ZOffset = meshZOffset;
+
+                    // Walk spacing group forward to current curve
+                    while (group.ZOffset + subtree.SpacingBefore < meshZOffset)
+                        group.ZOffset += subtree.Spacing;
+
+                    // Generate spaced objects for current curve
+                    while (group.ZOffset + subtree.SpacingBefore < meshZOffset + mainMeshLength)
+                    {
+                        float spaceZOffset = group.ZOffset + subtree.SpacingBefore;
+                        var spaceSegIndex = Mathf.FloorToInt(spaceZOffset / SegmentLength);
+                        var spaceSeg = GetSegment(spaceSegIndex);
+
+                        // Duplicate subtree
+                        var subtreeCopy = Instantiate(subtree);
+                        subtreeCopy.transform.parent = templateCopyObj.transform;
+                        subtreeCopy.gameObject.isStatic = gameObject.isStatic;
+                        subtreeCopy.name += " Spacing group " + subtree.SpacingGroup;
+
+                        // Calculate local to track tranform matrix for subtree.
+                        Matrix4x4 templateFromSubtree = template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
+                        Matrix4x4 trackFromSubtree = 
+                              spaceSeg.GetSegmentToTrack(spaceZOffset - spaceSegIndex * SegmentLength)      // Segment -> Track
+                            * templateFromSubtree;                                                          // Subtree -> Segment
+
+                        if (subtree.IsVertical)
+                        {
+                            // Disassemble matrix
+                            Vector3 basisX = ToVector3(trackFromSubtree.GetRow(0));
+                            Vector3 basisY = ToVector3(trackFromSubtree.GetRow(1));
+                            Vector3 basisZ = ToVector3(trackFromSubtree.GetRow(2));
+
+                            // Align Y vector with global Y axis
+                            basisY = Vector3.up * basisY.magnitude;
+
+                            // Cross product to get X and Z (assuming matrix is orthogonal)
+                            basisX = Vector3.Cross(basisY, basisZ).normalized * basisX.magnitude;
+                            basisZ = Vector3.Cross(basisX, basisY).normalized * basisZ.magnitude;
+
+                            // Recompose matrix
+                            trackFromSubtree.SetColumn(0, ToVector4(basisX));
+                            trackFromSubtree.SetColumn(1, ToVector4(basisY));
+                            trackFromSubtree.SetColumn(2, ToVector4(basisZ));
+                        }
+
+                        // Get local to world transform matrix for subtree.
+                        Matrix4x4 subtreeTransform = transform.localToWorldMatrix                           // Track -> World
+                            * trackFromSubtree;                                                             // Subtree -> Track
+
+                        // Calculate local transform. Essentially subtree->template space transform
+                        Matrix4x4 localTransform = templateCopyObj.transform.localToWorldMatrix.inverse     // World -> template
+                            * subtreeTransform;                                                             // Subtree -> World
+
+                        // Use to set transform
+                        subtreeCopy.transform.localPosition = localTransform.MultiplyPoint(Vector3.zero);
+                        subtreeCopy.transform.localRotation = localTransform.rotation;
+                        subtreeCopy.transform.localScale    = localTransform.lossyScale;                        
+
+                        // Move on to next
+                        group.ZOffset += subtree.Spacing;
+                    }
                 }
 
-                // Advance to start of next template
-                meshZOffset += Mathf.Max(meshLength, SegmentLength);
+                // Move forward to start of next mesh template
+                meshZOffset += mainMeshLength;
             }
+
+            // Update spacing group active flags
+            foreach (var group in spacingGroups)
+                group.IsActive = group.IsActiveThisTemplate;
 
             // Ensure Z offset is advanced at least to the next segment.
             // (Otherwise 0 length templates would cause an infinite loop)
@@ -407,6 +463,16 @@ public class Track : MonoBehaviour {
         return dst;
     }
 
+    private Vector3 ToVector3(Vector4 v)
+    {
+        return new Vector3(v.x, v.y, v.z);
+    }
+
+    private Vector4 ToVector4(Vector3 v, float w = 0.0f)
+    {
+        return new Vector4(v.x, v.y, v.z, w);
+    }
+
     /// <summary>
     /// Track curves are broken down into tiny straight segments.
     /// </summary>
@@ -425,5 +491,12 @@ public class Track : MonoBehaviour {
             Vector3 adjDir = new Vector3(Direction.x, Direction.y, adjZDir);
             return Matrix4x4.Translate(Position) * Matrix4x4.Rotate(Quaternion.Euler(adjDir));
         }
+    }
+
+    private class SpacingGroup
+    {
+        public bool IsActive = false;
+        public bool IsActiveThisTemplate = false;
+        public float ZOffset = 0.0f;
     }
 }
