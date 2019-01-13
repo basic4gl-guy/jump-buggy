@@ -14,13 +14,13 @@ public class Track : MonoBehaviour {
 
     // Working
     private List<Segment> segments;
-    private SpacingGroup[] spacingGroups;
+    private SpacingGroupState[] spacingGroupStates;
 
     public Track()
     {
-        spacingGroups = new SpacingGroup[MaxSpacingGroups];
+        spacingGroupStates = new SpacingGroupState[MaxSpacingGroups];
         for (int i = 0; i < MaxSpacingGroups; i++)
-            spacingGroups[i] = new SpacingGroup();
+            spacingGroupStates[i] = new SpacingGroupState();
     }
 
     public void CreateMeshes()
@@ -92,7 +92,7 @@ public class Track : MonoBehaviour {
     {
         if (!segments.Any()) return;
 
-        foreach (var group in spacingGroups)
+        foreach (var group in spacingGroupStates)
             group.IsActive = false;
 
         // Work down the curve. Add meshes as we go.
@@ -111,7 +111,7 @@ public class Track : MonoBehaviour {
                 template = curve.Template;
 
             // Initialise spacing groups for this template
-            foreach (var group in spacingGroups)
+            foreach (var group in spacingGroupStates)
                 group.IsActiveThisTemplate = false;
 
             // Generate meshes
@@ -180,34 +180,43 @@ public class Track : MonoBehaviour {
                 };
 
                 // Pass 2: Generate spaced meshes
-                foreach (var subtree in template.FindSubtrees<SpacedMesh>())
+                foreach (var subtree in template.FindSubtrees<Spaced>())
                 {
-                    // Validate
-                    if (subtree.SpacingGroup < 0 || subtree.SpacingGroup >= MaxSpacingGroups)
+                    // Search up parent chain for spacing group
+                    var spacingGroup = subtree.GetComponentInParent<SpacingGroup>();
+                    if (spacingGroup == null)
                     {
-                        Debug.LogError("Invalid spacing group " + subtree.SpacingGroup + " found in template: " + template.name);
+                        Debug.LogError("Cannot find spacing group for spaced template component: " + subtree.name);
                         continue;
                     }
-                    if (subtree.Spacing < SegmentLength)
+
+                    // Validate
+                    if (spacingGroup.Index < 0 || spacingGroup.Index >= MaxSpacingGroups)
+                    {
+                        Debug.LogError("Invalid spacing group " + spacingGroup.Index + " found in template: " + template.name);
+                        continue;
+                    }
+                    if (spacingGroup.Spacing < SegmentLength)
                     {
                         Debug.LogError("Spacing too small in spacing group, in template: " + template.name);
                         continue;
                     }
 
                     // Activate spacing group
-                    var group = spacingGroups[subtree.SpacingGroup];
-                    group.IsActiveThisTemplate = true;
-                    if (!group.IsActive)
-                        group.ZOffset = meshZOffset;
+                    var groupState = spacingGroupStates[spacingGroup.Index];
+                    groupState.IsActiveThisTemplate = true;
+                    if (!groupState.IsActive)
+                        groupState.ZOffset = meshZOffset;
 
                     // Walk spacing group forward to current curve
-                    while (group.ZOffset + subtree.SpacingBefore < meshZOffset)
-                        group.ZOffset += subtree.Spacing;
+                    groupState.ZOffsetThisTemplate = groupState.ZOffset;
+                    while (groupState.ZOffsetThisTemplate + spacingGroup.SpacingBefore < meshZOffset)
+                        groupState.ZOffsetThisTemplate += spacingGroup.Spacing;
 
                     // Generate spaced objects for current curve
-                    while (group.ZOffset + subtree.SpacingBefore < meshZOffset + mainMeshLength)
+                    while (groupState.ZOffsetThisTemplate + spacingGroup.SpacingBefore < meshZOffset + mainMeshLength)
                     {
-                        float spaceZOffset = group.ZOffset + subtree.SpacingBefore;
+                        float spaceZOffset = groupState.ZOffsetThisTemplate + spacingGroup.SpacingBefore;
                         var spaceSegIndex = Mathf.FloorToInt(spaceZOffset / SegmentLength);
                         var spaceSeg = GetSegment(spaceSegIndex);
 
@@ -215,7 +224,7 @@ public class Track : MonoBehaviour {
                         var subtreeCopy = Instantiate(subtree);
                         subtreeCopy.transform.parent = templateCopyObj.transform;
                         subtreeCopy.gameObject.isStatic = gameObject.isStatic;
-                        subtreeCopy.name += " Spacing group " + subtree.SpacingGroup;
+                        subtreeCopy.name += " Spacing group " + spacingGroup.Index;
 
                         // Calculate local to track tranform matrix for subtree.
                         Matrix4x4 templateFromSubtree = template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
@@ -257,7 +266,7 @@ public class Track : MonoBehaviour {
                         subtreeCopy.transform.localScale    = localTransform.lossyScale;                        
 
                         // Move on to next
-                        group.ZOffset += subtree.Spacing;
+                        groupState.ZOffsetThisTemplate += spacingGroup.Spacing;
                     }
                 }
 
@@ -266,8 +275,11 @@ public class Track : MonoBehaviour {
             }
 
             // Update spacing group active flags
-            foreach (var group in spacingGroups)
+            foreach (var group in spacingGroupStates)
+            {
                 group.IsActive = group.IsActiveThisTemplate;
+                group.ZOffset = group.ZOffsetThisTemplate;
+            }
 
             // Ensure Z offset is advanced at least to the next segment.
             // (Otherwise 0 length templates would cause an infinite loop)
@@ -493,10 +505,11 @@ public class Track : MonoBehaviour {
         }
     }
 
-    private class SpacingGroup
+    private class SpacingGroupState
     {
         public bool IsActive = false;
         public bool IsActiveThisTemplate = false;
         public float ZOffset = 0.0f;
+        public float ZOffsetThisTemplate = 0.0f;
     }
 }
