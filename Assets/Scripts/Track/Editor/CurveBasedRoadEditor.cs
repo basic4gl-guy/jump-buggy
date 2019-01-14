@@ -48,5 +48,20 @@ public class CurveBasedRoadEditor : Editor {
         {
             road.DeleteMeshes();
         }
+        if (GUILayout.Button("Convert to track"))
+        {
+            var track = Track.Instance;
+            if (track != null)
+            {
+                foreach (var src in road.Curves)
+                {
+                    var dst = track.AddCurve();
+                    dst.Length = src.Length;
+                    dst.Angles = src.Angles;
+                    dst.CanRespawn = src.CanRespawn;
+                    dst.IsJump = src.IsJump;
+                }
+            }
+        }
     }
 }
