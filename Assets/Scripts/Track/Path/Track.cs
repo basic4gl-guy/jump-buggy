@@ -11,6 +11,7 @@ public class Track : MonoBehaviour {
 
     // Parameters
     public float SegmentLength = 0.25f;
+    public float RespawnHeight = 0.75f;
 
     // Runtime info
     [HideInInspector]
@@ -101,6 +102,8 @@ public class Track : MonoBehaviour {
 
             // Calculate curve runtime info
             var info = new CurveRuntimeInfo();
+            info.IsJump = curve.IsJump;
+            info.CanRespawn = curve.CanRespawn;
 
             // Calculate normal in track space
             int endSegIndex = Mathf.FloorToInt((curveZOffset + curve.Length) / SegmentLength);
@@ -110,7 +113,7 @@ public class Track : MonoBehaviour {
             // Calculate respawn point and direction vectors in track space
             int respawnSeg = Math.Min(segIndex + Mathf.CeilToInt(2.0f / SegmentLength), midSegIndex);
             Matrix4x4 respawnTransform = GetSegment(respawnSeg).GetSegmentToTrack();
-            info.RespawnPosition = respawnTransform.MultiplyPoint(Vector3.zero);
+            info.RespawnPosition = respawnTransform.MultiplyPoint(Vector3.up * RespawnHeight);
             info.RespawnRotation = Quaternion.LookRotation(
                 respawnTransform.MultiplyVector(Vector3.forward).normalized,
                 respawnTransform.MultiplyVector(Vector3.up).normalized);
@@ -558,5 +561,7 @@ public class Track : MonoBehaviour {
         public Vector3 Normal;
         public Vector3 RespawnPosition;
         public Quaternion RespawnRotation;
+        public bool IsJump;
+        public bool CanRespawn;
     }
 }
