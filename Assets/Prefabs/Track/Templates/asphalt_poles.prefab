@@ -98,7 +98,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7222562958725713205}
-  - component: {fileID: 7222562958725713162}
+  - component: {fileID: 7222562958725713168}
   m_Layer: 0
   m_Name: poles anchor
   m_TagString: Untagged
@@ -121,7 +121,7 @@ Transform:
   m_Father: {fileID: 7222562959597807945}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7222562958725713162
+--- !u!114 &7222562958725713168
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,13 +130,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7222562958725713167}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df0f763c0b73a534f9ba322a46dfdcb2, type: 3}
+  m_Script: {fileID: 11500000, guid: d58fcdc7d3295a847a9c7db7fa001653, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpacingGroup: 0
+  Index: 0
   SpacingBefore: 10
   SpacingAfter: 10
-  IsVertical: 1
 --- !u!1 &7222562959297341738
 GameObject:
   m_ObjectHideFlags: 0
@@ -224,6 +223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7222562959404647460}
   - component: {fileID: 7222562959404647461}
+  - component: {fileID: 7222562959404647484}
   m_Layer: 0
   m_Name: right pole
   m_TagString: Untagged
@@ -260,6 +260,19 @@ CapsuleCollider:
   m_Height: 200
   m_Direction: 1
   m_Center: {x: 0, y: -100, z: 0}
+--- !u!114 &7222562959404647484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7222562959404647483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df0f763c0b73a534f9ba322a46dfdcb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsVertical: 1
 --- !u!1 &7222562959408923268
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,6 +516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7222562960665087907}
   - component: {fileID: 7222562960665087916}
+  - component: {fileID: 7222562960665087908}
   m_Layer: 0
   m_Name: left pole
   m_TagString: Untagged
@@ -539,3 +553,16 @@ CapsuleCollider:
   m_Height: 200
   m_Direction: 1
   m_Center: {x: 0, y: -100, z: 0}
+--- !u!114 &7222562960665087908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7222562960665087906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df0f763c0b73a534f9ba322a46dfdcb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsVertical: 1
