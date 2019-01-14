@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class Track : MonoBehaviour {
 
     private const int MaxSpacingGroups = 100;
@@ -213,6 +214,7 @@ public class Track : MonoBehaviour {
                     var meshColliders = subtreeCopy.GetComponentsInChildren<MeshCollider>();
                     foreach (var mc in meshColliders)
                     {
+                        if (mc.sharedMesh == null) continue;
                         mc.sharedMesh = CloneMesh(mc.sharedMesh);
                         Matrix4x4 subtreeFromMesh = subtreeCopy.transform.localToWorldMatrix.inverse * mc.transform.localToWorldMatrix;
                         Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
@@ -225,7 +227,7 @@ public class Track : MonoBehaviour {
                 foreach (var subtree in template.FindSubtrees<Spaced>())
                 {
                     // Search up parent chain for spacing group
-                    var spacingGroup = subtree.GetComponentInParent<SpacingGroup>();
+                    var spacingGroup = subtree.GetComponentsInParent<SpacingGroup>(true).FirstOrDefault();
                     if (spacingGroup == null)
                     {
                         Debug.LogError("Cannot find spacing group for spaced template component: " + subtree.name);
@@ -261,6 +263,15 @@ public class Track : MonoBehaviour {
                         float spaceZOffset = groupState.ZOffsetThisTemplate + spacingGroup.SpacingBefore;
                         var spaceSegIndex = Mathf.FloorToInt(spaceZOffset / SegmentLength);
                         var spaceSeg = GetSegment(spaceSegIndex);
+
+                        // Check track angle restrictions
+                        float trackXAngle = Mathf.Abs(Util.LocalAngle(spaceSeg.Direction.x));
+                        float trackZAngle = Mathf.Abs(Util.LocalAngle(spaceSeg.Direction.z));
+                        if (trackXAngle > subtree.MaxXAngle || trackZAngle > subtree.MaxZAngle)
+                        {
+                            groupState.ZOffsetThisTemplate += spacingGroup.Spacing;                         // Outside angle restrictions. Skip creating this one
+                            continue;                   
+                        }
 
                         // Duplicate subtree
                         var subtreeCopy = Instantiate(subtree);
