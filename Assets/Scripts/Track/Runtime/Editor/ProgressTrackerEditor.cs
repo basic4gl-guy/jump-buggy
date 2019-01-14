@@ -1,11 +1,14 @@
-﻿using UnityEditor;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(RoadProgressTracker))]
-public class RoadProgressTrackerEditor : Editor {
+[CustomEditor(typeof(ProgressTracker))]
+public class ProgressTrackerEditor : Editor
+{
     public override void OnInspectorGUI()
     {
-        var progress = (RoadProgressTracker)target;
+        var progress = (ProgressTracker)target;
         DrawDefaultInspector();
 
         GUILayout.Space(20);

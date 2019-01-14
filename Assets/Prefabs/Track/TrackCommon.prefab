@@ -1358,7 +1358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95d543be6c0921240b22a8c88487bda9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Car: {fileID: 0}
+  Car: {fileID: 793477983716819835}
   LapCount: {fileID: 114676060514423762}
   LapTime: {fileID: 114266171046319860}
   BestLapTime: {fileID: 114566941889766676}
@@ -1554,7 +1554,7 @@ MonoBehaviour:
   - {fileID: 1807325187448526}
   HideOnPause:
   - {fileID: 1968719309455980}
-  Car: {fileID: 0}
+  Car: {fileID: 793477983716819835}
   AutoResetToggle: {fileID: 114561052497236434}
   IsPaused: 0
 --- !u!1 &1363864982375950

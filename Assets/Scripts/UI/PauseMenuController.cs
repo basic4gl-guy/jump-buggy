@@ -11,7 +11,7 @@ public class PauseMenuController : MonoBehaviour {
     [Header("Wireup")]
     public GameObject[] ShowOnPause;
     public GameObject[] HideOnPause;
-    public RoadProgressTracker Car;
+    public ProgressTracker Car;
     public Toggle AutoResetToggle;
 
     // Working 
