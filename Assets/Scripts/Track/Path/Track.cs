@@ -9,18 +9,27 @@ public class Track : MonoBehaviour {
 
     private const int MaxSpacingGroups = 100;
 
+    // Parameters
     public float SegmentLength = 0.25f;
-    public float MeshScale = 3.0f;
+
+    // Runtime info
+    [HideInInspector]
+    public CurveRuntimeInfo[] CurveInfos;
 
     // Working
     private List<Segment> segments;
-    private SpacingGroupState[] spacingGroupStates;
 
-    public Track()
+    public static Track Instance;
+
+    void Start()
     {
-        spacingGroupStates = new SpacingGroupState[MaxSpacingGroups];
-        for (int i = 0; i < MaxSpacingGroups; i++)
-            spacingGroupStates[i] = new SpacingGroupState();
+        Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     public void CreateMeshes()
@@ -79,11 +88,36 @@ public class Track : MonoBehaviour {
     {
         // Position curve objects at the start of their curves
         var curves = Curves;
+        CurveInfos = new CurveRuntimeInfo[curves.Count];
         float curveZOffset = 0.0f;
+        int index = 0;
         foreach (var curve in curves)
         {
-            var seg = GetSegment(Mathf.FloorToInt(curveZOffset / SegmentLength));
+            // Position curve at first segment
+            int segIndex = Mathf.FloorToInt(curveZOffset / SegmentLength);
+            var seg = GetSegment(segIndex);
             GetSegmentTransform(seg, curve.transform);
+            curve.Index = index;
+
+            // Calculate curve runtime info
+            var info = new CurveRuntimeInfo();
+
+            // Calculate normal in track space
+            int endSegIndex = Mathf.FloorToInt((curveZOffset + curve.Length) / SegmentLength);
+            int midSegIndex = (segIndex + endSegIndex) / 2;
+            info.Normal = GetSegment(midSegIndex).GetSegmentToTrack().MultiplyVector(Vector3.up);
+
+            // Calculate respawn point and direction vectors in track space
+            int respawnSeg = Math.Min(segIndex + Mathf.CeilToInt(2.0f / SegmentLength), midSegIndex);
+            Matrix4x4 respawnTransform = GetSegment(respawnSeg).GetSegmentToTrack();
+            info.RespawnPosition = respawnTransform.MultiplyPoint(Vector3.zero);
+            info.RespawnRotation = Quaternion.LookRotation(
+                respawnTransform.MultiplyVector(Vector3.forward).normalized,
+                respawnTransform.MultiplyVector(Vector3.up).normalized);
+
+            CurveInfos[index] = info;
+
+            index++;
             curveZOffset += curve.Length;
         }
     }
@@ -92,8 +126,9 @@ public class Track : MonoBehaviour {
     {
         if (!segments.Any()) return;
 
-        foreach (var group in spacingGroupStates)
-            group.IsActive = false;
+        var spacingGroupStates = new SpacingGroupState[MaxSpacingGroups];
+        for (int i = 0; i < MaxSpacingGroups; i++)
+            spacingGroupStates[i] = new SpacingGroupState();
 
         // Work down the curve. Add meshes as we go.
         var totalLength = segments.Count * SegmentLength;
@@ -161,7 +196,11 @@ public class Track : MonoBehaviour {
                         // and determines the length of the template copy
                         if (isFirstMesh)
                         {
-                            mf.gameObject.AddComponent<TrackSurfaceMesh>();
+                            var surface = mf.gameObject.AddComponent<TrackSurface>();
+                            int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
+                            Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                            surface.StartCurveIndex = seg.Curve.Index;
+                            surface.EndCurveIndex = endSeg.Curve.Index;
                             mainMeshLength = meshLength;
                             isFirstMesh = false;
                         }
@@ -429,7 +468,7 @@ public class Track : MonoBehaviour {
         };
     }
 
-    private List<Curve> Curves
+    public List<Curve> Curves
     {
         get
         {
@@ -496,7 +535,7 @@ public class Track : MonoBehaviour {
         public float Length;
         public Curve Curve;
 
-        public Matrix4x4 GetSegmentToTrack(float segZ)
+        public Matrix4x4 GetSegmentToTrack(float segZ = 0.0f)
         {
             float f = segZ / Length;                                                            // Fractional distance along segment
             float adjZDir = Direction.z + DirectionDelta.z * f;                                 // Adjust Z axis rotation based on distance down segment
@@ -511,5 +550,13 @@ public class Track : MonoBehaviour {
         public bool IsActiveThisTemplate = false;
         public float ZOffset = 0.0f;
         public float ZOffsetThisTemplate = 0.0f;
+    }
+
+    [Serializable]
+    public class CurveRuntimeInfo
+    {
+        public Vector3 Normal;
+        public Vector3 RespawnPosition;
+        public Quaternion RespawnRotation;
     }
 }

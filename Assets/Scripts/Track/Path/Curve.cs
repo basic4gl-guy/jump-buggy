@@ -9,8 +9,11 @@ public class Curve : MonoBehaviour {
     public bool IsJump = false;
     public bool CanRespawn = true;
 
-	// Use this for initialization
-	void Start () {
+    [NonSerialized]
+    public int Index;
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
