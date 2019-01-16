@@ -181,7 +181,10 @@ public class Track : MonoBehaviour {
                     GetSegmentTransform(seg, subtreeCopy.transform);
 
                     // Need to take into account relative position of continuous subtree within template object
-                    Matrix4x4 templateFromSubtree = template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
+                    // Note: The subtree's transformation is effectively cancelled out, however we multiply back in the scale (lossyScale)
+                    // as this allows setting the scale on the template object itself, which is useful.
+                    // (Otherwise you would have to create a sub-object in order to perform scaling)
+                    Matrix4x4 templateFromSubtree = Matrix4x4.Scale(template.transform.lossyScale) * template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
 
                     // Clone and warp displayed meshes
                     var meshFilters = subtreeCopy.GetComponentsInChildren<MeshFilter>();
@@ -280,7 +283,7 @@ public class Track : MonoBehaviour {
                         subtreeCopy.name += " Spacing group " + spacingGroup.Index;
 
                         // Calculate local to track tranform matrix for subtree.
-                        Matrix4x4 templateFromSubtree = template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
+                        Matrix4x4 templateFromSubtree = Matrix4x4.Scale(template.transform.lossyScale) * template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
                         Matrix4x4 trackFromSubtree = 
                               spaceSeg.GetSegmentToTrack(spaceZOffset - spaceSegIndex * SegmentLength)      // Segment -> Track
                             * templateFromSubtree;                                                          // Subtree -> Segment
