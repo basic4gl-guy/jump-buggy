@@ -23,6 +23,12 @@ public class TrackEditor : Editor {
             track.DeleteMeshes();
         }
 
+        if (GUILayout.Button("Remove templates"))
+        {
+            if (EditorUtility.DisplayDialog("Remove templates", "Really set template to null on all curves?", "Yes - Remove them", "Cancel"))
+                track.RemoveTemplates();
+        }
+
         if (GUILayout.Button("Update track"))
         {
             track.CreateMeshes();

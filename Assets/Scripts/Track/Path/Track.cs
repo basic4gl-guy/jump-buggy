@@ -42,6 +42,14 @@ public class Track : MonoBehaviour {
         BuildMeshes();
     }
 
+    public void RemoveTemplates()
+    {
+        var curves = Curves;
+        foreach (var curve in curves)
+            curve.Template = null;
+        DeleteMeshes();
+    }
+
     public Curve AddCurve()
     {
         var lastCurve = Curves.LastOrDefault();
