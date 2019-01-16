@@ -23,9 +23,9 @@ public class TrackEditor : Editor {
             track.DeleteMeshes();
         }
 
-        if (GUILayout.Button("Remove templates"))
+        if (GUILayout.Button("Clear templates"))
         {
-            if (EditorUtility.DisplayDialog("Remove templates", "Really set template to null on all curves?", "Yes - Remove them", "Cancel"))
+            if (EditorUtility.DisplayDialog("Clear templates", "Really clear templates from all curves?", "Yes - Remove them", "Cancel"))
                 track.RemoveTemplates();
         }
 
