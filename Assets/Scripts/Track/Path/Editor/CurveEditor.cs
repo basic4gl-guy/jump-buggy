@@ -23,9 +23,13 @@ public class CurveEditor : Editor
                 Selection.activeGameObject = newCurve.gameObject;
             }
 
-            if (GUILayout.Button("Update track"))
+            if (GUILayout.Button("Update curve"))
             {
-                track.CreateMeshes();
+                track.CreateMeshes(curve.Index - 1, curve.Index + 2);
+            }
+            if (GUILayout.Button("Update track from here"))
+            {
+                track.CreateMeshes(curve.Index - 1, curve.Track.Curves.Count);
             }
         }
     }

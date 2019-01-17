@@ -8,7 +8,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Track : MonoBehaviour {
 
-    private const int MaxSpacingGroups = 100;
+    private const int MaxSpacingGroups = 16;
 
     // Parameters
     public float SegmentLength = 0.25f;
@@ -17,6 +17,9 @@ public class Track : MonoBehaviour {
     // Runtime info
     [HideInInspector]
     public CurveRuntimeInfo[] CurveInfos;
+
+    [HideInInspector]
+    public BuildMeshesState[] CurveBuildMeshState;
 
     // Working
     private List<Segment> segments;
@@ -36,10 +39,15 @@ public class Track : MonoBehaviour {
 
     public void CreateMeshes()
     {
-        DeleteMeshes();
+        CreateMeshes(0, Curves.Count);
+    }
+
+    public void CreateMeshes(int startCurveIndex, int endCurveIndex)
+    {
+        DeleteMeshes(startCurveIndex, endCurveIndex);
         segments = GenerateSegments().ToList();
         PositionCurves();
-        BuildMeshes();
+        BuildMeshes(startCurveIndex, endCurveIndex);
     }
 
     public void RemoveTemplates()
@@ -52,7 +60,8 @@ public class Track : MonoBehaviour {
 
     public Curve AddCurve()
     {
-        var lastCurve = Curves.LastOrDefault();
+        var curves = Curves;
+        var lastCurve = curves.LastOrDefault();
 
         // Add curve to end of list
         var obj = new GameObject();
@@ -60,6 +69,7 @@ public class Track : MonoBehaviour {
         obj.name = "Curve";
         obj.isStatic = gameObject.isStatic;
         var curve = obj.AddComponent<Curve>();
+        curve.Index = curves.Count;
 
         // Copy values from last curve
         if (lastCurve != null)
@@ -70,16 +80,21 @@ public class Track : MonoBehaviour {
             curve.CanRespawn = lastCurve.CanRespawn;
         }
 
-        // Reposition curves
-        segments = GenerateSegments().ToList();
-        PositionCurves();
+        // Create curve meshes
+        CreateMeshes(curve.Index - 1, curve.Index + 1);
 
         return curve;
     }
 
     public void DeleteMeshes()
     {
+        DeleteMeshes(0, Curves.Count);
+    }
+
+    public void DeleteMeshes(int startCurveIndex, int endCurveIndex)
+    {
         var children = Curves
+            .Where(c => c.Index >= startCurveIndex && c.Index < endCurveIndex)
             .SelectMany(c => c.gameObject.GetComponentsInChildren<TemplateCopy>())
             .Where(t => t.gameObject.tag == "Generated")
             .ToList();
@@ -136,22 +151,63 @@ public class Track : MonoBehaviour {
 
     private void BuildMeshes()
     {
-        if (!segments.Any()) return;
+        BuildMeshes(0, Curves.Count);
+    }
 
-        var spacingGroupStates = new SpacingGroupState[MaxSpacingGroups];
-        for (int i = 0; i < MaxSpacingGroups; i++)
-            spacingGroupStates[i] = new SpacingGroupState();
+    private void BuildMeshes(int startCurveIndex, int endCurveIndex)
+    {
+        if (!segments.Any()) return;
+        var curves = Curves;
+
+        // Clamp curve range
+        if (startCurveIndex < 0)
+            startCurveIndex = 0;
+        if (endCurveIndex > curves.Count)
+            endCurveIndex = curves.Count;
+
+        // Create/update build mesh state array in parallel
+        if (CurveBuildMeshState == null)
+            CurveBuildMeshState = new BuildMeshesState[curves.Count];
+        else
+            Array.Resize(ref CurveBuildMeshState, curves.Count);
+
+        // Fetch state from previous curve and unpack.
+        BuildMeshesState state = startCurveIndex > 0 ? CurveBuildMeshState[startCurveIndex - 1] : new BuildMeshesState();
+        var spacingGroupStates = state.SpacingGroups.Select(g => new SpacingGroupState
+        {
+            IsActive = g.IsActive,
+            ZOffset = g.ZOffset
+        }).ToArray();
+        float meshZOffset = state.MeshZOffset;
+        Template template = state.Template;
 
         // Work down the curve. Add meshes as we go.
         var totalLength = segments.Count * SegmentLength;
-        float meshZOffset = 0.0f;
-        Template template = null;
+        var curveIndex = startCurveIndex;
         while (meshZOffset < totalLength)
         {
             // Find segment where mesh starts
             int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
             var seg = segments[segIndex];
             var curve = seg.Curve;
+
+            // Store state at end of each curve
+            while (seg.Curve.Index > curveIndex) {
+                CurveBuildMeshState[curveIndex] = new BuildMeshesState
+                {
+                    SpacingGroups = spacingGroupStates.Select(s => new SpacingGroupBaseState
+                    {
+                        IsActive = s.IsActive,
+                        ZOffset = s.ZOffset
+                    }).ToArray(),
+                    Template = template,
+                    MeshZOffset = meshZOffset
+                };
+                curveIndex++;
+            }
+
+            // Stop if end curve reached
+            if (curve.Index >= endCurveIndex) break;
 
             // Look for mesh template
             if (curve.Template != null)
@@ -569,11 +625,16 @@ public class Track : MonoBehaviour {
         }
     }
 
-    private class SpacingGroupState
+    [Serializable]
+    public class SpacingGroupBaseState
     {
         public bool IsActive = false;
-        public bool IsActiveThisTemplate = false;
         public float ZOffset = 0.0f;
+    }
+
+    public class SpacingGroupState : SpacingGroupBaseState
+    {
+        public bool IsActiveThisTemplate = false;
         public float ZOffsetThisTemplate = 0.0f;
     }
 
@@ -585,5 +646,20 @@ public class Track : MonoBehaviour {
         public Quaternion RespawnRotation;
         public bool IsJump;
         public bool CanRespawn;
+    }
+
+    [Serializable]
+    public class BuildMeshesState
+    {
+        public SpacingGroupBaseState[] SpacingGroups;
+        public float MeshZOffset = 0.0f;
+        public Template Template = null;
+
+        public BuildMeshesState()
+        {
+            SpacingGroups = new SpacingGroupBaseState[MaxSpacingGroups];
+            for (int i = 0; i < SpacingGroups.Length; i++)
+                SpacingGroups[i] = new SpacingGroupBaseState();
+        }
     }
 }
