@@ -17,12 +17,12 @@ public class Curve : MonoBehaviour {
     [Header("Meshes")]
     public Template Template;
 
-    [NonSerialized]
+    [HideInInspector]
     public int Index;
 
     // Use this for initialization
     void Start () {
-		
+
 	}
 	
 	// Update is called once per frame

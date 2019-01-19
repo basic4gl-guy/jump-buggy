@@ -26,9 +26,15 @@ public class Track : MonoBehaviour {
 
     public static Track Instance;
 
-    void Start()
+    private void Awake()
     {
         Instance = this;
+    }
+
+    void Start()
+    {
+        segments = GenerateSegments().ToList();
+        PositionCurves();
     }
 
     void OnDestroy()
@@ -147,6 +153,34 @@ public class Track : MonoBehaviour {
             index++;
             curveZOffset += curve.Length;
         }
+    }
+
+    public void UpdateSegments()
+    {
+        segments = GenerateSegments().ToList();
+    }
+
+    public IEnumerable<Segment> GetCurveSegments(Curve curve)
+    {
+        if (segments == null) segments = GenerateSegments().ToList();
+
+        // Find start of curve
+        int i = 0;
+        while (i < segments.Count && segments[i].Curve.Index < curve.Index)
+            i++;
+
+        // Return curve segments
+        while (i < segments.Count && segments[i].Curve.Index == curve.Index)
+        {
+            yield return segments[i];
+            i++;
+        }
+    }
+
+    public IEnumerable<Segment> GetSegments()
+    {
+        if (segments == null) segments = GenerateSegments().ToList();
+        return segments;
     }
 
     private void BuildMeshes()
@@ -608,7 +642,7 @@ public class Track : MonoBehaviour {
     /// <summary>
     /// Track curves are broken down into tiny straight segments.
     /// </summary>
-    private class Segment
+    public class Segment
     {
         public Vector3 Position;
         public Vector3 Direction;

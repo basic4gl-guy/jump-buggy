@@ -32,24 +32,49 @@ public class CurveAnglesPropertyDrawer : PropertyDrawer
         position.height = lineHeight;
         position.y += LineSpacing;
 
+        bool rebuildCurve = false;
+
         EditorGUI.LabelField(position, "Turn (Y)");
-        angles.y = DrawAngleButtons(position, angles.y, YAngleButtons);
+        float newY = DrawAngleButtons(position, angles.y, YAngleButtons);
+        if (angles.y != newY)
+        {
+            angles.y = newY;
+            rebuildCurve = true;
+        }
         position.y += ButtonHeight;
         angles.y = EditorGUI.Slider(position, new GUIContent(" "), angles.y, -180.0f, 180.0f);
         position.y += lineHeight + LineSpacing;
 
         EditorGUI.LabelField(position, "Gradient (X)");
-        angles.x = DrawAngleButtons(position, angles.x, XAngleButtons);
+        float newX = DrawAngleButtons(position, angles.x, XAngleButtons);
+        if (angles.x != newX)
+        {
+            angles.x = newX;
+            rebuildCurve = true;
+        }
         position.y += ButtonHeight;
         angles.x = EditorGUI.Slider(position, new GUIContent(" "), angles.x, -180.0f, 180.0f);
         position.y += lineHeight + LineSpacing;
 
         EditorGUI.LabelField(position, "Bank (Z)");
-        angles.z = DrawAngleButtons(position, angles.z, ZAngleButtons);
+        float newZ = DrawAngleButtons(position, angles.z, ZAngleButtons);
+        if (angles.z != newZ)
+        {
+            angles.z = newZ;
+            rebuildCurve = true;
+        }
         position.y += ButtonHeight;
         angles.z = -EditorGUI.Slider(position, new GUIContent(" "), -angles.z, -90.0f, 90.0f);
 
         property.vector3Value = angles;
+
+        if (rebuildCurve)
+        {
+            var curve = property.serializedObject.targetObject as Curve;
+            curve.Angles = angles;
+            if (curve != null && curve.Track != null)
+                curve.Track.CreateMeshes(curve.Index - 1, curve.Index + 2);
+        }
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -104,7 +129,7 @@ public class CurveAnglesPropertyDrawer : PropertyDrawer
         for (int i = 0; i < buttons.Length; i++)
         {
             var rect = new Rect(position.x + EditorGUIUtility.labelWidth + i * buttonXDelta, position.y, buttonWidth, ButtonHeight - ButtonYPadding);
-            var content = buttons[i].Texture != null ? new GUIContent(buttons[i].Texture) : new GUIContent(buttons[i].Text);
+            var content = new GUIContent(buttons[i].Texture);
             if (GUI.Button(rect, content))
                 value = buttons[i].Value;
         }
@@ -114,7 +139,6 @@ public class CurveAnglesPropertyDrawer : PropertyDrawer
 
     private class AngleButton
     {
-        public string Text;
         public float Value;
         public Texture Texture;
 
