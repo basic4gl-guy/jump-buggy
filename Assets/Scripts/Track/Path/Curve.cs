@@ -3,11 +3,19 @@ using UnityEngine;
 
 public class Curve : MonoBehaviour {
 
+    [Header("Shape")]
+    [Range(1.0f, 200.0f)]
     public float Length = 10.0f;
+
+    [CurveAngles]
     public Vector3 Angles = new Vector3();
-    public Template Template;
+
+    [Header("Flags")]
     public bool IsJump = false;
     public bool CanRespawn = true;
+
+    [Header("Meshes")]
+    public Template Template;
 
     [NonSerialized]
     public int Index;
