@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class LaptimesDashboardDisplay : MonoBehaviour {
 
-    public ProgressTracker Car;
+    public RacetrackProgressTracker Car;
     public Text LapCount;
     public Text LapTime;
     public Text BestLapTime;

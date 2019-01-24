@@ -11,7 +11,7 @@ public class PauseMenuController : MonoBehaviour {
     [Header("Wireup")]
     public GameObject[] ShowOnPause;
     public GameObject[] HideOnPause;
-    public ProgressTracker Car;
+    public RacetrackProgressTracker Car;
     public Toggle AutoResetToggle;
 
     // Working 
@@ -62,13 +62,13 @@ public class PauseMenuController : MonoBehaviour {
 
         if (Car != null)
             Do(
-                CoroutineUtils.FadeOut()
+                VRCoroutineUtil.FadeOut()
                     .Then(() =>
                     {
                         Unpause();
                         Car.PutCarOnRoad();
                     })
-                    .Then(CoroutineUtils.FadeIn())
+                    .Then(VRCoroutineUtil.FadeIn())
                 );
     }
 
@@ -77,7 +77,7 @@ public class PauseMenuController : MonoBehaviour {
         if (isBusy) return;
 
         Do(
-            CoroutineUtils.FadeOut()
+            VRCoroutineUtil.FadeOut()
                 .Then(() =>
                 {
                     Unpause();
@@ -91,7 +91,7 @@ public class PauseMenuController : MonoBehaviour {
         if (isBusy) return;
 
         Do(
-            CoroutineUtils.FadeOut()
+            VRCoroutineUtil.FadeOut()
                 .Then(() =>
                 {
                     Unpause();

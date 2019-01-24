@@ -86,7 +86,7 @@ public class MenuController : MonoBehaviour {
         if (!IsUIEnabled) return;
         isUIEnabled = false;                        // Disable UI while fadeout is playing
         var track = TrackOverviews[trackIndex];
-        StartCoroutine(CoroutineUtils.FadeOut().Then(() => SceneManager.LoadScene(track.SceneName)));
+        StartCoroutine(VRCoroutineUtil.FadeOut().Then(() => SceneManager.LoadScene(track.SceneName)));
     }
 
     private void DisplaySelectedTrack()
