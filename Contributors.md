@@ -6,4 +6,4 @@ Tom Mulgrew - Programming
 -----------------
 [LCD font](https://github.com/ctrlcctrlv/lcd-font) - Fredrick Brennan - SIL Open Font License 1.1
 
-[Textures.com](https://www.textures.com) - Various textures
+[texturelib.com](https://texturelib.com) - Various textures
