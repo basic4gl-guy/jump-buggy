@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Misc helper functions
+/// </summary>
 public static class RacetrackUtil {
+
     /// <summary>
     /// Returns the corresponding angle in the -180 to 180 degree range.
     /// </summary>

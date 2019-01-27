@@ -2,6 +2,12 @@
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Detects the progress of an object (e.g. the player's car) around a Racetrack.
+/// Can detect when object has fallen off the track and respawn them.
+/// Also collects lap time information.
+/// Must be added to the object containing the rigid body to track.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class RacetrackProgressTracker : MonoBehaviour
 {
@@ -11,13 +17,13 @@ public class RacetrackProgressTracker : MonoBehaviour
     [Header("Parameters")]
     public int CurveSearchAhead = 2;            // # of curves to search ahead when checking whether player has progressed to the next curve. Does not count jumps (which are skipped)
     public float OffRoadTimeout = 10.0f;        // # of seconds player is off the road before they will be placed back on.
-    public bool AutoReset = true;               // Flag to auto-reset player
+    public bool AutoReset = true;               // Enables the auto-respawn logic
 
     // Working
     [Header("Working")]
     public int currentCurve = 0;
     public int lapCount = 0;
-    public float offRoadTimer = 0.0f;
+    public float offRoadTimer = 0.0f;           // # of seconds since the player was last on the road.
 
     [Header("Lap times")]
     public float LastLapTime = 0.0f;
@@ -90,6 +96,10 @@ public class RacetrackProgressTracker : MonoBehaviour
         return RacetrackCoroutineUtil.Do(() => PutCarOnRoad());
     }
 
+    /// <summary>
+    /// Place the player car back on the road.
+    /// Player is positioned above the last curve that they drove on that is flagged as "CanRespawn"
+    /// </summary>
     public void PutCarOnRoad()
     {
         var road = Racetrack.Instance;
@@ -118,6 +128,9 @@ public class RacetrackProgressTracker : MonoBehaviour
         currentCurve = curveIndex;
     }
 
+    /// <summary>
+    /// Update state after lap completed
+    /// </summary>
     private void LapCompleted()
     {
         lapCount++;

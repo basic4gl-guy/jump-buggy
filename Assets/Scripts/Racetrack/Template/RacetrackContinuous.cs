@@ -1,18 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// Used to mark subtrees inside a racetrack mesh template (typically a prefab) as containing "continuous" meshes.
+/// All meshes contained in the object's subtree will be copied and warped around the road curves.
+/// </summary>
 public class RacetrackContinuous : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

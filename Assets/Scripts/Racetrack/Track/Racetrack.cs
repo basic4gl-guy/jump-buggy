@@ -1,30 +1,46 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// The main racetrack component.
+/// Manages a collection of RacetrackCurve curves. Warps meshes around them to create 
+/// the visual and physical racetrack model.
+/// </summary>
 [ExecuteInEditMode]
 public class Racetrack : MonoBehaviour {
 
     private const int MaxSpacingGroups = 16;
 
-    // Parameters
     [Header("Parameters")]
     public float SegmentLength = 0.25f;
     public float RespawnHeight = 0.75f;
 
-    // Runtime info
+    /// <summary>
+    /// Runtime information for each curve. Used by RacetrackProgressTracker.
+    /// </summary>
     [HideInInspector]
     public CurveRuntimeInfo[] CurveInfos;
 
+    /// <summary>
+    /// Track building state at the start of each curve.
+    /// Allows rebuilding meshes for just a single curve or sub-range.
+    /// </summary>
     [HideInInspector]
     public BuildMeshesState[] CurveBuildMeshState;
 
     // Working
+
+    /// <summary>
+    /// Curves processed into a set of small linear segments
+    /// </summary>
     private List<Segment> segments;
 
+    /// <summary>
+    /// Singleton instance
+    /// </summary>
     public static Racetrack Instance;
 
     private void Awake()
@@ -34,6 +50,7 @@ public class Racetrack : MonoBehaviour {
 
     void Start()
     {
+        // Ensure segment and curve runtime information arrays are populated.
         segments = GenerateSegments().ToList();
         PositionCurves();
     }
@@ -44,19 +61,35 @@ public class Racetrack : MonoBehaviour {
             Instance = null;
     }
 
+    /// <summary>
+    /// Recreate all meshes
+    /// </summary>
     public void CreateMeshes()
     {
         CreateMeshes(0, Curves.Count);
     }
 
+    /// <summary>
+    /// Recreate a range of meshes
+    /// </summary>
+    /// <param name="startCurveIndex">INCLUSIVE index of first curve</param>
+    /// <param name="endCurveIndex">EXCLUSIVE index of last curve</param>
     public void CreateMeshes(int startCurveIndex, int endCurveIndex)
     {
+        // Delete any previous meshes
         DeleteMeshes(startCurveIndex, endCurveIndex);
+
+        // Ensure segments array and curve positions are up to date
         segments = GenerateSegments().ToList();
         PositionCurves();
+
+        // Create new meshes
         BuildMeshes(startCurveIndex, endCurveIndex);
     }
 
+    /// <summary>
+    /// Clear mesh templates from each curve
+    /// </summary>
     public void RemoveTemplates()
     {
         var curves = Curves;
@@ -65,6 +98,11 @@ public class Racetrack : MonoBehaviour {
         DeleteMeshes();
     }
 
+    /// <summary>
+    /// Add a curve to the end of the track.
+    /// Copies previous curve settings. Automatically builds meshes.
+    /// </summary>
+    /// <returns>The new curve</returns>
     public RacetrackCurve AddCurve()
     {
         var curves = Curves;
@@ -93,13 +131,23 @@ public class Racetrack : MonoBehaviour {
         return curve;
     }
 
+    /// <summary>
+    /// Delete meshes from all curves
+    /// </summary>
     public void DeleteMeshes()
     {
         DeleteMeshes(0, Curves.Count);
     }
 
+    /// <summary>
+    /// Delete meshes from a range of curves
+    /// </summary>
+    /// <param name="startCurveIndex">INCLUSIVE index of first curve</param>
+    /// <param name="endCurveIndex">EXCLUSIVE index of last curve</param>
     public void DeleteMeshes(int startCurveIndex, int endCurveIndex)
     {
+        // Find generated meshes.
+        // These have a RacetrackTemplateCopy component and "Generated" tag
         var children = Curves
             .Where(c => c.Index >= startCurveIndex && c.Index < endCurveIndex)
             .SelectMany(c => c.gameObject.GetComponentsInChildren<RacetrackTemplateCopy>())
@@ -116,6 +164,10 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Calculate each curve's position.
+    /// Also builds the curve runtime information array.
+    /// </summary>
     public void PositionCurves()
     {
         // Position curve objects at the start of their curves
@@ -151,16 +203,26 @@ public class Racetrack : MonoBehaviour {
 
             CurveInfos[index] = info;
 
+            // Move on to next curve
             index++;
             curveZOffset += curve.Length;
         }
     }
 
+    /// <summary>
+    /// Rebuild segments array
+    /// </summary>
     public void UpdateSegments()
     {
         segments = GenerateSegments().ToList();
     }
 
+    /// <summary>
+    /// Get segment array for single curve.
+    /// Used by RacetrackCurveEditor to display curves in scene GUI
+    /// </summary>
+    /// <param name="curve">The racetrack curve</param>
+    /// <returns>Enumerable of segments for the specified curve</returns>
     public IEnumerable<Segment> GetCurveSegments(RacetrackCurve curve)
     {
         if (segments == null) segments = GenerateSegments().ToList();
@@ -178,17 +240,30 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Get all segments.
+    /// Used by RacetrackCurveEditor to display curves in scene GUI
+    /// </summary>
+    /// <returns>Enumerable of all segments across all curves</returns>
     public IEnumerable<Segment> GetSegments()
     {
         if (segments == null) segments = GenerateSegments().ToList();
         return segments;
     }
 
+    /// <summary>
+    /// Build meshes for all curves
+    /// </summary>
     private void BuildMeshes()
     {
         BuildMeshes(0, Curves.Count);
     }
 
+    /// <summary>
+    /// Build meshes for range of curves
+    /// </summary>
+    /// <param name="startCurveIndex">INCLUSIVE start curve index</param>
+    /// <param name="endCurveIndex">EXCLUSIVE end curve index</param>
     private void BuildMeshes(int startCurveIndex, int endCurveIndex)
     {
         if (!segments.Any()) return;
@@ -442,6 +517,14 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Warp a single mesh along the racetrack curves
+    /// </summary>
+    /// <param name="mesh">The mesh to warp. Vertex, normal and tangent arrays will be cloned and modified.</param>
+    /// <param name="meshZOffset">The distance along all curves where mesh begins</param>
+    /// <param name="meshToTemplate">Transformation from mesh space to mesh template space</param>
+    /// <param name="worldToMesh">Transformation from world space to mesh space</param>
+    /// <returns>Length of mesh in template space</returns>
     private float WarpMeshToCurves(Mesh mesh, float meshZOffset, Matrix4x4 meshToTemplate, Matrix4x4 worldToMesh)
     {
         // Find length of mesh            
@@ -493,6 +576,11 @@ public class Racetrack : MonoBehaviour {
         return meshLength;
     }
 
+    /// <summary>
+    /// Get transformation for object positioned at a given segment
+    /// </summary>
+    /// <param name="seg">The segment</param>
+    /// <param name="dstTransform">The transform to update</param>
     private void GetSegmentTransform(Segment seg, Transform dstTransform)
     {
         // Set transform to position object at start of segment, with 
@@ -515,7 +603,7 @@ public class Racetrack : MonoBehaviour {
     /// <summary>
     /// Generate segments from track curves
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Enumerable of segments for all curves</returns>
     private IEnumerable<Segment> GenerateSegments()
     {
         // Find curves. Must be in immediate children.
@@ -566,6 +654,11 @@ public class Racetrack : MonoBehaviour {
         };
     }
 
+    /// <summary>
+    /// Get segment by index. Generate "virtual" segments to handle array overrun.
+    /// </summary>
+    /// <param name="i">Index into segments array</param>
+    /// <returns>Corresponding segment.</returns>
     private Segment GetSegment(int i)
     {
         if (i < 0) return segments[0];
@@ -584,6 +677,14 @@ public class Racetrack : MonoBehaviour {
         };
     }
 
+    /// <summary>
+    /// Get list of curves in order.
+    /// </summary>
+    /// <remarks>
+    /// Curve objects are immediate child objects with the RacetrackCurve component.
+    /// (Typically they are added with the "Add Curve" editor buttons, rather than 
+    /// created manually).
+    /// </remarks>
     public List<RacetrackCurve> Curves
     {
         get
@@ -646,11 +747,16 @@ public class Racetrack : MonoBehaviour {
     public class Segment
     {
         public Vector3 Position;
-        public Vector3 Direction;
-        public Vector3 DirectionDelta;
-        public float Length;
-        public RacetrackCurve Curve;
+        public Vector3 Direction;           // Direction as Euler angles
+        public Vector3 DirectionDelta;      // Added to Direction to get next segment's direction (and used to lerp between them)
+        public float Length;                // Copy of Racetrack.SegmentLength for convenience
+        public RacetrackCurve Curve;        // Curve to which segment belongs
 
+        /// <summary>
+        /// Get matrix converting from segment space to racetrack space
+        /// </summary>
+        /// <param name="segZ">Z distance along segment. [0, Length]</param>
+        /// <returns>A transformation matrix</returns>
         public Matrix4x4 GetSegmentToTrack(float segZ = 0.0f)
         {
             float f = segZ / Length;                                                            // Fractional distance along segment
@@ -660,6 +766,10 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Spacing group persisted state.
+    /// See RacetrackSpacingGroup class.
+    /// </summary>
     [Serializable]
     public class SpacingGroupBaseState
     {
@@ -667,22 +777,38 @@ public class Racetrack : MonoBehaviour {
         public float ZOffset = 0.0f;
     }
 
+    /// <summary>
+    /// Spacing group working state
+    /// </summary>
     public class SpacingGroupState : SpacingGroupBaseState
     {
         public bool IsActiveThisTemplate = false;
         public float ZOffsetThisTemplate = 0.0f;
     }
 
+    /// <summary>
+    /// Runtime information attached to a curve.
+    /// Can be used to track player progress along racetrack, and respawn after crashes.
+    /// See RacetracProgressTracker
+    /// </summary>
     [Serializable]
     public class CurveRuntimeInfo
     {
-        public Vector3 Normal;
+        public Vector3 Normal;                  // Upward normal in middle of curve
         public Vector3 RespawnPosition;
         public Quaternion RespawnRotation;
-        public bool IsJump;
-        public bool CanRespawn;
+        public bool IsJump;                     // Copy of RacetrackCurve.IsJump
+        public bool CanRespawn;                 // Copy of RacetrackCurve.CanRespawn
     }
 
+    /// <summary>
+    /// State for building meshes.
+    /// </summary>
+    /// <remarks>
+    /// A copy of this state for each curve is stored in the Racetrack.CurveBuildMeshState array,
+    /// so that meshes for a single curve (or range) can be built without having to rebuild the 
+    /// whole track.
+    /// </remarks>
     [Serializable]
     public class BuildMeshesState
     {
@@ -692,6 +818,7 @@ public class Racetrack : MonoBehaviour {
 
         public BuildMeshesState()
         {
+            // Populate SpacingGroups array
             SpacingGroups = new SpacingGroupBaseState[MaxSpacingGroups];
             for (int i = 0; i < SpacingGroups.Length; i++)
                 SpacingGroups[i] = new SpacingGroupBaseState();

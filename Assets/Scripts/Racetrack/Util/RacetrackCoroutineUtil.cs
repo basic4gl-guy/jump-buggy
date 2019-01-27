@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Miscellaneous co-routine utilities
+/// </summary>
 public static class RacetrackCoroutineUtil
 {
     /// <summary>
