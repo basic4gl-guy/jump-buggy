@@ -35,6 +35,8 @@ public class RacetrackCurveLengthPropertyDrawer : ButtonSliderPropertyDrawerBase
         length = EditorGUI.Slider(position, new GUIContent(" "), length, 1.0f, 250.0f);
         position.y += lineHeight + LineSpacing;
 
+        property.floatValue = length;
+
         if (rebuildCurve)
         {
             var curve = property.serializedObject.targetObject as RacetrackCurve;
