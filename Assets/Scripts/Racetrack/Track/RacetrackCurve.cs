@@ -9,8 +9,8 @@ using UnityEngine;
 public class RacetrackCurve : MonoBehaviour {
 
     [Header("Shape")]    
-    [Range(1.0f, 200.0f)]    
-    public float Length = 10.0f;
+    [RacetrackCurveLength]    
+    public float Length = 50.0f;
 
     /// <summary>
     /// Euler angles defining the turn (Y axis), pitch (X axis) and bank (Z axis) angles.

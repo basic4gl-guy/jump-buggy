@@ -2,18 +2,11 @@
 using UnityEngine;
 
 [CustomPropertyDrawer(typeof(RacetrackCurveAnglesAttribute))]
-public class RacetrackCurveAnglesPropertyDrawer : PropertyDrawer
+public class RacetrackCurveAnglesPropertyDrawer : ButtonSliderPropertyDrawerBase
 {
-    private const float ButtonHeight = 25.0f;
-    private const float ButtonXPadding = 2.0f;
-    private const float ButtonYPadding = 2.0f;
-    private const float LineSpacing = 8.0f;
-    private const string AssetPath = "Assets/Scripts/Racetrack/Track/Editor/EditorAssets/";
-
-    private bool isAssetsLoaded = false;
-    private AngleButton[] XAngleButtons;
-    private AngleButton[] YAngleButtons;
-    private AngleButton[] ZAngleButtons;
+    private PresetValueButton[] XAngleButtons;
+    private PresetValueButton[] YAngleButtons;
+    private PresetValueButton[] ZAngleButtons;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -21,7 +14,7 @@ public class RacetrackCurveAnglesPropertyDrawer : PropertyDrawer
 
         if (property.propertyType != SerializedPropertyType.Vector3)
         {
-            EditorGUI.LabelField(position, label.text, "[CurveAngles] must be applied to a Vector3");
+            EditorGUI.LabelField(position, label.text, "[RacetrackCurveAngles] must be applied to a Vector3");
             return;
         }
 
@@ -82,76 +75,38 @@ public class RacetrackCurveAnglesPropertyDrawer : PropertyDrawer
         return (base.GetPropertyHeight(property, label) + ButtonHeight + LineSpacing) * 3;
     }
 
-    private void LoadAssets()
+    protected override void InternalLoadAssets()
     {
-        if (isAssetsLoaded) return;
-
         YAngleButtons = new[] {
-            new AngleButton("YAngN90", -90.0f),
-            new AngleButton("YAngN45", -45.0f),
-            new AngleButton("YAngN30", -30.0f),
-            new AngleButton("YAng0", 0.0f),
-            new AngleButton("YAng30", 30.0f),
-            new AngleButton("YAng45", 45.0f),
-            new AngleButton("YAng90", 90.0f)
+            new PresetValueButton("YAngN90", -90.0f),
+            new PresetValueButton("YAngN45", -45.0f),
+            new PresetValueButton("YAngN30", -30.0f),
+            new PresetValueButton("YAng0", 0.0f),
+            new PresetValueButton("YAng30", 30.0f),
+            new PresetValueButton("YAng45", 45.0f),
+            new PresetValueButton("YAng90", 90.0f)
         };
 
         XAngleButtons = new[]
         {
-            new AngleButton("Grad45", -45.0f),
-            new AngleButton("Grad30", -30.0f),
-            new AngleButton("Grad15", -15.0f),
-            new AngleButton("Grad0", 0.0f),
-            new AngleButton("GradN15", 15.0f),
-            new AngleButton("GradN30", 30.0f),
-            new AngleButton("GradN45", 45.0f)
+            new PresetValueButton("Grad45", -45.0f),
+            new PresetValueButton("Grad30", -30.0f),
+            new PresetValueButton("Grad15", -15.0f),
+            new PresetValueButton("Grad0", 0.0f),
+            new PresetValueButton("GradN15", 15.0f),
+            new PresetValueButton("GradN30", 30.0f),
+            new PresetValueButton("GradN45", 45.0f)
         };
 
         ZAngleButtons = new[]
         {
-            new AngleButton("Grad45", 45.0f),
-            new AngleButton("Grad30", 30.0f),
-            new AngleButton("Grad15", 15.0f),
-            new AngleButton("Grad0", 0.0f),
-            new AngleButton("GradN15", -15.0f),
-            new AngleButton("GradN30", -30.0f),
-            new AngleButton("GradN45", -45.0f)
+            new PresetValueButton("Grad45", 45.0f),
+            new PresetValueButton("Grad30", 30.0f),
+            new PresetValueButton("Grad15", 15.0f),
+            new PresetValueButton("Grad0", 0.0f),
+            new PresetValueButton("GradN15", -15.0f),
+            new PresetValueButton("GradN30", -30.0f),
+            new PresetValueButton("GradN45", -45.0f)
         };
-
-        isAssetsLoaded = true;
-    }
-
-    private float DrawAngleButtons(Rect position, float value, params AngleButton[] buttons)
-    {
-        float width = position.width - EditorGUIUtility.labelWidth;
-        float buttonXDelta = (width + ButtonXPadding) / buttons.Length;
-        float buttonWidth = buttonXDelta - ButtonXPadding;
-        for (int i = 0; i < buttons.Length; i++)
-        {
-            var rect = new Rect(position.x + EditorGUIUtility.labelWidth + i * buttonXDelta, position.y, buttonWidth, ButtonHeight - ButtonYPadding);
-            var content = new GUIContent(buttons[i].Texture);
-            if (GUI.Button(rect, content))
-                value = buttons[i].Value;
-        }
-
-        return value;
-    }
-
-    private class AngleButton
-    {
-        public float Value;
-        public Texture Texture;
-
-        public AngleButton(string textureAsset, float value)
-        {
-            Texture = AssetDatabase.LoadAssetAtPath<Texture>(AssetPath + textureAsset + ".png");
-            Value = value;
-        }
-
-        public AngleButton(Texture texture, float value)
-        {
-            Texture = texture;
-            Value = value;
-        }
     }
 }

@@ -52,4 +52,25 @@ public class RacetrackEditor : Editor {
         }
         GUILayout.EndHorizontal();
     }
+
+
+    [MenuItem("GameObject/3D Object/Racetrack", false, 10)]
+    static void CreateNewRacetrack(MenuCommand menuCommand)
+    {
+        // Create object
+        var obj = new GameObject("Racetrack");
+
+        // Do that thing the Unity docs say is important
+        GameObjectUtility.SetParentAndAlign(obj, menuCommand.context as GameObject);
+
+        // Undo logic
+        Undo.RegisterCreatedObjectUndo(obj, "Create " + obj.name);
+
+        // Create a racetrack with a curve
+        var racetrack = obj.AddComponent<Racetrack>();
+        var curve = racetrack.AddCurve();
+
+        // Select new racetrack
+        Selection.activeObject = obj;
+    }
 }
