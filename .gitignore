@@ -4,6 +4,7 @@
 [Bb]uild/
 [Bb]uilds/
 Assets/AssetStoreTools*
+Documentation/Racetrack*
 
 # Exclude paid-for tools
 Assets/ErosionBrush

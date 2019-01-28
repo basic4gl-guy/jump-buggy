@@ -68,7 +68,7 @@ public class RacetrackEditor : Editor {
 
         // Create a racetrack with a curve
         var racetrack = obj.AddComponent<Racetrack>();
-        var curve = racetrack.AddCurve();
+        racetrack.AddCurve();
 
         // Select new racetrack
         Selection.activeObject = obj;
