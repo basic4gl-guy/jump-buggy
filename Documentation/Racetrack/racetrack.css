@@ -1,0 +1,31 @@
+html {
+    background-color: #888;
+}
+
+body {
+    font-family:proxima-nova, Helvetica, Arial, sans-serif;    
+    font-size:12pt;
+    padding: 20px 20px;    
+    margin-top:-40px;
+    background-color: #222;
+    color: #ddd;
+    max-width:960px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+img {
+    max-width: 100%;
+}
+
+h1 {
+    border-bottom: solid 1px #444;
+    margin-top:40px;
+    font-size:20pt;
+}
+
+h2 {
+    font-size:18pt;
+}
+
+h1, h1 { color: white }
