@@ -158,13 +158,13 @@ Create the road surface as follows:
 3. Drag the "woodplanks" prefab into the *scene tree* and drop it onto the "continuous" child object.
 4. Reset the "Position" of the new object to (0,0,0) in the Inspector window.
 
-If you view the template object in the scene, you'll see it now has a woodplanks surface. This is now a fully functional mesh template, which you can drag from the scene tree and drop onto the "Template" property of a racetrack curve. But we are not finished yet.
-
-![New mesh template](images/newtemplate.jpg)
-
 Placing the woodplanks mesh underneath the "continuous" object means it will be warped along the racetrack curves. The first continuous mesh is also special, as it will be treated as the main driving surface. This has certain implications:
 * It defines the length of the mesh template.
 * It means a "Racetrack Surface" script component will be attached to the mesh after it has been copied and warped. This is used by the RacetrackProgressTracker component to detect when the player is above the road. It also links back to the curve that generated it, so that the player's progress along the track can be calculated.
+
+If you view the template object in the scene, you'll see it now has a woodplanks surface. This is now a fully functional mesh template, which you can drag from the scene tree and drop onto the "Template" property of a racetrack curve. But we are not finished yet.
+
+![New mesh template](images/newtemplate.jpg)
 
 You may notice the template looks a little small. This is because the default mesh templates are all scaled by a factor of 3. Correct this as follows:
 1. Click on the "template base" object in the scene tree.
@@ -240,7 +240,7 @@ For continuous meshes, like the road surface, there are some guidelines to ensur
 Split along the Z axis
 ----------------------
 
-Meshes are warped to fit a curve by transforming their existing vertices. It does not split existing polygons or introduce new vertices, so you must provide sufficient vertices to make the result look smooth.
+Meshes are warped to fit a curve by transforming their existing vertices. The process does not split existing polygons or introduce new vertices, so you must provide sufficient vertices to make the result look smooth.
 
 ![Visual mesh](images/visualmesh.jpg)
 
@@ -259,6 +259,10 @@ To fix this, create a second mesh, identical to the first, but with more polygon
 
 Assign this mesh explicitly to the "Mesh Collider" component of your mesh object or prefab.
 
+Unlike the rendered mesh, having a high resolution collision mesh has little performance penalty. Although it is worth keeping in mind the storage requirements of the mesh, especially as it will be duplicated many times along the different curves of the racetrack.
+
+In this example the mesh has been sliced into 32 pieces, which gives a decent driving feel without being too excessive.
+
 *Note: For continuous meshes that the player will **not** be driving on, like barriers or walls, it is not necessary to have a separate high poly mesh*
 
 Use a mesh collider
@@ -273,7 +277,7 @@ Align the top of drivable surfaces with the Y=0 plane
 
 This is more of a suggestion than a rule, however it makes life a lot easier.
 
-It means a continuous surface when the track switches from one mesh template to another. The road surface will also remain at the same height if you scale the mesh template to a different size (unlike if you aligned the surface to Y=1 for example).
+It means a continuous surface when the track switches from one mesh template to another. Also, applying a different scale factor to a mesh template will not alter the height of the surface, in case you want to vary the size of the track.
 
 Spaced objects
 --------------
@@ -282,4 +286,4 @@ Spaced objects are much simpler than continuous meshes. There is no mesh warping
 
 This means:
 * You do not need to add extra vertices.
-* You can freely use box colliders, capsule colliders.
+* You do not restricted to a mesh collider. For example, you can use a box or capsule collider if suitable.
