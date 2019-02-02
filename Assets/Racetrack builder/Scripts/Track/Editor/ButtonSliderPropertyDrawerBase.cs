@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class ButtonSliderPropertyDrawerBase : PropertyDrawer
 {
-    protected const string AssetPath = "Assets/Scripts/Racetrack/Track/Editor/EditorAssets/";
+    protected const string AssetPath = "Assets/Racetrack builder/Textures/EditorAssets/";
     protected const float ButtonHeight = 25.0f;
     protected const float ButtonXPadding = 2.0f;
     protected const float ButtonYPadding = 2.0f;

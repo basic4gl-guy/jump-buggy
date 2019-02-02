@@ -68,9 +68,17 @@ public class RacetrackEditor : Editor {
 
         // Create a racetrack with a curve
         var racetrack = obj.AddComponent<Racetrack>();
-        racetrack.AddCurve();
+        var curve = racetrack.AddCurve();
+
+        // Attempt to load the "asphalt poles" mesh template and assign it to the curve
+        var templateObj = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Racetrack Builder/Prefabs/Track Templates/asphalt poles.prefab");
+        var template = templateObj != null ? templateObj.GetComponent<RacetrackMeshTemplate>() : null;
+        if (template != null) {
+            curve.Template = template;
+            racetrack.CreateMeshes();
+        }
 
         // Select new racetrack
-        Selection.activeObject = obj;
+        Selection.activeObject = curve;
     }
 }

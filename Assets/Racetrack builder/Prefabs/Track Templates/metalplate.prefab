@@ -10,22 +10,22 @@ PrefabInstance:
     - target: {fileID: 2962882982297693733, guid: ac69aa760da6bb446b989f3ce1bb35bd,
         type: 3}
       propertyPath: m_Name
-      value: metalplate Variant
+      value: metalplate
       objectReference: {fileID: 0}
     - target: {fileID: 4878838960527345742, guid: ac69aa760da6bb446b989f3ce1bb35bd,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -252.19753
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4878838960527345742, guid: ac69aa760da6bb446b989f3ce1bb35bd,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 17.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4878838960527345742, guid: ac69aa760da6bb446b989f3ce1bb35bd,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -145.22652
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4878838960527345742, guid: ac69aa760da6bb446b989f3ce1bb35bd,
         type: 3}
@@ -97,6 +97,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2024378552362462390}
     m_Modifications:
+    - target: {fileID: 8940510924759554966, guid: 4ccad49786474aa4c963506bffaed2d8,
+        type: 3}
+      propertyPath: m_Name
+      value: metal_plate
+      objectReference: {fileID: 0}
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -115,7 +120,7 @@ PrefabInstance:
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
@@ -130,7 +135,7 @@ PrefabInstance:
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
@@ -140,7 +145,7 @@ PrefabInstance:
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -90.00001
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6593976804603683844, guid: 4ccad49786474aa4c963506bffaed2d8,
         type: 3}
@@ -151,11 +156,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8940510924759554966, guid: 4ccad49786474aa4c963506bffaed2d8,
-        type: 3}
-      propertyPath: m_Name
-      value: metal_plate
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ccad49786474aa4c963506bffaed2d8, type: 3}

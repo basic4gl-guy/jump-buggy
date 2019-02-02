@@ -526,9 +526,9 @@ GameObject:
   - component: {fileID: 4774018196066316}
   - component: {fileID: 54829943264794978}
   - component: {fileID: 114737304840473126}
-  - component: {fileID: 114605107207310068}
   - component: {fileID: 114749829198746644}
-  - component: {fileID: 793477983716819835}
+  - component: {fileID: 4963333190736625773}
+  - component: {fileID: 881912431}
   m_Layer: 0
   m_Name: Car
   m_TagString: Player
@@ -615,21 +615,6 @@ MonoBehaviour:
   m_RevRangeBoundary: 1
   m_SlipLimit: 0.3
   m_BrakeTorque: 20000
---- !u!114 &114605107207310068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1161570322527112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96468c245ae8e0d4f8f1c7a7b8b0542e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InputHFactor: 0.015
-  InputVFactor: 0.05
-  SteeringWheel: {fileID: 4648040660242002}
 --- !u!114 &114749829198746644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -654,7 +639,7 @@ MonoBehaviour:
   maxRolloffDistance: 500
   dopplerLevel: 1
   useDoppler: 1
---- !u!114 &793477983716819835
+--- !u!114 &4963333190736625773
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -675,6 +660,19 @@ MonoBehaviour:
   LastLapTime: 0
   BestLapTime: 0
   CurrentLapTime: 0
+--- !u!114 &881912431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161570322527112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3aacd8f7f1fbb64fbf8e3a40733ff16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SteeringWheel: {fileID: 4648040660242002}
 --- !u!1 &1183010475334886
 GameObject:
   m_ObjectHideFlags: 0
@@ -904,15 +902,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1194999259050320}
-  m_LocalRotation: {x: 0.2767991, y: -0, z: -0, w: 0.9609278}
-  m_LocalPosition: {x: 0, y: 1.041, z: 0.066}
+  m_LocalRotation: {x: 0.17940323, y: 0, z: 0, w: 0.9837757}
+  m_LocalPosition: {x: 0, y: 0.81, z: 0.066}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4754313225965566}
   - {fileID: 4214677800698460}
   m_Father: {fileID: 4324222172410364}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 32.139, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 20.67, y: 0, z: 0}
 --- !u!1 &1205963585258266
 GameObject:
   m_ObjectHideFlags: 0
@@ -1358,7 +1356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95d543be6c0921240b22a8c88487bda9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Car: {fileID: 793477983716819835}
+  Car: {fileID: 793477983716819835, guid: cd9e6407c9fcdb84389c3a161564eb78, type: 3}
   LapCount: {fileID: 114676060514423762}
   LapTime: {fileID: 114266171046319860}
   BestLapTime: {fileID: 114566941889766676}
@@ -1554,7 +1552,7 @@ MonoBehaviour:
   - {fileID: 1807325187448526}
   HideOnPause:
   - {fileID: 1968719309455980}
-  Car: {fileID: 793477983716819835}
+  Car: {fileID: 793477983716819835, guid: cd9e6407c9fcdb84389c3a161564eb78, type: 3}
   AutoResetToggle: {fileID: 114561052497236434}
   IsPaused: 0
 --- !u!1 &1363864982375950
@@ -3456,7 +3454,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1575844682216396}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.82, z: -0.74}
+  m_LocalPosition: {x: 0, y: 0.26, z: -0.787}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4023651069551716}
@@ -3523,7 +3521,7 @@ MonoBehaviour:
   virtualGreenScreenBottomY: -10
   virtualGreenScreenApplyDepthCulling: 0
   virtualGreenScreenDepthTolerance: 0.2
-  _trackingOriginType: 0
+  _trackingOriginType: 1
   usePositionTracking: 1
   useRotationTracking: 1
   useIPDInPositionTracking: 1
@@ -11215,7 +11213,7 @@ Transform:
   m_GameObject: {fileID: 1970872495313756}
   m_LocalRotation: {x: 0.00000008102506, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.782}
-  m_LocalScale: {x: 0.55, y: 0.27305007, z: 0.40000007}
+  m_LocalScale: {x: 0.55, y: 0.225, z: 0.40000007}
   m_Children: []
   m_Father: {fileID: 4324222172410364}
   m_RootOrder: 3

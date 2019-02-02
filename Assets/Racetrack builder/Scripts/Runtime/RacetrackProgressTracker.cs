@@ -102,19 +102,39 @@ public class RacetrackProgressTracker : MonoBehaviour
     /// </summary>
     public void PutCarOnRoad()
     {
-        var road = Racetrack.Instance;
+        // Find racetrack and curve runtime information
+        var track = Racetrack.Instance;
+        if (track == null)
+        {
+            Debug.LogError("Racetrack instance not found. Cannot place car on track.");
+            return;
+        }
+        var curveInfos = track.CurveInfos;
+        if (curveInfos == null)
+        {
+            Debug.LogError("Racetrack curves have not been generated. Cannot place car on track.");
+            return;
+        }
+        if (curveInfos.Length == 0)
+        {
+            Debug.LogError("Racetrack has no curves. Cannot place car on track.");
+            return;
+        }
+
+        if (currentCurve < 0) currentCurve = 0;
+        if (currentCurve >= curveInfos.Length) currentCurve = curveInfos.Length - 1;
 
         // Search backwards from current curve for a respawnable curve. Don't go back past 
         // the start of the track though (otherwise player could clock up an extra lap).
         int curveIndex = currentCurve;
-        while (curveIndex > 0 && !road.CurveInfos[curveIndex].CanRespawn)
+        while (curveIndex > 0 && !curveInfos[curveIndex].CanRespawn)
             curveIndex--;
 
         // Position player at spawn point.
         // Spawn point is in track space, so must transform to get world space.
-        var curveInfo = road.CurveInfos[curveIndex];
-        transform.position = road.transform.TransformPoint(curveInfo.RespawnPosition);
-        transform.rotation = road.transform.rotation * curveInfo.RespawnRotation;
+        var curveInfo = curveInfos[curveIndex];
+        transform.position = track.transform.TransformPoint(curveInfo.RespawnPosition);
+        transform.rotation = track.transform.rotation * curveInfo.RespawnRotation;
 
         // Kill all linear and angular velocity
         if (carBody != null)
