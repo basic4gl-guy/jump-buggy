@@ -8,10 +8,14 @@ body {
     padding: 20px 20px;    
     margin-top:-40px;
     background-color: #222;
-    color: #ddd;
+    color: #bbb;
     max-width:960px;
     margin-left:auto;
     margin-right:auto;
+}
+
+a {
+    color:rgb(255, 255, 154);
 }
 
 img {
@@ -28,4 +32,8 @@ h2 {
     font-size:18pt;
 }
 
-h1, h1 { color: white }
+h3 { 
+    font-size:14pt;
+}
+
+h1, h2, h3 { color: white }
