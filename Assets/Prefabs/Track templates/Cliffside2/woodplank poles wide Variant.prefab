@@ -10,22 +10,22 @@ PrefabInstance:
     - target: {fileID: 3266786148659525276, guid: 454c93a79b26c304ea01a428c03abca9,
         type: 3}
       propertyPath: m_Name
-      value: woodplank poles wide
+      value: woodplank poles wide Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5187773765914890487, guid: 454c93a79b26c304ea01a428c03abca9,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 413.27753
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5187773765914890487, guid: 454c93a79b26c304ea01a428c03abca9,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 435.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5187773765914890487, guid: 454c93a79b26c304ea01a428c03abca9,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -17.70752
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5187773765914890487, guid: 454c93a79b26c304ea01a428c03abca9,
         type: 3}
@@ -81,6 +81,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8584760249439505634, guid: 454c93a79b26c304ea01a428c03abca9,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 454c93a79b26c304ea01a428c03abca9, type: 3}

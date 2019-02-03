@@ -79,22 +79,22 @@ PrefabInstance:
     - target: {fileID: 2001886476359572196, guid: 443924569fa5fab4896c77bf20587940,
         type: 3}
       propertyPath: m_Name
-      value: asphalt left poles barrier
+      value: asphalt left poles barrier Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8170507552550091919, guid: 443924569fa5fab4896c77bf20587940,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -217.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8170507552550091919, guid: 443924569fa5fab4896c77bf20587940,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 400.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8170507552550091919, guid: 443924569fa5fab4896c77bf20587940,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -14.729528
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8170507552550091919, guid: 443924569fa5fab4896c77bf20587940,
         type: 3}

@@ -10,22 +10,22 @@ PrefabInstance:
     - target: {fileID: 7364662577259806228, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
       propertyPath: m_Name
-      value: asphalt right poles barrier
+      value: asphalt right poles barrier Variant
       objectReference: {fileID: 0}
     - target: {fileID: 909676446402222207, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -277.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 909676446402222207, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 400.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 909676446402222207, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.7
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 909676446402222207, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
@@ -65,6 +65,21 @@ PrefabInstance:
     - target: {fileID: 909676446402222207, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5466854081107123298, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5466854081107123298, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5466854081107123298, guid: 1d1d6a0d8ae75a74d8b691aa2b6a5310,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

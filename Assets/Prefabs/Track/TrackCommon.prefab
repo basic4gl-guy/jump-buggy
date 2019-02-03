@@ -1356,7 +1356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95d543be6c0921240b22a8c88487bda9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Car: {fileID: 0}
+  Car: {fileID: 4963333190736625773}
   LapCount: {fileID: 114676060514423762}
   LapTime: {fileID: 114266171046319860}
   BestLapTime: {fileID: 114566941889766676}
@@ -1552,7 +1552,7 @@ MonoBehaviour:
   - {fileID: 1807325187448526}
   HideOnPause:
   - {fileID: 1968719309455980}
-  Car: {fileID: 0}
+  Car: {fileID: 4963333190736625773}
   AutoResetToggle: {fileID: 114561052497236434}
   IsPaused: 0
 --- !u!1 &1363864982375950
@@ -3455,7 +3455,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1575844682216396}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6, z: -0.787}
+  m_LocalPosition: {x: 0, y: 1.6, z: -0.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4023651069551716}
@@ -3558,7 +3558,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c784ef632db61824a9916136b9619ac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disableVR: 0
+  disableVR: 1
   floorLocalPosition: {x: 0, y: 0.26, z: -0.75}
 --- !u!1 &1593888087590182
 GameObject:

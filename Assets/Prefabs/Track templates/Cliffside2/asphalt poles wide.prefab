@@ -10,22 +10,22 @@ PrefabInstance:
     - target: {fileID: 5281847313474654210, guid: a6b86560c58689241b6e50956d579dc3,
         type: 3}
       propertyPath: m_Name
-      value: asphalt poles Variant
+      value: asphalt poles wide
       objectReference: {fileID: 0}
     - target: {fileID: 2587243584440039017, guid: a6b86560c58689241b6e50956d579dc3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -194.49
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2587243584440039017, guid: a6b86560c58689241b6e50956d579dc3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 400.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2587243584440039017, guid: a6b86560c58689241b6e50956d579dc3,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -70.6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2587243584440039017, guid: a6b86560c58689241b6e50956d579dc3,
         type: 3}
