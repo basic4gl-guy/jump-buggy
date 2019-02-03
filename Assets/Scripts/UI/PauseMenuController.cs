@@ -28,7 +28,7 @@ public class PauseMenuController : MonoBehaviour {
     void Update () {
         if (isBusy) return;
 
-        bool isBackDown = OVRInput.Get(OVRInput.Button.Back) || Input.GetKey(KeyCode.Escape);
+        bool isBackDown = OVRInput.Get(OVRInput.Button.Back) || OVRInput.Get(OVRInput.Button.Start) || Input.GetKey(KeyCode.Escape);
         if (isBackDown && !wasBackDown)
         {
             // Toggle paused state
