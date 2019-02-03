@@ -66,7 +66,10 @@ public class RacetrackCurveAnglesPropertyDrawer : ButtonSliderPropertyDrawerBase
             var curve = property.serializedObject.targetObject as RacetrackCurve;
             curve.Angles = angles;
             if (curve != null && curve.Track != null)
+            {
+                Undo.RecordObject(curve.Track, "Update meshes, curve: " + curve.Index);
                 curve.Track.CreateMeshes(curve.Index - 1, curve.Index + 2);
+            }
         }
     }
 

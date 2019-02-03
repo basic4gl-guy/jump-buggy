@@ -20,10 +20,12 @@ public class RacetrackCurveEditor : Editor
             GUILayout.Label("Update", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
             if (GUILayout.Button("Curve", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
             {
+                Undo.RecordObject(track, "Recreate meshes, curve: " + curve.Index);
                 track.CreateMeshes(curve.Index - 1, curve.Index + 2);
             }
             if (GUILayout.Button("Rest of track", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
             {
+                Undo.RecordObject(track, "Recreate meshes, from curve: " + curve.Index);
                 track.CreateMeshes(curve.Index - 1, curve.Track.Curves.Count);
             }
             GUILayout.EndHorizontal();
@@ -34,6 +36,7 @@ public class RacetrackCurveEditor : Editor
             GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
             if (GUILayout.Button("Add curve", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
             {
+                Undo.RecordObject(track, "Add curve");
                 var newCurve = track.AddCurve();
                 Selection.activeGameObject = newCurve.gameObject;
             }
@@ -95,7 +98,7 @@ public class RacetrackCurveEditor : Editor
             if (curve.Length != newLength && newLength >= 1.0f) {
                 Undo.RecordObject(target, "Changed Curve Length");
                 curve.Length = newLength;
-                track.UpdateSegments();
+                track.UpdateSegments();                
             }
         }
     }

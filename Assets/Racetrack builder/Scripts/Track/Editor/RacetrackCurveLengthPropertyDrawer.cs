@@ -42,7 +42,10 @@ public class RacetrackCurveLengthPropertyDrawer : ButtonSliderPropertyDrawerBase
             var curve = property.serializedObject.targetObject as RacetrackCurve;
             curve.Length = length;
             if (curve != null && curve.Track != null)
+            {
+                Undo.RecordObject(curve.Track, "Update meshes from curve: " + curve.Index);
                 curve.Track.CreateMeshes(curve.Index - 1, curve.Track.Curves.Count);
+            }
         }
     }
 

@@ -18,6 +18,7 @@ public class RacetrackEditor : Editor {
         GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
         if (GUILayout.Button("Update whole track", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
         {
+            Undo.RecordObject(track, "Recreate all track meshes");
             track.CreateMeshes();
         }
         GUILayout.EndHorizontal();
@@ -26,6 +27,7 @@ public class RacetrackEditor : Editor {
         GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
         if (GUILayout.Button("Add curve", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
         {
+            Undo.RecordObject(track, "Add curve");
             var curve = track.AddCurve();
             Selection.activeGameObject = curve.gameObject;
         }
@@ -39,6 +41,7 @@ public class RacetrackEditor : Editor {
         GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
         if (GUILayout.Button("Delete meshes", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
         {
+            Undo.RecordObject(track, "Delete track meshes");
             track.DeleteMeshes();
         }
         GUILayout.EndHorizontal();
@@ -48,7 +51,10 @@ public class RacetrackEditor : Editor {
         if (GUILayout.Button("Clear templates", GUILayout.MinHeight(RacetrackConstants.ButtonHeight)))
         {
             if (EditorUtility.DisplayDialog("Clear templates", "Really clear templates from all curves?", "Yes - Remove them", "Cancel"))
+            {
+                Undo.RecordObject(track, "Remove templates");
                 track.RemoveTemplates();
+            }
         }
         GUILayout.EndHorizontal();
     }
