@@ -5,10 +5,11 @@ ModelImporter:
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: No Name
+    2100000: Pavement
+    2100002: Asphalt
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Cube.001
+    4300000: asphalt_collision
   externalObjects: {}
   materials:
     importMaterials: 1

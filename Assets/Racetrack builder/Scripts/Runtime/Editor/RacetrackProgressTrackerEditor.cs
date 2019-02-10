@@ -14,7 +14,8 @@ public class RacetrackProgressTrackerEditor : Editor
         GUILayout.Space(20);
         if (GUILayout.Button("Reset car"))
         {
-            progress.PutCarOnRoad();
+            Undo.RecordObject(target, "Reset car");
+            progress.PutCarOnRoad();            
         }
     }
 }
