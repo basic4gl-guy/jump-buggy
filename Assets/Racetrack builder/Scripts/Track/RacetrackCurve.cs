@@ -28,6 +28,7 @@ public class RacetrackCurve : MonoBehaviour {
     /// True to create a "Jump".
     /// No meshes are generated for curves flagged as jumps.
     /// </summary>
+    [Tooltip("Don't create any meshes for this curve.")]
     public bool IsJump = false;
 
     /// <summary>
@@ -35,6 +36,7 @@ public class RacetrackCurve : MonoBehaviour {
     /// Useful to mark parts of the track where respawning makes it difficult/impossible
     /// to progress (e.g. not enough run-up for a jump)
     /// </summary>
+    [Tooltip("Whether this curve is a suitable respawn point, for when the car falls off the track. Used by the RacetrackProgressTracker script component.")]
     public bool CanRespawn = true;
 
     /// <summary>
@@ -42,6 +44,7 @@ public class RacetrackCurve : MonoBehaviour {
     /// If null, will inherit the template from the previous curve.
     /// </summary>
     [Header("Meshes")]
+    [Tooltip("The template object supplying the meshes to warp to the racetrack curves. If null, will use the previous curve's template.")]
     public RacetrackMeshTemplate Template;
 
     /// <summary>
@@ -49,6 +52,10 @@ public class RacetrackCurve : MonoBehaviour {
     /// </summary>
     [HideInInspector]
     public int Index;
+
+    [Header("Miscellaneous")]
+    [Tooltip("Allow this curve's length to be adjusted to create a closed circuit racetrack.")]
+    public bool AutoAdjustLength = false;
 
     /// <summary>
     /// Find the track

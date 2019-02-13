@@ -245,7 +245,7 @@ public class Racetrack : MonoBehaviour {
     /// Used by RacetrackCurveEditor to display curves in scene GUI
     /// </summary>
     /// <returns>Enumerable of all segments across all curves</returns>
-    public IEnumerable<Segment> GetSegments()
+    public List<Segment> GetSegments()
     {
         if (segments == null) segments = GenerateSegments().ToList();
         return segments;
@@ -465,9 +465,9 @@ public class Racetrack : MonoBehaviour {
                         if (subtree.IsVertical)
                         {
                             // Disassemble matrix
-                            Vector3 basisX = ToVector3(trackFromSubtree.GetRow(0));
-                            Vector3 basisY = ToVector3(trackFromSubtree.GetRow(1));
-                            Vector3 basisZ = ToVector3(trackFromSubtree.GetRow(2));
+                            Vector3 basisX = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(0));
+                            Vector3 basisY = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(1));
+                            Vector3 basisZ = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(2));
 
                             // Align Y vector with global Y axis
                             basisY = Vector3.up * basisY.magnitude;
@@ -477,9 +477,9 @@ public class Racetrack : MonoBehaviour {
                             basisZ = Vector3.Cross(basisX, basisY).normalized * basisZ.magnitude;
 
                             // Recompose matrix
-                            trackFromSubtree.SetColumn(0, ToVector4(basisX));
-                            trackFromSubtree.SetColumn(1, ToVector4(basisY));
-                            trackFromSubtree.SetColumn(2, ToVector4(basisZ));
+                            trackFromSubtree.SetColumn(0, RacetrackUtil.ToVector4(basisX));
+                            trackFromSubtree.SetColumn(1, RacetrackUtil.ToVector4(basisY));
+                            trackFromSubtree.SetColumn(2, RacetrackUtil.ToVector4(basisZ));
                         }
 
                         // Get local to world transform matrix for subtree.
@@ -729,16 +729,6 @@ public class Racetrack : MonoBehaviour {
         for (int i = 0; i < src.subMeshCount; i++)
             dst.SetTriangles(src.GetTriangles(i), i);
         return dst;
-    }
-
-    private Vector3 ToVector3(Vector4 v)
-    {
-        return new Vector3(v.x, v.y, v.z);
-    }
-
-    private Vector4 ToVector4(Vector3 v, float w = 0.0f)
-    {
-        return new Vector4(v.x, v.y, v.z, w);
     }
 
     /// <summary>
