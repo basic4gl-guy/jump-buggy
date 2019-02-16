@@ -24,6 +24,7 @@ public class RacetrackProgressTracker : MonoBehaviour
     public int currentCurve = 0;
     public int lapCount = 0;
     public float offRoadTimer = 0.0f;           // # of seconds since the player was last on the road.
+    public bool isAboveRoad = false;
 
     [Header("Lap times")]
     public float LastLapTime = 0.0f;
@@ -41,7 +42,7 @@ public class RacetrackProgressTracker : MonoBehaviour
         if (road == null || road.CurveInfos == null || !road.CurveInfos.Any()) return;
 
         // Search ahead to determine whether car is above the road, and which curve
-        bool isAboveRoad = false;
+        isAboveRoad = false;
 
         int curveIndex = currentCurve;
         for (int i = 0; i < CurveSearchAhead; i++)

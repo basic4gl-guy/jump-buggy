@@ -187,6 +187,7 @@ public class Racetrack : MonoBehaviour {
             var info = new CurveRuntimeInfo();
             info.IsJump = curve.IsJump;
             info.CanRespawn = curve.CanRespawn;
+            info.zOffset = curveZOffset;
 
             // Calculate normal in track space
             int endSegIndex = Mathf.FloorToInt((curveZOffset + curve.Length) / SegmentLength);
@@ -659,7 +660,7 @@ public class Racetrack : MonoBehaviour {
     /// </summary>
     /// <param name="i">Index into segments array</param>
     /// <returns>Corresponding segment.</returns>
-    private Segment GetSegment(int i)
+    public Segment GetSegment(int i)
     {
         if (i < 0) return segments[0];
         if (i < segments.Count) return segments[i];
@@ -789,6 +790,7 @@ public class Racetrack : MonoBehaviour {
         public Quaternion RespawnRotation;
         public bool IsJump;                     // Copy of RacetrackCurve.IsJump
         public bool CanRespawn;                 // Copy of RacetrackCurve.CanRespawn
+        public float zOffset;
     }
 
     /// <summary>
