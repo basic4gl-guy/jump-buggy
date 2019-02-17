@@ -132,6 +132,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  AccelUnderestimate: 0.2
   MaxBrake: 20
   BrakePerVelocity:
     serializedVersion: 2
@@ -211,4 +212,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  BrakeUnderestimate: 0
   GravityAccel: 9.8
+  JumpMinFactor: 1.6
+  JumpMaxFactor: 1.85
+  StayOnRoadFactor: 1.5
