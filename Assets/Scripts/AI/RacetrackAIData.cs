@@ -6,7 +6,7 @@ public class RacetrackAIData : MonoBehaviour
     public Racetrack Racetrack;
     public AICarParams AICarParams;
 
-    private SegmentAIInfo[] segmentInfos;
+    private SegmentAIData[] segmentDatas;
 
     private void Start()
     {
@@ -37,25 +37,59 @@ public class RacetrackAIData : MonoBehaviour
             return;
         }
 
-        // Build initial segment AI info. Essentially no min/max speed limits
-        var segmentInfos = new SegmentAIInfo[segments.Count];
-        for (int i = 0; i < segmentInfos.Length; i++)
-            segmentInfos[i] = new SegmentAIInfo { MinSpeed = 0.0f, MaxSpeed = 1000.0f };
+        // Build initial segment AI info. Set min/max speed limits when:
+        //  * When specified explicitly
+        //  * To complete jumps (min)
+        //  * To prevent flying off road (max)
+        //  * To turn corners successfully (max)
+        //  * To prevent sliding down banked corners (min)
+        segmentDatas = new SegmentAIData[segments.Count];
+        int ci = 0;
+        float curveEndZ = curveInfos[ci].zOffset + curves[ci].Length;
+        for (int i = 0; i < segmentDatas.Length; i++)
+        {
+            // Defaults
+            float min = 0.0f;
+            float max = 1000.0f;
 
-        // Work backwards over length of track.
-        // Apply explicit speed limits defined on corners.
-        // Propagate limits backwards based on acceleration/deceleration required
-        // 2 passes are required, so that limits at the start of the track propagate back to the end of the track.
+            // Apply limits on last segment of curve
+            float segZ = i * Racetrack.SegmentLength;
+            if (segZ + Racetrack.SegmentLength > curveEndZ)
+            {
+                // Look for AI data
+                var aiData = ci < curves.Count ? curves[ci].GetComponent<RacetrackCurveAIData>() : null;
+                if (aiData != null)
+                {
+                    if (aiData.MaxSpeed != 0.0f)
+                        max = aiData.MaxSpeed;
+                    if (aiData.MinSpeed != 0.0f)
+                        min = aiData.MinSpeed;
+                }
+
+                // Move on to next curve
+                ci++;
+                //curveEndZ = ci < curves.Count
+                //    ? curveInfos[ci].zOffset + curves[ci].Length
+                //    : segments.Count * Racetrack.SegmentLength;
+                if (ci < curves.Count)
+                    curveEndZ = curveInfos[ci].zOffset + curves[ci].Length;
+                else
+                    curveEndZ = segments.Count * Racetrack.SegmentLength;
+            }
+
+            segmentDatas[i] = new SegmentAIData { MinSpeed = min, MaxSpeed = max };
+        }
+
+        // Propagate speed limits backwards, based on acceleration and braking limitations
         for (int pass = 0; pass < 2; pass++)
         {
-            int ci = curves.Count - 1;
-            bool isLastSegment = true;
-            for (int i = segmentInfos.Length - 1; i >= 0; i--)
+            ci = curves.Count - 1;
+            for (int i = segmentDatas.Length - 1; i >= 0; i--)
             {
                 // Get segment data
                 var segment = segments[i];
-                var segInfo = segmentInfos[i];
-                var nextSegInfo = segmentInfos[(i + 1) % segmentInfos.Length];
+                var segData = segmentDatas[i];
+                var nextSegData = segmentDatas[(i + 1) % segmentDatas.Length];
 
                 // Calculate gradient
                 Matrix4x4 trackFromSeg = segment.GetSegmentToTrack();
@@ -79,58 +113,49 @@ public class RacetrackAIData : MonoBehaviour
                 //        2ad = v1^2 - v0^2
                 //       v0^2 = v1^2 - 2ad
                 //       v0   = sqrt(v1^2 - 2ad)
-                if (nextSegInfo.MaxSpeed < 1000.0f)
+                if (nextSegData.MaxSpeed < 1000.0f)
                 {
                     // Next segment has a maximum speed.
-                    // Calculate this segment's maximum speed to allow car to decelerate
-                    float a = -AICarParams.GetBrake(nextSegInfo.MaxSpeed, gradient);
+                    // Calculate this segment's maximum speed which would allow car to brake down to next seg's max speed
+                    float a = -AICarParams.GetBrake(nextSegData.MaxSpeed, gradient);
                     float d = Racetrack.SegmentLength;
-                    float v1 = nextSegInfo.MaxSpeed;
-                    float v0 = Mathf.Sqrt(v1*v1 - 2*a*d);
-                    if (v0 < segInfo.MaxSpeed)
-                        segInfo.MaxSpeed = v0;
-                }
-
-                if (nextSegInfo.MinSpeed > 0.0f)
-                {
-                    // Next segment has a maximum speed.
-                    // Calculate this segment's maximum speed to allow car to decelerate
-                    float a = AICarParams.GetAccel(nextSegInfo.MaxSpeed, gradient);
-                    float d = Racetrack.SegmentLength;
-                    float v1 = nextSegInfo.MaxSpeed;
-                    float v0 = Mathf.Sqrt(v1*v1 - 2*a*d);
-                    if (v0 > segInfo.MinSpeed)
-                        segInfo.MinSpeed = v0;
-                }
-
-                // Look for explicit curve speed limits.
-                // Applies only to the last segment of the curve
-                if (isLastSegment)
-                {
-                    var aiData = curves[ci].GetComponent<RacetrackCurveAIData>();
-                    if (aiData != null)
-                    {
-                        if (aiData.MaxSpeed != 0.0f && aiData.MaxSpeed < segInfo.MaxSpeed)
-                            segInfo.MaxSpeed = aiData.MaxSpeed;
-                        if (aiData.MinSpeed != 0.0f && aiData.MinSpeed > segInfo.MinSpeed)
-                            segInfo.MinSpeed = aiData.MinSpeed;
+                    float v1 = nextSegData.MaxSpeed;
+                    float sqrtTerm = v1*v1 - 2*a*d;
+                    if (sqrtTerm >= 0.0f)
+                    { 
+                        float v0 = Mathf.Sqrt(sqrtTerm);
+                        if (v0 < segData.MaxSpeed)
+                            segData.MaxSpeed = v0;
                     }
                 }
 
-                // Walk down curve arrays in parallel.
-                // Detect when we are on the last segment of the curve.
-                isLastSegment = false;
-                float zOffset = (i-1) * Racetrack.SegmentLength;
-                while (zOffset < curveInfos[ci].zOffset && ci > 0)
                 {
-                    ci--;
-                    isLastSegment = true;
-                }                
+                    // Next segment has a minimum speed.
+                    // Calculate this segment's minimum speed which would allow car to accelerate up to next seg's min speed
+                    float a = AICarParams.GetAccel(nextSegData.MinSpeed, gradient);
+                    float d = Racetrack.SegmentLength;
+                    float v1 = nextSegData.MinSpeed;
+                    float sqrtTerm = v1*v1 - 2*a*d;
+                    if (sqrtTerm >= 0.0f)
+                    {
+                        float v0 = Mathf.Sqrt(sqrtTerm);
+                        if (v0 > segData.MinSpeed)
+                            segData.MinSpeed = v0;
+                    }
+                }
             }
         }
     }
 
-    public class SegmentAIInfo
+    public SegmentAIData GetAIData(int index)
+    {
+        if (segmentDatas == null || index < 0 || index >= segmentDatas.Length)
+            return new SegmentAIData { MinSpeed = 0.0f, MaxSpeed = 1000.0f };
+        else
+            return segmentDatas[index];
+    }
+
+    public class SegmentAIData
     {
         public float MinSpeed;
         public float MaxSpeed;

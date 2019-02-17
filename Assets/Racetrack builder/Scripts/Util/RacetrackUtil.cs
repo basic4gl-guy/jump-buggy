@@ -82,6 +82,7 @@ public static class RacetrackUtil {
             Curve = curve,
             Info = info,
             Segment = seg,
+            SegmentIndex = lo,
 
             // Position in segment space
             Position = carPos,
@@ -101,6 +102,7 @@ public class CarState
     public RacetrackCurve Curve { get; internal set; }
     public Racetrack.CurveRuntimeInfo Info { get; internal set; }
     public Racetrack.Segment Segment { get; internal set; }
+    public int SegmentIndex { get; internal set; }
     public Vector3 Position { get; internal set; }
     public Vector3 Direction { get; internal set; }
     public Vector3 Velocity { get; internal set; }

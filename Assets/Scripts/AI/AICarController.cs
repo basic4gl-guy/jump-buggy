@@ -8,6 +8,7 @@ public class AICarController : MonoBehaviour
 {
     public Racetrack Track;
     public Transform SteeringWheel;
+    public RacetrackAIData RacetrackAIData;
 
     private CarController carController; // the car controller we want to use
     private Rigidbody rigidBody;
@@ -18,6 +19,13 @@ public class AICarController : MonoBehaviour
     public float SteeringSpeedFactor = 300.0f;
     public float SteeringRate = 10.0f;
     public float SteeringLimit = 90.0f;
+
+    [Header("Debugging")]
+    public float DebugVelocity;
+    public float DebugMaxVelocity;
+    public float DebugMinVelocity;
+    public float DebugX;
+    public float DebugAngle;
 
     private void Awake()
     {
@@ -53,6 +61,13 @@ public class AICarController : MonoBehaviour
         // Get car-relative-to-surface info
         var state = RacetrackUtil.GetCarState(rigidBody, track, tracker.currentCurve);
 
+        // Debugging
+        DebugVelocity = state.Velocity.z;
+        DebugMaxVelocity = 1000.0f;
+        DebugMinVelocity = 0.0f;
+        DebugX = state.Position.x;
+        DebugAngle = state.Angle;
+
         // Calculate car input
         float inputX = 0.0f;
         float inputY = 0.0f;
@@ -76,7 +91,20 @@ public class AICarController : MonoBehaviour
         }
 
         inputX = Mathf.Clamp(inputX, -SteeringLimit, SteeringLimit);
-        inputY = 1.0f;      // TODO!
+
+        // Acceleration/braking
+        inputY = 1.0f;
+        if (RacetrackAIData != null)
+        {
+            var segData = RacetrackAIData.GetAIData(state.SegmentIndex);
+            float midVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;
+            float targetVel = Mathf.Max(segData.MaxSpeed - 1.0f, midVel);
+            inputY = Mathf.Sign(targetVel - state.Velocity.z);
+
+            // Debugging
+            DebugMaxVelocity = segData.MaxSpeed;
+            DebugMinVelocity = segData.MinSpeed;
+        }
 
         // Feed input into car
         carController.Move(inputX / 90.0f, inputY, inputY, 0.0f);

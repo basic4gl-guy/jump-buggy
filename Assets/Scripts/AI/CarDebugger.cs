@@ -8,6 +8,7 @@ public class CarDebugger : MonoBehaviour
 {
     public float MaxSpeed = 150.0f / MathUtil.MilesPerKM * 1000.0f / 3600.0f;
     public float MaxAccel = 10.0f;
+    public float MaxBrake = 20.0f;
     public float ResetSpeed = 7.0f;
 
     private bool gotInfo = false;
@@ -54,7 +55,7 @@ public class CarDebugger : MonoBehaviour
         if (gotInfo)
         {
             float accel = (speed - prevSpeed) / Time.fixedDeltaTime;
-            Debug.Log(string.Format("Gradient: {0:0.00}, Speed: {1:0.00}, Accel: {2:0.00}, Adj-Speed: {3:0.00}, Adj-Accel: {4:0.00}", gradient, speed, accel, speed / MaxSpeed, accel / MaxAccel));
+            Debug.Log(string.Format("Gradient: {0:0.00}, Speed: {1:0.00}, Accel: {2:0.00}, Adj-Speed: {3:0.00}, Adj-Accel: {4:0.00}, Adj-Brake: {5:0.00}", gradient, speed, accel, speed / MaxSpeed, accel / MaxAccel, -accel / MaxBrake));
         }
 
         prevSpeed = speed;
