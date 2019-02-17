@@ -93,6 +93,7 @@ public class RacetrackAIData : MonoBehaviour
                             {
                                 float num = g * f * f;
                                 float s = Mathf.Sqrt(num / denom);
+                                s *= AICarParams.JumpFactor;
                                 if (s > min)
                                     min = s;
                             }

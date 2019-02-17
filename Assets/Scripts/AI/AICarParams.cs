@@ -16,6 +16,9 @@ public class AICarParams : MonoBehaviour
     [Header("Physics")]
     public float GravityAccel = 9.8f;
 
+    [Tooltip("Jump speeds are multiplied by this factor, to compensate for drag")]
+    public float JumpFactor = 1.5f;
+
     public float GetAccel(float velocity, float slope)
     {
         // Get acceleration for given velocity

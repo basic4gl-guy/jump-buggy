@@ -54,6 +54,29 @@ public static class RacetrackUtil {
         int lo = Mathf.FloorToInt(loZ / track.SegmentLength);
         int hi = Mathf.FloorToInt(hiZ / track.SegmentLength);
 
+        // Allow for curve index to be too far ahead.
+        // This is because curve index will often be supplied from the RacetrackProgressTracker component, 
+        // which can be optimistic sometimes, depending on which curves generate geometry
+        {
+            float dp;
+            int count = 0;
+            do
+            {
+                var loSeg = track.GetSegment(lo);
+                Matrix4x4 trackFromMidSeg = loSeg.GetSegmentToTrack();
+                Vector3 segForward = trackFromMidSeg.MultiplyVector(Vector3.forward);
+                dp = Vector3.Dot(carPosTrack - loSeg.Position, segForward);
+                if (dp < 0.0f)
+                {
+                    hi = lo;
+                    lo = lo - 50;
+                    if (lo < 0)
+                        lo = 0;
+                }
+                count++;
+            } while (dp < 0.0f && count < 10);
+        }
+
         while (hi > lo)
         {
             int mid = (lo + hi + 1) / 2;
