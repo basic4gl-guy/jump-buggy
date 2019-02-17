@@ -1,21 +1,15 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: c3569f4c6aeb8884c99b89c003e5922b
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: SeatMat
+    2100000: BlockMat
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+    4300000: SteeringRack.001
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0

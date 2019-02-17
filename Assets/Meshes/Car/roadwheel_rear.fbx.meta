@@ -1,21 +1,23 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: 49ce94aae35cb984797423b7c7e51fcd
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2100000: SeatMat
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+    100000: Export_RearRightTyre
+    100002: Export_RearWheel
+    100004: //RootNode
+    400000: Export_RearRightTyre
+    400002: Export_RearWheel
+    400004: //RootNode
+    2100000: RearTyreMat
+    2100002: RearWheelMat
+    2300000: Export_RearRightTyre
+    2300002: Export_RearWheel
+    3300000: Export_RearRightTyre
+    3300002: Export_RearWheel
+    4300000: Export_RearRightTyre
+    4300002: Export_RearWheel
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0

@@ -1,21 +1,33 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: f4c1a05e3b3efe24f9dbb4a09ce7a97c
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2100000: SeatMat
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+    100000: BalljointRightLower.001
+    100002: BalljointRightUpper.001
+    100004: FrontRightUpright.002
+    100006: SteeringBalljoint.001
+    100008: //RootNode
+    400000: BalljointRightLower.001
+    400002: BalljointRightUpper.001
+    400004: FrontRightUpright.002
+    400006: SteeringBalljoint.001
+    400008: //RootNode
+    2100000: UprightMat
+    2100002: BalljointMat
+    2300000: BalljointRightLower.001
+    2300002: BalljointRightUpper.001
+    2300004: FrontRightUpright.002
+    2300006: SteeringBalljoint.001
+    3300000: BalljointRightLower.001
+    3300002: BalljointRightUpper.001
+    3300004: FrontRightUpright.002
+    3300006: SteeringBalljoint.001
+    4300000: FrontRightUpright.002
+    4300002: BalljointRightUpper.001
+    4300004: BalljointRightLower.001
+    4300006: SteeringBalljoint.001
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0

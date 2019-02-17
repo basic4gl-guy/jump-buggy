@@ -1,21 +1,43 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: 4438eab892b043a47a2da46075f9a015
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Dash.001
+    100004: GaugeLargeL.004
+    100006: GaugeLargeL.005
+    100008: GaugeLargeL.006
+    100010: GaugeLargeL.007
     400000: //RootNode
-    2100000: SeatMat
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
+    400002: Dash.001
+    400004: GaugeLargeL.004
+    400006: GaugeLargeL.005
+    400008: GaugeLargeL.006
+    400010: GaugeLargeL.007
+    2100000: DashMat
+    2100002: No Name
+    2300000: Dash.001
+    2300002: GaugeLargeL.004
+    2300004: GaugeLargeL.005
+    2300006: GaugeLargeL.006
+    2300008: GaugeLargeL.007
+    3300000: Dash.001
+    3300002: GaugeLargeL.004
+    3300004: GaugeLargeL.005
+    3300006: GaugeLargeL.006
+    3300008: GaugeLargeL.007
+    4300000: Dash.001
+    4300002: GaugeLargeL.004
+    4300004: GaugeLargeL.005
+    4300006: GaugeLargeL.006
+    4300008: GaugeLargeL.007
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+      name: DashMat
+    second: {fileID: 2100000, guid: 492b5abaf4810454db7f1cd4d6f7ee70, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

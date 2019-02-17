@@ -369,6 +369,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: BlockMat
+    second: {fileID: 2100000, guid: faa2af44589b2524a80acedee6bb4020, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CylinderHeadMat
+    second: {fileID: 2100000, guid: f3153e12785d58d4f97c24d7306ecf57, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: ExhaustMat
     second: {fileID: 2100000, guid: 5aac9a6100d8d0b4fbee05db82ec7a9d, type: 2}
   - first:
@@ -381,6 +391,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: SumpMat
     second: {fileID: 2100000, guid: 882b94d126097d44697b4c95b6214dc2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TimingCoverMat
+    second: {fileID: 2100000, guid: f2eca3ba4ea0a374bb5f187ece4162e0, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

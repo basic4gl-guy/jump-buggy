@@ -1,21 +1,33 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: e0af873c11b857846a4f24694a812838
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: SteeringWheelHub.002
+    100004: SteeringWheelHub.003
     400000: //RootNode
-    2100000: SeatMat
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
+    400002: SteeringWheelHub.002
+    400004: SteeringWheelHub.003
+    2100000: SteeringWheelMat
+    2100002: SteeringWheelHubMat
+    2300000: SteeringWheelHub.002
+    2300002: SteeringWheelHub.003
+    3300000: SteeringWheelHub.002
+    3300002: SteeringWheelHub.003
+    4300000: SteeringWheelHub.002
+    4300002: SteeringWheelHub.003
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+      name: SteeringWheelHubMat
+    second: {fileID: 2100000, guid: 779c74e3a87271647a02e4f6f0978cb7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SteeringWheelMat
+    second: {fileID: 2100000, guid: 328d77cc7cd6900408e8ae5e4429604d, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

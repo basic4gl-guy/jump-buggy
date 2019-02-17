@@ -1,21 +1,20 @@
 fileFormatVersion: 2
-guid: d346de084ec0e034da9682d14df45ca5
+guid: 29f209132f5a90c4b8ab5f1688da5b81
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: SeatMat
+    2100000: FuelTankMat
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Seat
-    4300002: Seat.001
+    4300000: FuelTank.001
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: SeatMat
-    second: {fileID: 2100000, guid: 46d569b08d2349a4cb6decbe61713037, type: 2}
+      name: FuelTankMat
+    second: {fileID: 2100000, guid: 0adb23e63d343dc45a93428707cce48a, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
