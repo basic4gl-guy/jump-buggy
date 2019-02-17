@@ -21,6 +21,7 @@ public class AICarController : MonoBehaviour
     public float SteeringLimit = 90.0f;
 
     [Header("Debugging")]
+    public int DebugSegmentIndex;
     public float DebugVelocity;
     public float DebugMaxVelocity;
     public float DebugMinVelocity;
@@ -62,6 +63,7 @@ public class AICarController : MonoBehaviour
         var state = RacetrackUtil.GetCarState(rigidBody, track, tracker.currentCurve);
 
         // Debugging
+        DebugSegmentIndex = state.SegmentIndex;
         DebugVelocity = state.Velocity.z;
         DebugMaxVelocity = 1000.0f;
         DebugMinVelocity = 0.0f;
@@ -98,7 +100,11 @@ public class AICarController : MonoBehaviour
         {
             var segData = RacetrackAIData.GetAIData(state.SegmentIndex);
             float midVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;
-            float targetVel = Mathf.Max(segData.MaxSpeed - 1.0f, midVel);
+
+            //float targetVel = Mathf.Max(segData.MaxSpeed - 1.0f, midVel);         // Fast as possible, with small buffer.
+
+            float targetVel = Mathf.Min(Mathf.Max(segData.MinSpeed + 1.0f, 7.5f), midVel);           // Slow as possible, with small buffer.
+
             inputY = Mathf.Sign(targetVel - state.Velocity.z);
 
             // Debugging

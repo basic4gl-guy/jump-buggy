@@ -48,6 +48,8 @@ public class RacetrackAIData : MonoBehaviour
         float curveEndZ = curveInfos[ci].zOffset + curves[ci].Length;
         for (int i = 0; i < segmentDatas.Length; i++)
         {
+            var seg = segments[i];
+
             // Defaults
             float min = 0.0f;
             float max = 1000.0f;
@@ -56,7 +58,49 @@ public class RacetrackAIData : MonoBehaviour
             float segZ = i * Racetrack.SegmentLength;
             if (segZ + Racetrack.SegmentLength > curveEndZ)
             {
-                // Look for AI data
+                if (!curves[ci].IsJump)
+                {
+                    // Calculate speed for jumps
+                    int nextCI = (ci + 1) % curves.Count;
+                    if (curves[nextCI].IsJump)
+                    {
+                        // Find end of jump
+                        while (nextCI != ci && curves[nextCI].IsJump)
+                            nextCI = (nextCI + 1) % curves.Count;
+
+                        // Let  D = Jump distance (x = horizontal, y = vertical)
+                        //      T = Road tangent at jump
+                        //      g = Gravity acceleration
+                        //      s = Minimum speed required to complete the jump
+                        //       ________________
+                        //      /   g(Dx/Tx)^2
+                        // s = / ---------------
+                        //   \/   2(Dx/Tx - Dy)
+                        int nextI = Mathf.FloorToInt(curveInfos[nextCI].zOffset / Racetrack.SegmentLength);
+                        var nextSeg = segments[nextI];
+                        Vector3 diff = nextSeg.Position - seg.Position;
+                        Vector2 D = new Vector2(new Vector2(diff.x, diff.z).magnitude, diff.y);
+                        Vector3 dir = seg.GetSegmentToTrack().MultiplyVector(Vector3.forward).normalized;
+                        Vector2 T = new Vector2(new Vector2(dir.x, dir.z).magnitude, dir.y);
+                        float g = AICarParams.GravityAccel;
+
+                        // Jump must have a horizontal component. Otherwise the mathematics breaks down.
+                        if (T.x > 0.01f)
+                        {
+                            float f = D.x / T.x;
+                            float denom = 2.0f * (f - D.y);
+                            if (denom > 0.01f)
+                            {
+                                float num = g * f * f;
+                                float s = Mathf.Sqrt(num / denom);
+                                if (s > min)
+                                    min = s;
+                            }
+                        }
+                    }
+                }
+
+                // Look for explicit min/max override
                 var aiData = ci < curves.Count ? curves[ci].GetComponent<RacetrackCurveAIData>() : null;
                 if (aiData != null)
                 {
@@ -130,8 +174,10 @@ public class RacetrackAIData : MonoBehaviour
                 }
 
                 {
-                    // Next segment has a minimum speed.
                     // Calculate this segment's minimum speed which would allow car to accelerate up to next seg's min speed
+                    // Note: If curve is on a steep slope, then car's maximum "acceleration" may actually be a deceleration.
+                    // Therefore the necessary minimum speed may actually be *greater* than the next segment.
+                    // This is why we perform the calculation even if the next seg's min speed is 0.
                     float a = AICarParams.GetAccel(nextSegData.MinSpeed, gradient);
                     float d = Racetrack.SegmentLength;
                     float v1 = nextSegData.MinSpeed;
