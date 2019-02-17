@@ -16,9 +16,13 @@ public class AICarController : MonoBehaviour
 
     [Header("Parameters")]
     public float RecenterTime = 1.0f;
+    public float RecenterAngleRange = 20.0f;
     public float SteeringSpeedFactor = 300.0f;
     public float SteeringRate = 10.0f;
     public float SteeringLimit = 90.0f;
+
+    public float PreferredSpeed = 50.0f;
+    public float MinMaxSpeedBuffer = 1.0f;
 
     [Header("Debugging")]
     public int DebugSegmentIndex;
@@ -83,6 +87,7 @@ public class AICarController : MonoBehaviour
             // Calculate angle required to get to targetX in RecenterTime
             Vector2 targetDir = new Vector2((targetX - state.Position.x) / RecenterTime, state.Velocity.z);
             float targetAng = Mathf.Atan2(targetDir.x, targetDir.y) * Mathf.Rad2Deg;
+            targetAng = Mathf.Clamp(targetAng, -RecenterAngleRange, RecenterAngleRange);
 
             // Calculate direction to turn
             float angDelta = RacetrackUtil.LocalAngle(targetAng - state.Angle);
@@ -99,13 +104,20 @@ public class AICarController : MonoBehaviour
         if (RacetrackAIData != null)
         {
             var segData = RacetrackAIData.GetAIData(state.SegmentIndex);
-            float midVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;
+            float targetVel;
 
-            //float targetVel = Mathf.Max(segData.MaxSpeed - 1.0f, midVel);         // Fast as possible, with small buffer.
+            if (segData.MaxSpeed - segData.MinSpeed < MinMaxSpeedBuffer * 2.0f)
+            {
+                // No room for buffer, just aim for middle of range
+                targetVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;                
+            }
+            else
+            {
+                // Otherwise clamp preferred speed
+                targetVel = Mathf.Clamp(PreferredSpeed, segData.MinSpeed + MinMaxSpeedBuffer, segData.MaxSpeed - MinMaxSpeedBuffer);
+            }
 
-            float targetVel = Mathf.Min(Mathf.Max(segData.MinSpeed + 1.0f, 7.5f), midVel);           // Slow as possible, with small buffer.
-
-            inputY = Mathf.Sign(targetVel - state.Velocity.z);
+            inputY = Mathf.Sign(targetVel - state.Velocity.z);      // TODO: Smoother input?
 
             // Debugging
             DebugMaxVelocity = segData.MaxSpeed;

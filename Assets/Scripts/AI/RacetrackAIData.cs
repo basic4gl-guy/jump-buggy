@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RacetrackAIData : MonoBehaviour
@@ -67,41 +68,41 @@ public class RacetrackAIData : MonoBehaviour
                         // Find end of jump
                         while (nextCI != ci && curves[nextCI].IsJump)
                             nextCI = (nextCI + 1) % curves.Count;
-
-                        // Let  D = Jump distance (x = horizontal, y = vertical)
-                        //      T = Road tangent at jump
-                        //      g = Gravity acceleration
-                        //      s = Minimum speed required to complete the jump
-                        //       ________________
-                        //      /   g(Dx/Tx)^2
-                        // s = / ---------------
-                        //   \/   2(Dx/Tx - Dy)
                         int nextI = Mathf.FloorToInt(curveInfos[nextCI].zOffset / Racetrack.SegmentLength);
-                        var nextSeg = segments[nextI];
-                        Vector3 diff = nextSeg.Position - seg.Position;
-                        Vector2 D = new Vector2(new Vector2(diff.x, diff.z).magnitude, diff.y);
-                        Vector3 dir = seg.GetSegmentToTrack().MultiplyVector(Vector3.forward).normalized;
-                        Vector2 T = new Vector2(new Vector2(dir.x, dir.z).magnitude, dir.y);
-                        float g = AICarParams.GravityAccel;
 
-                        // Jump must have a horizontal component. Otherwise the mathematics breaks down.
-                        if (T.x > 0.01f)
+                        // Set jump speed as minimum speed
+                        float s = GetJumpSpeed(curveInfos, segments, seg, segments[nextI]);
+
+                        if (s > 0.0f)
                         {
-                            float f = D.x / T.x;
-                            float denom = 2.0f * (f - D.y);
-                            if (denom > 0.01f)
-                            {
-                                float num = g * f * f;
-                                float s = Mathf.Sqrt(num / denom);
-                                s *= AICarParams.JumpFactor;
-                                if (s > min)
-                                    min = s;
-                            }
+                            // Calculate minimum and maximum jump speeds
+                            float sMin = s * AICarParams.JumpMinFactor;
+                            if (s > min)
+                                min = sMin;
+
+                            float sMax = s * AICarParams.JumpMaxFactor;
+                            if (s < max)
+                                max = sMax;
+                        }
+                    }
+                    else
+                    {
+                        // Next curve is not a jump.
+                        // If curve curves downwards, calculate jump speed and set that as a *maximum*
+                        // This should help keep the wheels on the ground.                        
+                        if (curves[nextCI].Angles.x > curves[ci].Angles.x)
+                        {
+                            // Find end of next curve
+                            int nextI = Mathf.FloorToInt((curveInfos[nextCI].zOffset + curves[nextCI].Length) / Racetrack.SegmentLength);
+                            float s = GetJumpSpeed(curveInfos, segments, seg, segments[nextI]);
+                            s *= AICarParams.StayOnRoadFactor;
+                            if (s > 0.0f && s < max)
+                                max = s;
                         }
                     }
                 }
 
-                // Look for explicit min/max override
+                //// Look for explicit min/max override
                 var aiData = ci < curves.Count ? curves[ci].GetComponent<RacetrackCurveAIData>() : null;
                 if (aiData != null)
                 {
@@ -113,13 +114,9 @@ public class RacetrackAIData : MonoBehaviour
 
                 // Move on to next curve
                 ci++;
-                //curveEndZ = ci < curves.Count
-                //    ? curveInfos[ci].zOffset + curves[ci].Length
-                //    : segments.Count * Racetrack.SegmentLength;
-                if (ci < curves.Count)
-                    curveEndZ = curveInfos[ci].zOffset + curves[ci].Length;
-                else
-                    curveEndZ = segments.Count * Racetrack.SegmentLength;
+                curveEndZ = ci < curves.Count
+                    ? curveInfos[ci].zOffset + curves[ci].Length
+                    : segments.Count * Racetrack.SegmentLength;
             }
 
             segmentDatas[i] = new SegmentAIData { MinSpeed = min, MaxSpeed = max };
@@ -200,6 +197,37 @@ public class RacetrackAIData : MonoBehaviour
             return new SegmentAIData { MinSpeed = 0.0f, MaxSpeed = 1000.0f };
         else
             return segmentDatas[index];
+    }
+
+    private float GetJumpSpeed(Racetrack.CurveRuntimeInfo[] curveInfos, ICollection<Racetrack.Segment> segments, Racetrack.Segment seg, Racetrack.Segment nextSeg)
+    {
+        // Let  D = Jump distance (x = horizontal, y = vertical)
+        //      T = Road tangent at jump
+        //      g = Gravity acceleration
+        //      s = Minimum speed required to complete the jump
+        //       ________________
+        //      /   g(Dx/Tx)^2
+        // s = / ---------------
+        //   \/   2(Dx/Tx - Dy)
+        Vector3 diff = nextSeg.Position - seg.Position;
+        Vector2 D = new Vector2(new Vector2(diff.x, diff.z).magnitude, diff.y);
+        Vector3 dir = seg.GetSegmentToTrack().MultiplyVector(Vector3.forward).normalized;
+        Vector2 T = new Vector2(new Vector2(dir.x, dir.z).magnitude, dir.y);
+        float g = AICarParams.GravityAccel;
+
+        // Jump must have a horizontal component. Otherwise the mathematics breaks down.
+        if (T.x > 0.01f)
+        {
+            float f = D.x / T.x;
+            float denom = 2.0f * (f - D.y);
+            if (denom > 0.01f)
+            {
+                float num = g * f * f;
+                return Mathf.Sqrt(num / denom);
+            }
+        }
+
+        return 0.0f;
     }
 
     public class SegmentAIData
