@@ -20,6 +20,7 @@ public class AICarController : MonoBehaviour
     public float SteeringSpeedFactor = 300.0f;
     public float SteeringRate = 10.0f;
     public float SteeringLimit = 90.0f;
+    public float SteeringSmooth = 0.1f;
 
     public float PreferredSpeed = 50.0f;
     public float MinMaxSpeedBuffer = 1.0f;
@@ -31,6 +32,8 @@ public class AICarController : MonoBehaviour
     public float DebugMinVelocity;
     public float DebugX;
     public float DebugAngle;
+
+    private float prevInputX = 0.0f;
 
     private void Awake()
     {
@@ -98,6 +101,7 @@ public class AICarController : MonoBehaviour
         }
 
         inputX = Mathf.Clamp(inputX, -SteeringLimit, SteeringLimit);
+        inputX = Mathf.Lerp(inputX, prevInputX, SteeringSmooth);
 
         // Acceleration/braking
         inputY = 1.0f;
@@ -126,6 +130,7 @@ public class AICarController : MonoBehaviour
 
         // Feed input into car
         carController.Move(inputX / 90.0f, inputY, inputY, 0.0f);
+        prevInputX = inputX;
 
         // Set steering wheel position
         if (SteeringWheel != null)

@@ -366,6 +366,36 @@ PrefabInstance:
       propertyPath: currentCurve
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6792489482332677647, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6792489482332677647, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6792489482332677647, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6792489482332677647, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 250.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6792489482332677647, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5373939189822264156, guid: cd9e6407c9fcdb84389c3a161564eb78,
+        type: 3}
+      propertyPath: disableVR
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cd9e6407c9fcdb84389c3a161564eb78, type: 3}
 --- !u!1 &122687700
@@ -2903,6 +2933,28 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 696735767}
   m_Mesh: {fileID: 764497090}
+--- !u!1 &710480887 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6797920522447013259, guid: cd9e6407c9fcdb84389c3a161564eb78,
+    type: 3}
+  m_PrefabInstance: {fileID: 41867214}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &710480894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710480887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71868aa244d35d248a9b4d32706a336a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxSpeed: 70
+  MaxAccel: 7
+  MaxBrake: 20
+  ResetSpeed: 80
 --- !u!43 &722118554
 Mesh:
   m_ObjectHideFlags: 8
@@ -8171,28 +8223,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &1207254620 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1161570322527112, guid: cd9e6407c9fcdb84389c3a161564eb78,
-    type: 3}
-  m_PrefabInstance: {fileID: 41867214}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1207254622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207254620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71868aa244d35d248a9b4d32706a336a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaxSpeed: 70
-  MaxAccel: 10
-  MaxBrake: 20
-  ResetSpeed: 80
 --- !u!43 &1215238896
 Mesh:
   m_ObjectHideFlags: 8

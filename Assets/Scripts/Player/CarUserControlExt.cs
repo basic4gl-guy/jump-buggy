@@ -6,6 +6,8 @@ using UnityStandardAssets.Vehicles.Car;
 public class CarUserControlExt : MonoBehaviour
 {
     public Transform SteeringWheel;
+    public float HInputFactor = 0.75f;
+    public float VInputFactor = 1.0f;
 
     private CarController m_Car; // the car controller we want to use
 
@@ -43,8 +45,8 @@ public class CarUserControlExt : MonoBehaviour
         else
         {
             // For other platforms, use CrossPlatformInputManager
-            h = CrossPlatformInputManager.GetAxis("Horizontal");
-            v = CrossPlatformInputManager.GetAxis("Vertical");
+            h = CrossPlatformInputManager.GetAxis("Horizontal") * HInputFactor;
+            v = CrossPlatformInputManager.GetAxis("Vertical") * VInputFactor;
         }
     }
 

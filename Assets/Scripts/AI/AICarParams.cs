@@ -6,12 +6,12 @@ public class AICarParams : MonoBehaviour
     public float MaxAccel;
     public float MaxVelocity;
     public AnimationCurve AccelPerVelocity;
-    public float AccelUnderestimate = 1.0f;
+    public float AccelFactor = 0.8f;
 
     [Header("Braking")]
     public float MaxBrake;
     public AnimationCurve BrakePerVelocity;
-    public float BrakeUnderestimate = 1.0f;
+    public float BrakeFactor = 0.9f;
 
     [Header("Physics")]
     public float GravityAccel = 9.8f;
@@ -33,7 +33,7 @@ public class AICarParams : MonoBehaviour
         // Note slope = sin(angle), where angle = 0 for flat road, 90 vertical etc.
         float gravityAccel = GravityAccel * -slope;
                 
-        return engineAccel + gravityAccel - AccelUnderestimate;
+        return engineAccel * AccelFactor + gravityAccel;
     }
 
     public float GetBrake(float velocity, float slope)
@@ -44,6 +44,6 @@ public class AICarParams : MonoBehaviour
         // Calculate acceleration based on gravity and slope of road.
         float gravityAccel = GravityAccel * -slope;
 
-        return brakeAccel - gravityAccel - BrakeUnderestimate;
+        return brakeAccel * BrakeFactor - gravityAccel;
     }
 }
