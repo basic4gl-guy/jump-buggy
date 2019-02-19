@@ -384,6 +384,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: IntakeMat
+    second: {fileID: 2100000, guid: 2d1cf5f3330d3fd41b7bedde016d59f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: IntakeTrumpetMat
     second: {fileID: 2100000, guid: 581571188641ab44791b1f91f5041e05, type: 2}
   - first:
