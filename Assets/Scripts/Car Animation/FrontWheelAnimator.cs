@@ -31,10 +31,12 @@ public class FrontWheelAnimator : MonoBehaviour
     [Header("Parameters")]
     public float MaxDownAngle = 70.0f;
     public float MaxUpAngle = 70.0f;
+    public float LerpFactor = 0.1f;
 
     private bool isConfigured;
     private float h;
     private float hsign;
+    private float prevY = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -72,6 +74,8 @@ public class FrontWheelAnimator : MonoBehaviour
 
         // Clamp if outside possible range
         y = Mathf.Clamp(y, -h, h);
+        y = Mathf.Lerp(prevY, y, LerpFactor);
+        prevY = y;
 
         // Calculate suspension angle
         float ang = Mathf.Asin(y / h);
@@ -84,9 +88,9 @@ public class FrontWheelAnimator : MonoBehaviour
 
         // Animate wishbones
         Vector3 upperAngles = UpperWishbone.transform.localRotation.eulerAngles;
-        UpperWishbone.transform.localRotation = Quaternion.Euler(upperAngles.x, upperAngles.y, angDeg);
+        UpperWishbone.transform.localRotation = Quaternion.Euler(upperAngles.x, upperAngles.y, angDeg * hsign);
         Vector3 lowerAngles = LowerWishbone.transform.localRotation.eulerAngles;
-        LowerWishbone.transform.localRotation = Quaternion.Euler(lowerAngles.x, lowerAngles.y, angDeg);
+        LowerWishbone.transform.localRotation = Quaternion.Euler(lowerAngles.x, lowerAngles.y, angDeg * hsign);
 
         // Position wheel upright
         float x = Mathf.Cos(ang) * h * hsign;
