@@ -20,8 +20,8 @@ public class RearWheelAnimator : MonoBehaviour
     public float LerpFactor = 0.1f;
 
     private bool isConfigured;
-    private float prevLExt = 0.0f;
-    private float prevRExt = 0.0f;
+    private float prevly = 0.0f;
+    private float prevry = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -43,24 +43,24 @@ public class RearWheelAnimator : MonoBehaviour
         if (!isConfigured) return;
 
         // Get spring extension
-        float lExt = -ReferenceLeftWheel.localPosition.y;
-        float rExt = -ReferenceRightWheel.localPosition.y;
+        float ly = ReferenceLeftWheel.localPosition.y;
+        float ry = ReferenceRightWheel.localPosition.y;
 
         // Smooth animation
-        lExt = Mathf.Lerp(prevLExt, lExt, LerpFactor);
-        rExt = Mathf.Lerp(prevRExt, rExt, LerpFactor);
-        prevLExt = lExt;
-        prevRExt = rExt;
+        ly = Mathf.Lerp(prevly, ly, LerpFactor);
+        ry = Mathf.Lerp(prevry, ry, LerpFactor);
+        prevly = ly;
+        prevry = ry;
 
         // Clamp
-        lExt = Mathf.Clamp(lExt, MinY, MaxY);
-        rExt = Mathf.Clamp(rExt, MinY, MaxY);
+        ly = Mathf.Clamp(ly, MinY, MaxY);
+        ry = Mathf.Clamp(ry, MinY, MaxY);
 
         // Position wheels
         Vector3 lPos = LeftWheel.localPosition;
-        LeftWheel.localPosition = new Vector3(lPos.x, -lExt, lPos.z);
+        LeftWheel.localPosition = new Vector3(lPos.x, ly, lPos.z);
         Vector3 rPos = RightWheel.localPosition;
-        RightWheel.localPosition = new Vector3(rPos.x, -rExt, rPos.z);
+        RightWheel.localPosition = new Vector3(rPos.x, ry, rPos.z);
 
         // Rotate wheels
         LeftWheel.rotation = ReferenceLeftWheel.rotation;

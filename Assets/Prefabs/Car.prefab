@@ -4873,8 +4873,8 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 100000
     damper: 1500
-    targetPosition: 0.5
-  m_SuspensionDistance: 0.23
+    targetPosition: 0.7
+  m_SuspensionDistance: 0.4
   m_ForceAppPointDistance: 0.1
   m_Mass: 20
   m_WheelDampingRate: 0.25
@@ -5046,8 +5046,8 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 130000
     damper: 1200
-    targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+    targetPosition: 0.55
+  m_SuspensionDistance: 0.34
   m_ForceAppPointDistance: 0.1
   m_Mass: 20
   m_WheelDampingRate: 0.25
@@ -6072,8 +6072,8 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 100000
     damper: 1500
-    targetPosition: 0.5
-  m_SuspensionDistance: 0.23
+    targetPosition: 0.7
+  m_SuspensionDistance: 0.4
   m_ForceAppPointDistance: 0.1
   m_Mass: 20
   m_WheelDampingRate: 0.25
@@ -6709,7 +6709,8 @@ MonoBehaviour:
   DriveShaft: {fileID: 6342732852607325873}
   LeftWheel: {fileID: 3622098852032169149}
   RightWheel: {fileID: 3372402887990071974}
-  MaxExtension: 0.25
+  MaxY: 1000
+  MinY: 0.1
   LerpFactor: 0.1
 --- !u!1 &100182107767976868
 GameObject:
@@ -6756,8 +6757,8 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 130000
     damper: 1200
-    targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+    targetPosition: 0.55
+  m_SuspensionDistance: 0.34
   m_ForceAppPointDistance: 0.1
   m_Mass: 20
   m_WheelDampingRate: 0.25
