@@ -376,12 +376,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowOnPause:
-  - {fileID: 0}
+  - {fileID: 1415075686630620701}
   - {fileID: 1542220261248033233}
   HideOnPause:
   - {fileID: 3864177587489813329}
-  Car: {fileID: 0}
-  AutoResetToggle: {fileID: 0}
+  Car: {fileID: 2050012656209352311}
+  AutoResetToggle: {fileID: 3187288774111694004}
   IsPaused: 0
 --- !u!1 &2340003383495136416
 GameObject:
