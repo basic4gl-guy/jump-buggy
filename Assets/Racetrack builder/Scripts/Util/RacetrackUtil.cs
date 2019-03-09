@@ -69,9 +69,7 @@ public static class RacetrackUtil {
             do
             {
                 var loSeg = track.GetSegment(lo);
-                Matrix4x4 trackFromMidSeg = loSeg.GetSegmentToTrack();
-                Vector3 segForward = trackFromMidSeg.MultiplyVector(Vector3.forward);
-                dp = Vector3.Dot(carPosTrack - loSeg.Position, segForward);
+                dp = Vector3.Dot(carPosTrack - loSeg.Position, loSeg.PositionDelta);
                 if (dp < 0.0f)
                 {
                     hi = lo;

@@ -626,9 +626,12 @@ public class Racetrack : MonoBehaviour {
             // Generate segments
             for (float d = 0.0f; d < curve.Length; d += SegmentLength)
             {
+                var segPosDelta = Matrix4x4.Rotate(Quaternion.Euler(dir)).MultiplyVector(posDelta);
+
                 var segment = new Segment
                 {
                     Position = pos,
+                    PositionDelta = segPosDelta,
                     Direction = dir,
                     DirectionDelta = dirDelta,
                     Length = SegmentLength,
@@ -637,7 +640,7 @@ public class Racetrack : MonoBehaviour {
                 yield return segment;
 
                 // Advance to start of next segment
-                pos += segment.GetSegmentToTrack(0.0f).MultiplyVector(posDelta);
+                pos += segPosDelta;
                 dir += dirDelta;
             }
         }
@@ -742,6 +745,7 @@ public class Racetrack : MonoBehaviour {
     public class Segment
     {
         public Vector3 Position;
+        public Vector3 PositionDelta;       // Added to position to get next segment's position
         public Vector3 Direction;           // Direction as Euler angles
         public Vector3 DirectionDelta;      // Added to Direction to get next segment's direction (and used to lerp between them)
         public float Length;                // Copy of Racetrack.SegmentLength for convenience
