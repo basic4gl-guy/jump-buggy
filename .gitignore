@@ -52,3 +52,9 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# Racetrack builder stuff
+Documentation/
+Assets/Racetrack Builder/Scripts/Runtime/Editor/
+Assets/Racetrack Builder/Scripts/Track/Editor/
+Assets/Racetrack Builder/Textures/EditorAssets/
