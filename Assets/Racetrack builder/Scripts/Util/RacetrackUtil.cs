@@ -29,13 +29,19 @@ public static class RacetrackUtil {
 
     public static CarState GetCarState(Rigidbody car, Racetrack track, int curveIndex)
     {
+        var state = new CarState();
+        GetCarState(car, track, curveIndex, state);
+        return state;
+    }
+
+    public static void GetCarState(Rigidbody car, Racetrack track, int curveIndex, CarState state)
+    {
         // Get curve information
         var curves = track.Curves;
         var infos = track.CurveInfos;
         if (curveIndex < 0 || curveIndex >= curves.Count)
         {
             Debug.LogError("Curve index " + curveIndex + " out of range. Must be 0 - " + (curves.Count - 1));
-            return null;
         }
         var curve = curves[curveIndex];
         var info = infos[curveIndex];
@@ -100,23 +106,16 @@ public static class RacetrackUtil {
         Vector3 carVel = segFromTrack.MultiplyVector(carVelTrack);
         float carAng = Mathf.Atan2(carDir.x, carDir.z) * Mathf.Rad2Deg;
 
-        return new CarState
-        {
-            Curve = curve,
-            Info = info,
-            Segment = seg,
-            SegmentIndex = lo,
-
-            // Position in segment space
-            Position = carPos,
-            Direction = carDir,
-            Velocity = carVel,
-            Angle = carAng,
-
-            // Transformation matrices
-            TrackFromSeg = trackFromSeg,
-            SegFromTrack = segFromTrack
-        };
+        state.Curve = curve;
+        state.Info = info;
+        state.Segment = seg;
+        state.SegmentIndex = lo;
+        state.Position = carPos;
+        state.Direction = carDir;
+        state.Velocity = carVel;
+        state.Angle = carAng;
+        state.TrackFromSeg = trackFromSeg;
+        state.SegFromTrack = segFromTrack;
     }
 }
 
