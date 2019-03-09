@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -100,9 +101,17 @@ public class RacetrackAIData : MonoBehaviour
                                 max = s;
                         }
                     }
+
+                    // Calculate cornering limits
+                    float cmin, cmax;
+                    GetCorneringSpeeds(curves[nextCI], out cmin, out cmax);
+                    if (cmin > min)
+                        min = cmin;
+                    if (cmax < max)
+                        max = cmax;
                 }
 
-                //// Look for explicit min/max override
+                // Look for explicit min/max override
                 var aiData = ci < curves.Count ? curves[ci].GetComponent<RacetrackCurveAIData>() : null;
                 if (aiData != null)
                 {
@@ -228,6 +237,65 @@ public class RacetrackAIData : MonoBehaviour
         }
 
         return 0.0f;
+    }
+
+    private void GetCorneringSpeeds(RacetrackCurve curve, out float min, out float max)
+    {
+        // Defaults
+        min = 0.0f;
+        max = 1000.0f;
+
+        // Get variables
+        float a = curve.Angles.y * Mathf.Deg2Rad;
+        float O = -curve.Angles.z * Mathf.Deg2Rad;
+        float l = curve.Length;
+        float f = AICarParams.FrictionCoefficient;
+        float g = Physics.gravity.magnitude;
+
+        // Flip horizontally if necessary to make corner angle positive 
+        if (a < 0.0f)
+        {
+            a = -a;
+            O = -O;
+        }
+
+        // No limits for straight road
+        if (a < 0.0001f)
+            return;
+
+        float c = g * l / a;
+        float num, denom, lim;
+
+        // Maximum speed
+        num   = Mathf.Sin(O) + f * Mathf.Cos(O);
+        denom = Mathf.Cos(O) - f * Mathf.Sin(O);
+        if (denom > 0.0001f)
+        {
+            lim = c * num / denom;
+            if (lim >= 0.0f)
+            {
+                lim = Mathf.Sqrt(lim);
+                if (lim < max)
+                    max = lim;
+            }
+        }
+
+        // Minimum speed
+        if (O <= 0.0f)
+            return;
+
+        num   = Mathf.Sin(O) - f * Mathf.Cos(O);
+        denom = Mathf.Cos(O) + f * Mathf.Sin(O);
+        if (denom > 0.0001f)
+        {
+            lim = c * num / denom;
+            if (lim >= 0.0f)
+            {
+                lim = Mathf.Sqrt(lim);
+                if (lim > min)
+                    min = lim;
+            }
+        }
     }
 
     public class SegmentAIData

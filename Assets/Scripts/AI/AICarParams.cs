@@ -15,6 +15,7 @@ public class AICarParams : MonoBehaviour
 
     [Header("Physics")]
     public float GravityAccel = 9.8f;
+    public float FrictionCoefficient = 1.0f;
 
     [Tooltip("Jump minimum speeds are multiplied by this factor, to compensate for drag")]
     public float JumpMinFactor = 1.5f;
