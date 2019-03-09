@@ -147,11 +147,10 @@ public class Racetrack : MonoBehaviour {
     public void DeleteMeshes(int startCurveIndex, int endCurveIndex)
     {
         // Find generated meshes.
-        // These have a RacetrackTemplateCopy component and "Generated" tag
+        // These have a RacetrackTemplateCopy component
         var children = Curves
             .Where(c => c.Index >= startCurveIndex && c.Index < endCurveIndex)
             .SelectMany(c => c.gameObject.GetComponentsInChildren<RacetrackTemplateCopy>())
-            .Where(t => t.gameObject.tag == "Generated")
             .ToList();
 
         // Delete them
@@ -336,7 +335,6 @@ public class Racetrack : MonoBehaviour {
                 templateCopyObj.transform.parent = curve.transform;
                 templateCopyObj.isStatic = gameObject.isStatic;
                 templateCopyObj.name = curve.name + " > " + template.name;
-                templateCopyObj.tag = "Generated";
                 GetSegmentTransform(seg, templateCopyObj.transform);
 
                 // Add template copy component
