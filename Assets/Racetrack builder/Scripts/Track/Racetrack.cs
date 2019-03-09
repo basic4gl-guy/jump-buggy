@@ -676,6 +676,8 @@ public class Racetrack : MonoBehaviour {
         };
     }
 
+    private List<RacetrackCurve> cachedCurves;
+
     /// <summary>
     /// Get list of curves in order.
     /// </summary>
@@ -688,10 +690,14 @@ public class Racetrack : MonoBehaviour {
     {
         get
         {
-            return Enumerable.Range(0, gameObject.transform.childCount)
+            // Assume at runtime that the curves will not be modified, and we can cache them in a local field.
+            // When game is not running (i.e. in editor) we always recalculate the curves
+            if (cachedCurves == null || !Application.IsPlaying(gameObject))
+                cachedCurves = Enumerable.Range(0, gameObject.transform.childCount)
                             .Select(i => gameObject.transform.GetChild(i).GetComponent<RacetrackCurve>())
                             .Where(c => c != null)
                             .ToList();
+            return cachedCurves;
         }
     }
 
