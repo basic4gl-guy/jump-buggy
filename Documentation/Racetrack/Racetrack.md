@@ -57,7 +57,7 @@ The curve is automatically selected, and the Inspector window shows the UI for e
 
 ![Curve properties](images/curveproperties.jpg)
 
-Try clicking the buttons to see how the track adapts to the updated curve.
+Try clicking the buttons in the **Shape** section to see how the track adapts to the updated curve.
 
 For finer control you can set the values via the slider or key them in. You will need to explicitly rebuild the mesh model by clicking the "Update" button in this case.
 
@@ -122,6 +122,40 @@ Sometimes a curve is not suitable as a respawn point, e.g. if the player cannot 
 
 To avoid this, untick the "Can Respawn" property of the curve. The respawn logic will search backwards from the last curve the player drove on until it finds a curve where "Can Respawn" is ticked.
 
+Creating a closed circuit
+-------------------------
+
+Racetrack Builder has an *experimental* feature to help create closed circuit racetracks. It is not perfect, but usually gets pretty close, then you can fix it up with small manual adjustments.
+
+It works best on a racetrack needs that is close to being a closed circuit, but needs some help lining up the start and end curves.
+
+![Almost closed circuit](images/circuit1.jpg)
+
+To use it you must select *exactly 3* curves that Racetrack Builder can lengthen or shorten so as to shift the racetrack so that the start and end curves line up.
+
+The closer the curves are to being at right angles with each other, the smaller the adjustments Racetrack Builder will have to make. If two curves are pointing in the same direction or all three are on the same plane then Racetrack Builder will not be able to find a combination of length adjustments that will create a loop.
+
+Also remember that changing the length of a curve will shift the racetrack from that curve onwards. So if you have carefully lined up your racetrack with a terrain or other objects (for example) then you may want to select three curves towards the *end* of the track to minimise this.
+
+Mark each of the 3 curves by selecting it in the Unity scene, and ticking "Auto Adjust Length".
+
+![Auto adjust length](images/circuit2.jpg)
+
+Then select the racetrack object and click "Create closed circuit".
+
+![Create close circuit](images/circuit3.jpg)
+
+Racetrack Builder will attempt to close the circuit as follows:
+1. Adjust the angles of the last curve to line up the *direction* with the first curve
+2. Adjust the lengths of the selected curves to line up the *position* of the last curve
+3. Rebuild the racetrack meshes around the updated curves
+
+This should result in a racetrack that is almost exactly a smooth, closed loop (but will likely still require some manual corrections).
+
+![Closed circuit](images/circuit4.jpg)
+
+In some cases Racetrack Builder will not be able to create a closed loop, such as when the start and end curves are not close enough in direction, or if there is no valid combination of length adjustments that will line up their positions. In this case you will need to select different curves to adjust and/or make some adjustments to the racetrack manually, then try again.
+
 <div class="page"></div>
 Creating mesh templates
 ===============================================================================
@@ -131,6 +165,8 @@ A "mesh template" provides the meshes that are generated and fitted to the path 
 They are a little bit like Unity prefabs, and are often stored as one. But they are instantiated a little differently, mainly due to the need to warp the meshes along the curves and clone the repeating parts (like support poles).
 
 This package contains a set of mesh templates to get you started, but you can easily build your own to create your own road types.
+
+Then select the racetrack object and click the "Create closed circuit" button.
 
 Supplied templates
 ------------------
@@ -317,6 +353,7 @@ Properties
 Buttons
 * Update whole track - Delete and recreate all generated meshes for all curves. This can take several seconds for larger racetracks.
 * Add curve - Add a new curve to the end of the track and select it.
+* Create closed circuit - Attempts to adjust the curves to create a closed circuit. Refer to the **Creating a closed circuit** section earlier in this document.
 * Delete meshes - Delete all generated meshes.
 * Clear templates - Clear the track templates from all curves (sets them to null).
 
@@ -332,6 +369,7 @@ Properties
 * Is Jump - If true, no meshes will be created for the curve, leaving a gap in the racetrack.
 * Can Respawn - If true, the Racetrack Progress Tracker component will respawn the car above this curve. Otherwise it will skip it and search backwards along the racetrack for a curve with "Can Respawn" set to true. Useful to ensure there is enough run-up before jumps etc.
 * Template - The Racetrack Mesh Template that defines the meshes that will be warped along the Racetrack Curve objects to create the final model. Can be left to null to use the previous curve's template.
+* Auto Adjust Length - Indicates that the curves length can be adjusted when creating a closed circuit. Refer to the **Creating a closed circuit** section earlier in this document.
 
 Buttons
 * Length (buttons) - Set the curve to a specific length. Also causes the meshes for the remainder of the track to be rebuilt, as if "Update Rest of track" was clicked.
