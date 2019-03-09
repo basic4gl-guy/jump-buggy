@@ -1466,11 +1466,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2226620506577032781, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 7
-      objectReference: {fileID: 0}
     - target: {fileID: 68059812468807672, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
         type: 3}
       propertyPath: m_WheelColliders.Array.data[0]
@@ -1551,6 +1546,36 @@ PrefabInstance:
       propertyPath: BestLapTime
       value: 
       objectReference: {fileID: 3760973557326599209}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: ReferenceLeftWheel
+      value: 
+      objectReference: {fileID: 3491666792860732635}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: ReferenceRightWheel
+      value: 
+      objectReference: {fileID: 3221032887678595622}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: Differential
+      value: 
+      objectReference: {fileID: 7739127614312858909}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: DriveShaft
+      value: 
+      objectReference: {fileID: 7837717581056391762}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: LeftWheel
+      value: 
+      objectReference: {fileID: 469646249991432286}
+    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: RightWheel
+      value: 
+      objectReference: {fileID: 1877418297650675269}
     - target: {fileID: 3744312162946983261, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
         type: 3}
       propertyPath: ReferenceWheel
@@ -1611,6 +1636,11 @@ PrefabInstance:
       propertyPath: Readout
       value: 
       objectReference: {fileID: 3761442582152942329}
+    - target: {fileID: 2226620506577032781, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 100887825292900273, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
         type: 3}
       propertyPath: SteeringWheel
@@ -1641,36 +1671,6 @@ PrefabInstance:
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: ReferenceLeftWheel
-      value: 
-      objectReference: {fileID: 3491666792860732635}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: ReferenceRightWheel
-      value: 
-      objectReference: {fileID: 3221032887678595622}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: Differential
-      value: 
-      objectReference: {fileID: 7739127614312858909}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: DriveShaft
-      value: 
-      objectReference: {fileID: 7837717581056391762}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: LeftWheel
-      value: 
-      objectReference: {fileID: 469646249991432286}
-    - target: {fileID: 7294606235654533536, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-        type: 3}
-      propertyPath: RightWheel
-      value: 
-      objectReference: {fileID: 1877418297650675269}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87209c428a5c97a4eb9bcbf879faa6cf, type: 3}
 --- !u!114 &3761005709877404399 stripped
@@ -1964,17 +1964,17 @@ PrefabInstance:
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.02
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.97
+      value: 1.017
       objectReference: {fileID: 0}
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.86
+      value: -0.827
       objectReference: {fileID: 0}
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
