@@ -760,7 +760,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46b27095a6ac20b4197cda419509dc5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Track: {fileID: 0}
   SteeringWheel: {fileID: 0}
   RacetrackAIData: {fileID: 0}
   RecenterTime: 1
@@ -799,6 +798,19 @@ MonoBehaviour:
   LastLapTime: 0
   BestLapTime: 0
   CurrentLapTime: 0
+--- !u!114 &4538367612885649867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3864809699349480117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ad4d702f0970084bb90a894ebdfa9d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Track: {fileID: 0}
 --- !u!114 &8417542044897552494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -814,19 +826,6 @@ MonoBehaviour:
   SteeringWheel: {fileID: 3870330263916904303}
   HInputFactor: 0.75
   VInputFactor: 1
---- !u!114 &4538367612885649867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3864809699349480117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ad4d702f0970084bb90a894ebdfa9d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Track: {fileID: 0}
 --- !u!1 &5123034407219979558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1987,7 +1986,7 @@ PrefabInstance:
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.827
+      value: -1.239
       objectReference: {fileID: 0}
     - target: {fileID: 6034395398736826190, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}

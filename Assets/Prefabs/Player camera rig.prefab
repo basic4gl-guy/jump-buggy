@@ -724,7 +724,7 @@ GameObject:
   - component: {fileID: 5919784299001014384}
   - component: {fileID: 5763983780672692259}
   m_Layer: 0
-  m_Name: OVRCameraRig
+  m_Name: Player camera rig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -836,13 +836,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6031867217130566146}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c784ef632db61824a9916136b9619ac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   disableVR: 0
-  floorLocalPosition: {x: 0, y: -0.63, z: -0.75}
+  floorLocalPosition: {x: 0, y: -0.4, z: -1.16}
 --- !u!1 &6031908314167290130
 GameObject:
   m_ObjectHideFlags: 0
