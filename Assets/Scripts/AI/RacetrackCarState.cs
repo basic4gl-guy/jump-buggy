@@ -23,7 +23,7 @@ public class RacetrackCarState : MonoBehaviour
         if (cars == null) return;
 
         // Register this car
-        cars.RegisterCar(car, state);
+        cars.RegisterCarState(this);
     }
 
     /// <summary>
@@ -37,12 +37,28 @@ public class RacetrackCarState : MonoBehaviour
     /// <summary>
     /// Get the car infront's state
     /// </summary>
-    public CarState GetNextCarState()
+    public RacetrackCarState GetNextCarState()
     {
         var cars = GetCars();
         if (cars == null) return null;
 
-        return cars.GetNextCarState(car);
+        return cars.GetNextCarState(this);
+    }
+
+    private Racetrack GetRacetrack()
+    {
+        // Set explicitly?
+        if (Track != null)
+            return Track.Track;
+
+        // Otherwise look for component on Racetrack instance
+        if (Racetrack.Instance == null)
+        {
+            Debug.LogError("RacetrackCarState - Could not find the Racetrack");
+            return null;
+        }
+
+        return Racetrack.Instance;
     }
 
     /// <summary>
@@ -69,5 +85,90 @@ public class RacetrackCarState : MonoBehaviour
         }
 
         return cars;
+    }
+
+    public void UpdateState(Racetrack track)
+    {
+        // Get curve index from progress tracker
+        State.IsAboveRoad = progressTracker.isAboveRoad;
+        if (!State.IsAboveRoad) return;
+        int curveIndex = progressTracker.currentCurve;
+
+        // Get curve information
+        var curves = track.Curves;
+        var infos = track.CurveInfos;
+        if (curveIndex < 0 || curveIndex >= curves.Count)
+        {
+            Debug.LogError("Curve index " + curveIndex + " out of range. Must be 0 - " + (curves.Count - 1));
+        }
+        var curve = curves[curveIndex];
+        var info = infos[curveIndex];
+        track.GetSegments();            // (Ensures segments are generated)
+
+        // Calculate car position and direction in track space
+        Matrix4x4 worldFromTrack = track.transform.localToWorldMatrix;
+        Matrix4x4 trackFromWorld = worldFromTrack.inverse;
+        Vector3 carPosTrack = trackFromWorld.MultiplyPoint(car.position);
+        Vector3 carDirTrack = trackFromWorld.MultiplyVector(car.transform.TransformVector(Vector3.forward));
+        Vector3 carVelTrack = trackFromWorld.MultiplyVector(car.velocity);
+
+        // Binary search for segment index
+        float loZ = info.zOffset;
+        float hiZ = info.zOffset + curve.Length;
+        int lo = Mathf.FloorToInt(loZ / track.SegmentLength);
+        int hi = Mathf.FloorToInt(hiZ / track.SegmentLength);
+
+        // Allow for curve index to be too far ahead.
+        // This is because curve index will often be supplied from the RacetrackProgressTracker component, 
+        // which can be optimistic sometimes, depending on which curves generate geometry
+        {
+            float dp;
+            int count = 0;
+            do
+            {
+                var loSeg = track.GetSegment(lo);
+                dp = Vector3.Dot(carPosTrack - loSeg.Position, loSeg.PositionDelta);
+                if (dp < 0.0f)
+                {
+                    hi = lo;
+                    lo = lo - 50;
+                    if (lo < 0)
+                        lo = 0;
+                }
+                count++;
+            } while (dp < 0.0f && count < 10);
+        }
+
+        while (hi > lo)
+        {
+            int mid = (lo + hi + 1) / 2;
+            var midSeg = track.GetSegment(mid);
+            var dp = Vector3.Dot(carPosTrack - midSeg.Position, midSeg.PositionDelta);
+            if (dp >= 0)
+                lo = mid;
+            else
+                hi = mid - 1;
+        }
+
+        // Calculate car position and direction in segment space
+        var seg = track.GetSegment(lo);
+        Matrix4x4 trackFromSeg = seg.GetSegmentToTrack();
+        Matrix4x4 segFromTrack = trackFromSeg.inverse;
+
+        Vector3 carPos = segFromTrack.MultiplyPoint(carPosTrack);
+        Vector3 carDir = segFromTrack.MultiplyVector(carDirTrack);
+        Vector3 carVel = segFromTrack.MultiplyVector(carVelTrack);
+        float carAng = Mathf.Atan2(carDir.x, carDir.z) * Mathf.Rad2Deg;
+
+        state.Curve = curve;
+        state.Info = info;
+        state.Segment = seg;
+        state.SegmentIndex = lo;
+        state.Position = carPos;
+        state.Direction = carDir;
+        state.Velocity = carVel;
+        state.Angle = carAng;
+        state.TrackFromSeg = trackFromSeg;
+        state.SegFromTrack = segFromTrack;
     }
 }

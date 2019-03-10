@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(RacetrackProgressTracker))]
+[RequireComponent(typeof(RacetrackCarState))]
 public class CarDebugger : MonoBehaviour
 {
     public float MaxSpeed = 150.0f / MathUtil.MilesPerKM * 1000.0f / 3600.0f;
@@ -15,13 +13,13 @@ public class CarDebugger : MonoBehaviour
     private float prevSpeed = 0.0f;
 
     private Rigidbody rigidBody;
-    private RacetrackProgressTracker tracker;
+    private RacetrackCarState carState;
 
     private void Awake()
     {
         // get the car controller
         rigidBody = GetComponent<Rigidbody>();
-        tracker = GetComponent<RacetrackProgressTracker>();
+        carState = GetComponent<RacetrackCarState>();
     }
 
     private void Start()
@@ -41,13 +39,13 @@ public class CarDebugger : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!tracker.isAboveRoad)
+        var state = carState.State;
+        if (!state.IsAboveRoad)
         {
             gotInfo = false;
             return;
         }
 
-        var state = RacetrackUtil.GetCarState(rigidBody, Racetrack.Instance, tracker.currentCurve);
         Vector3 segForward = state.TrackFromSeg.MultiplyVector(Vector3.forward);
         float gradient = segForward.normalized.y;
         float speed = rigidBody.transform.InverseTransformVector(rigidBody.velocity).z;

@@ -2,17 +2,14 @@
 using UnityStandardAssets.Vehicles.Car;
 
 [RequireComponent(typeof(CarController))]
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(RacetrackProgressTracker))]
+[RequireComponent(typeof(RacetrackCarState))]
 public class AICarController : MonoBehaviour
 {
-    public Racetrack Track;
     public Transform SteeringWheel;
     public RacetrackAIData RacetrackAIData;
 
     private CarController carController; // the car controller we want to use
-    private Rigidbody rigidBody;
-    private RacetrackProgressTracker tracker;
+    private RacetrackCarState carState;
 
     [Header("Parameters")]
     public float RecenterTime = 1.0f;
@@ -39,35 +36,20 @@ public class AICarController : MonoBehaviour
     {
         // get the car controller
         carController = GetComponent<CarController>();
-        rigidBody = GetComponent<Rigidbody>();
-        tracker = GetComponent<RacetrackProgressTracker>();
+        carState = GetComponent<RacetrackCarState>();
     }
 
     private void FixedUpdate()
     {
-        if (carController == null || rigidBody == null) return;
-
-        // Find racetrack
-        var track = Track ?? Racetrack.Instance;
-        if (track == null)
-        {
-            Debug.LogError("Racetrack not found");
-            return;
-        }
-
-        // Find progress tracker
-        if (tracker == null)
-        {
-            Debug.LogError("Racetrack progress tracker not found");
-            return;
-        }
+        if (carController == null || carState == null) return;
 
         // Must be on racetrack
-        if (!tracker.isAboveRoad)
+        if (!carState.State.IsAboveRoad)
             return;
 
         // Get car-relative-to-surface info
-        var state = RacetrackUtil.GetCarState(rigidBody, track, tracker.currentCurve);
+        var state = carState.State;
+        var nextCarState = carState.GetNextCarState();
 
         // Debugging
         DebugSegmentIndex = state.SegmentIndex;

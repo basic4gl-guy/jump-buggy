@@ -7,50 +7,44 @@ using UnityEngine;
 /// Driving AI can use this to:
 ///     * Determine the car's position
 ///     * Search ahead for other cars to avoid
+/// This component should be configured to update before the components that depend on it (e.g. AICarController)
 /// </summary>
 [RequireComponent(typeof(Racetrack))]
 public class RacetrackCarStates : MonoBehaviour
 {
     private Racetrack track;
-    private readonly List<CarAndState> cars = new List<CarAndState>();
+    private readonly List<RacetrackCarState> carStates = new List<RacetrackCarState>();
     private readonly CarDistanceComparer carDistanceComparer = new CarDistanceComparer();
 
-    public void RegisterCar(Rigidbody car, CarState state)
+    public void RegisterCarState(RacetrackCarState carState)
     {
-        RacetrackProgressTracker progressTracker = car.GetComponent<RacetrackProgressTracker>();
-        cars.Add(new CarAndState { Car = car, State = state, ProgressTracker = progressTracker });
-        if (progressTracker == null)
-            Debug.LogWarning("RacetrackCarStates - A car added without a RacetrackProgressTracker component. Will not be able to track position on racetrack.");
+        carStates.Add(carState);
     }
 
-    public void UnregisterCar(Rigidbody car)
+    public void UnregisterCarState(RacetrackCarState carState)
     {
-        cars.RemoveAll(c => c.Car == car);
-    }
-
-    /// <summary>
-    /// Return the state of a specific car
-    /// </summary>
-    public CarState GetState(Rigidbody car)
-    {
-        var entry = cars.SingleOrDefault(c => c.Car == car);
-        return entry != null ? entry.State : null;
+        carStates.Remove(carState);
     }
 
     /// <summary>
     /// Return the state of the car infront of a specific car
     /// </summary>
-    public CarState GetNextCarState(Rigidbody car)
+    public RacetrackCarState GetNextCarState(RacetrackCarState carState)
     {
-        if (cars.Count < 2) return null;
+        if (carStates.Count < 2) return null;
 
         // Find car
-        var index = cars.FindIndex(c => c.Car == car);
+        var index = carStates.IndexOf(carState);
         if (index == -1) return null;
 
         // Return next car
-        index = (index + 1) % cars.Count;
-        return cars[index].State;        
+        index = (index + 1) % carStates.Count;
+        return carStates[index];
+    }
+
+    public Racetrack Track
+    {
+        get { return track; }
     }
 
     void Awake()
@@ -61,32 +55,21 @@ public class RacetrackCarStates : MonoBehaviour
     void FixedUpdate()
     {
         // Recalculate car states
-        foreach (var car in cars)
+        foreach (var carState in carStates)
         {
-            if (car.ProgressTracker != null)
-            {
-                int curveIndex = car.ProgressTracker.currentCurve;
-                RacetrackUtil.GetCarState(car.Car, track, curveIndex, car.State);
-            }
+            carState.UpdateState(track);
         }
 
         // Sort by distance down track
-        cars.Sort(carDistanceComparer);
-    }
-
-    public class CarAndState
-    {
-        public Rigidbody Car { get; set; }
-        public CarState State { get; set; }
-        public RacetrackProgressTracker ProgressTracker { get; set; }
+        carStates.Sort(carDistanceComparer);
     }
 
     /// <summary>
     /// Sorts cars by their distance along the racetrack
     /// </summary>
-    private class CarDistanceComparer : IComparer<CarAndState>
+    private class CarDistanceComparer : IComparer<RacetrackCarState>
     {
-        public int Compare(CarAndState x, CarAndState y)
+        public int Compare(RacetrackCarState x, RacetrackCarState y)
         {
             int result = x.State.SegmentIndex - y.State.SegmentIndex;
             if (result == 0 && x.State.Position.z != y.State.Position.z)
