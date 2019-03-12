@@ -8,6 +8,7 @@ public class VRSetup : MonoBehaviour
     public Vector3 floorLocalPosition = new Vector3(0.0f, 0.0f, 0.0f);
     public Vector3 ThreeDOFOffset = new Vector3(0.0f, 0.0f, 0.0f);
     public float nonVRFieldOfView = 60.0f;
+    public float nonVRRotation = 15.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +18,8 @@ public class VRSetup : MonoBehaviour
         {
             UnityEngine.XR.XRSettings.enabled = false;
             Camera.main.fieldOfView = nonVRFieldOfView;
+            Vector3 angles = Camera.main.transform.rotation.eulerAngles;
+            Camera.main.transform.rotation = Quaternion.Euler(angles.x + nonVRRotation, angles.y, angles.z);
         }
 
         // Set floor level tracking if 6DOF VR is active
