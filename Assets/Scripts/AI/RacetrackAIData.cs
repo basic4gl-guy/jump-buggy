@@ -55,6 +55,7 @@ public class RacetrackAIData : MonoBehaviour
             // Defaults
             float min = 0.0f;
             float max = 1000.0f;
+            float distToJump = curves[ci].IsJump ? 0.0f : 1000000.0f;
 
             // Apply limits on last segment of curve
             float segZ = i * Racetrack.SegmentLength;
@@ -128,7 +129,7 @@ public class RacetrackAIData : MonoBehaviour
                     : segments.Count * Racetrack.SegmentLength;
             }
 
-            segmentDatas[i] = new SegmentAIData { MinSpeed = min, MaxSpeed = max };
+            segmentDatas[i] = new SegmentAIData { MinSpeed = min, MaxSpeed = max, DistToJump = distToJump };
         }
 
         // Propagate speed limits backwards, based on acceleration and braking limitations
@@ -195,6 +196,13 @@ public class RacetrackAIData : MonoBehaviour
                         if (v0 > segData.MinSpeed)
                             segData.MinSpeed = v0;
                     }
+                }
+
+                {
+                    // Calculate distance to jump
+                    float d = Mathf.Min(nextSegData.DistToJump + Racetrack.SegmentLength, 1000000.0f);
+                    if (d < segData.DistToJump)
+                        segData.DistToJump = d;
                 }
             }
         }
@@ -302,5 +310,6 @@ public class RacetrackAIData : MonoBehaviour
     {
         public float MinSpeed;
         public float MaxSpeed;
+        public float DistToJump;
     }
 }

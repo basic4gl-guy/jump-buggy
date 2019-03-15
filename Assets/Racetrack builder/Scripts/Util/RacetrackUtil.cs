@@ -34,6 +34,7 @@ public class CarState
 
     // Remaining properties are only valid if IsAboveRoad is true.
     
+    public Racetrack Track { get; internal set; }
     public RacetrackCurve Curve { get; internal set; }
     public Racetrack.CurveRuntimeInfo Info { get; internal set; }
     public Racetrack.Segment Segment { get; internal set; }
@@ -44,4 +45,24 @@ public class CarState
     public float Angle { get; internal set; }
     public Matrix4x4 TrackFromSeg { get; internal set; }
     public Matrix4x4 SegFromTrack { get; internal set; }
+
+    public float DistanceDownTrack
+    {
+        get { return SegmentIndex * Track.SegmentLength + Position.z; }
+    }
+
+    /// <summary>
+    /// Get position of other car relative to this one
+    /// </summary>
+    public Vector3 GetRelativePosition(CarState other)
+    {
+        float relDist = other.DistanceDownTrack - this.DistanceDownTrack;
+        float trackLength = Track.GetSegments().Count * Track.SegmentLength;
+        if (relDist < -trackLength / 2)
+            relDist += trackLength;
+        else if (relDist > trackLength / 2)
+            relDist -= trackLength;
+
+        return new Vector3(other.Position.x - Position.x, other.Position.y - Position.y, relDist);
+    }
 }

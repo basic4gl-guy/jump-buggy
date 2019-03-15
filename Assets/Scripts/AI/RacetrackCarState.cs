@@ -160,6 +160,7 @@ public class RacetrackCarState : MonoBehaviour
         Vector3 carVel = segFromTrack.MultiplyVector(carVelTrack);
         float carAng = Mathf.Atan2(carDir.x, carDir.z) * Mathf.Rad2Deg;
 
+        state.Track = track;
         state.Curve = curve;
         state.Info = info;
         state.Segment = seg;

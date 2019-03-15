@@ -29,6 +29,7 @@ public class AICarController : MonoBehaviour
     public float DebugMinVelocity;
     public float DebugX;
     public float DebugAngle;
+    public float DebugDistToJump;
 
     private float prevInputX = 0.0f;
 
@@ -49,25 +50,89 @@ public class AICarController : MonoBehaviour
 
         // Get car-relative-to-surface info
         var state = carState.State;
+        var track = state.Track;
         var nextCarState = carState.GetNextCarState();
+
+        // Get segment AI data
+        RacetrackAIData.SegmentAIData segData = RacetrackAIData != null ? RacetrackAIData.GetAIData(state.SegmentIndex) : null;
 
         // Debugging
         DebugSegmentIndex = state.SegmentIndex;
         DebugVelocity = state.Velocity.z;
-        DebugMaxVelocity = 1000.0f;
-        DebugMinVelocity = 0.0f;
         DebugX = state.Position.x;
         DebugAngle = state.Angle;
+        if (segData != null)
+        {
+            DebugMaxVelocity = segData.MaxSpeed;
+            DebugMinVelocity = segData.MinSpeed;
+            DebugDistToJump = segData.DistToJump;
+        }
+        else
+        {
+            DebugMaxVelocity = 1000.0f;
+            DebugMinVelocity = 0.0f;
+            DebugDistToJump = 1000000.0f;
+        }
 
         // Calculate car input
         float inputX = 0.0f;
         float inputY = 0.0f;
 
         // Steering
+        float preventCollisionSpeed = 1000.0f;
         if (Mathf.Abs(state.Velocity.z) > 0.01f)
         {
-            // Decide on target X
-            float targetX = 0.0f;
+            float targetX = Mathf.Clamp(state.Position.x, -2.0f, 2.0f);     // TODO: Comfortable X range variable
+
+            if (segData != null && segData.DistToJump < 50.0f)
+                targetX = state.Position.x;             // Attempt to line up car with jump
+
+            // Attempt to drive around the car infront if necessary
+            else if (nextCarState != null)
+            {
+                var nextState = nextCarState.State;
+                Vector3 relPos = state.GetRelativePosition(nextState);
+                Vector3 relVel = nextState.Velocity - state.Velocity;
+
+                // Determine whether to avoid the other car
+                bool avoid = false;
+                float dist = relPos.z;
+                if (dist > -3.5f)                               // TODO: Car length variable
+                {
+                    if (dist < 7.0f)                            // Car next to us
+                        avoid = true;
+                    else if (dist + relVel.z * 3.0f < 7.0f)     // Will catch up to car in 3 seconds
+                        avoid = true;
+                }
+
+                if (avoid)
+                {
+                    // Determine room down left and right hand side
+                    float roadLeft = -6.0f;
+                    float roadRight = 6.0f;
+                    float carLeft = Mathf.Min(roadRight, nextState.Position.x - 0.5f);            // TODO: Car width variable
+                    float carRight = Mathf.Max(roadLeft, nextState.Position.x + 0.5f);           // TODO: Road width variable
+                    float roomLeft = carLeft - roadLeft;
+                    float roomRight = roadRight - carRight;
+                    float targetLeft = (carLeft + roadLeft) / 2.0f;
+                    float targetRight = (carRight + roadRight) / 2.0f;
+
+                    // Choose which side to go down
+                    bool goLeft;
+                    if (roomRight < 1.5f)                                   // TODO: Room limit variable
+                        goLeft = true;
+                    else if (roomLeft < 1.5f)
+                        goLeft = false;
+                    else
+                        goLeft = relPos.x > 0;
+
+                    targetX = goLeft ? targetLeft : targetRight;
+
+                    // Slow down if necessary to prevent a crash
+                    if (dist + relVel.z * 2.0f < 7.0f && Mathf.Abs(relPos.x) < 1.5f)
+                        preventCollisionSpeed = Mathf.Max(nextState.Velocity.z, 0.0f);
+                }                
+            }
 
             // Calculate angle required to get to targetX in RecenterTime
             Vector2 targetDir = new Vector2((targetX - state.Position.x) / RecenterTime, state.Velocity.z);
@@ -87,28 +152,23 @@ public class AICarController : MonoBehaviour
 
         // Acceleration/braking
         inputY = 1.0f;
-        if (RacetrackAIData != null)
+        float targetVel = Mathf.Min(PreferredSpeed, preventCollisionSpeed);             // Start with preferred speed, reduced if necessary to prevent a collision
+        if (segData != null)                                                            // Apply AI data min/max speeds
         {
-            var segData = RacetrackAIData.GetAIData(state.SegmentIndex);
-            float targetVel;
-
             if (segData.MaxSpeed - segData.MinSpeed < MinMaxSpeedBuffer * 2.0f)
             {
                 // No room for buffer, just aim for middle of range
                 targetVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;                
             }
             else
-            {
-                // Otherwise clamp preferred speed
-                targetVel = Mathf.Clamp(PreferredSpeed, segData.MinSpeed + MinMaxSpeedBuffer, segData.MaxSpeed - MinMaxSpeedBuffer);
+            {                
+                // Clamp to speed range
+                targetVel = Mathf.Clamp(targetVel, segData.MinSpeed + MinMaxSpeedBuffer, segData.MaxSpeed - MinMaxSpeedBuffer);
             }
-
-            inputY = Mathf.Sign(targetVel - state.Velocity.z);      // TODO: Smoother input?
-
-            // Debugging
-            DebugMaxVelocity = segData.MaxSpeed;
-            DebugMinVelocity = segData.MinSpeed;
         }
+
+        // Accelerate or brake to seek target velocity
+        inputY = Mathf.Sign(targetVel - state.Velocity.z);      // TODO: Smoother input?
 
         // Feed input into car
         carController.Move(inputX / 90.0f, inputY, inputY, 0.0f);
