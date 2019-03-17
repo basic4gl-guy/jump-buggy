@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#define DEBUG_CARAI
+
+using UnityEngine;
 using UnityStandardAssets.Vehicles.Car;
 
 [RequireComponent(typeof(CarController))]
@@ -11,17 +13,9 @@ public class AICarController : MonoBehaviour
     private CarController carController; // the car controller we want to use
     private RacetrackCarState carState;
 
-    [Header("Parameters")]
-    public float RecenterTime = 1.0f;
-    public float RecenterAngleRange = 20.0f;
-    public float SteeringSpeedFactor = 300.0f;
-    public float SteeringRate = 10.0f;
-    public float SteeringLimit = 90.0f;
-    public float SteeringSmooth = 0.1f;
+    private AICarIndividualParams aiParams;
 
-    public float PreferredSpeed = 50.0f;
-    public float MinMaxSpeedBuffer = 1.0f;
-
+#if DEBUG_CARAI
     [Header("Debugging")]
     public int DebugSegmentIndex;
     public float DebugVelocity;
@@ -30,6 +24,7 @@ public class AICarController : MonoBehaviour
     public float DebugX;
     public float DebugAngle;
     public float DebugDistToJump;
+#endif
 
     private float prevInputX = 0.0f;
 
@@ -38,11 +33,15 @@ public class AICarController : MonoBehaviour
         // get the car controller
         carController = GetComponent<CarController>();
         carState = GetComponent<RacetrackCarState>();
+
+        aiParams = GetComponentInChildren<AICarIndividualParams>();
+        if (aiParams == null)
+            Debug.LogError("AICarController - Could not find AICarIndividualParams in children");
     }
 
     private void FixedUpdate()
     {
-        if (carController == null || carState == null) return;
+        if (carController == null || carState == null || aiParams == null) return;
 
         // Must be on racetrack
         if (!carState.State.IsAboveRoad)
@@ -56,6 +55,7 @@ public class AICarController : MonoBehaviour
         // Get segment AI data
         RacetrackAIData.SegmentAIData segData = RacetrackAIData != null ? RacetrackAIData.GetAIData(state.SegmentIndex) : null;
 
+#if DEBUG_CARAI
         // Debugging
         DebugSegmentIndex = state.SegmentIndex;
         DebugVelocity = state.Velocity.z;
@@ -73,6 +73,7 @@ public class AICarController : MonoBehaviour
             DebugMinVelocity = 0.0f;
             DebugDistToJump = 1000000.0f;
         }
+#endif
 
         // Calculate car input
         float inputX = 0.0f;
@@ -82,10 +83,10 @@ public class AICarController : MonoBehaviour
         float preventCollisionSpeed = 1000.0f;
         if (Mathf.Abs(state.Velocity.z) > 0.01f)
         {
-            float targetX = Mathf.Clamp(state.Position.x, -2.0f, 2.0f);     // TODO: Comfortable X range variable
+            float targetX = Mathf.Clamp(state.Position.x, -aiParams.CenterXOffsetLimit, aiParams.CenterXOffsetLimit);     // TODO: Comfortable X range variable
 
-            if (segData != null && segData.DistToJump < 50.0f)
-                targetX = state.Position.x;             // Attempt to line up car with jump
+            if (segData != null && segData.DistToJump < aiParams.StraightenForJumpDistance)
+                targetX = state.Position.x;                     // Attempt to line up car with jump
 
             // Attempt to drive around the car infront if necessary
             else if (nextCarState != null)
@@ -97,21 +98,21 @@ public class AICarController : MonoBehaviour
                 // Determine whether to avoid the other car
                 bool avoid = false;
                 float dist = relPos.z;
-                if (dist > -3.5f)                               // TODO: Car length variable
+                if (dist > -aiParams.CarLength /2.0f)                             
                 {
-                    if (dist < 7.0f)                            // Car next to us
+                    if (dist < aiParams.CarLength)                           // Car next to us
                         avoid = true;
-                    else if (dist + relVel.z * 3.0f < 7.0f)     // Will catch up to car in 3 seconds
+                    else if (dist + relVel.z * aiParams.CatchupDurationAvoidLimit < aiParams.CarLength)           // Will catch up to car in 3 seconds
                         avoid = true;
                 }
 
                 if (avoid)
                 {
                     // Determine room down left and right hand side
-                    float roadLeft = -6.0f;
-                    float roadRight = 6.0f;
-                    float carLeft = Mathf.Min(roadRight, nextState.Position.x - 0.5f);            // TODO: Car width variable
-                    float carRight = Mathf.Max(roadLeft, nextState.Position.x + 0.5f);           // TODO: Road width variable
+                    float roadLeft = -aiParams.RoadWidth /2.0f;
+                    float roadRight = aiParams.RoadWidth /2.0f;
+                    float carLeft = Mathf.Min(roadRight, nextState.Position.x - aiParams.CarWidth /2.0f);
+                    float carRight = Mathf.Max(roadLeft, nextState.Position.x + aiParams.CarWidth /2.0f);
                     float roomLeft = carLeft - roadLeft;
                     float roomRight = roadRight - carRight;
                     float targetLeft = (carLeft + roadLeft) / 2.0f;
@@ -119,9 +120,9 @@ public class AICarController : MonoBehaviour
 
                     // Choose which side to go down
                     bool goLeft;
-                    if (roomRight < 1.5f)                                   // TODO: Room limit variable
+                    if (roomRight < aiParams.AvoidGapLimit)
                         goLeft = true;
-                    else if (roomLeft < 1.5f)
+                    else if (roomLeft < aiParams.AvoidGapLimit)
                         goLeft = false;
                     else
                         goLeft = relPos.x > 0;
@@ -129,33 +130,33 @@ public class AICarController : MonoBehaviour
                     targetX = goLeft ? targetLeft : targetRight;
 
                     // Slow down if necessary to prevent a crash
-                    if (dist + relVel.z * 2.0f < 7.0f && Mathf.Abs(relPos.x) < 1.5f)
+                    if (dist + relVel.z * aiParams.CatchupDurationBrakeLimit < aiParams.CarLength && Mathf.Abs(relPos.x) < aiParams.BrakeXOffsetLimit)
                         preventCollisionSpeed = Mathf.Max(nextState.Velocity.z, 0.0f);
                 }                
             }
 
             // Calculate angle required to get to targetX in RecenterTime
-            Vector2 targetDir = new Vector2((targetX - state.Position.x) / RecenterTime, state.Velocity.z);
+            Vector2 targetDir = new Vector2((targetX - state.Position.x) / aiParams.RecenterTime, state.Velocity.z);
             float targetAng = Mathf.Atan2(targetDir.x, targetDir.y) * Mathf.Rad2Deg;
-            targetAng = Mathf.Clamp(targetAng, -RecenterAngleRange, RecenterAngleRange);
+            targetAng = Mathf.Clamp(targetAng, -aiParams.RecenterAngleRange, aiParams.RecenterAngleRange);
 
             // Calculate direction to turn
             float angDelta = RacetrackUtil.LocalAngle(targetAng - state.Angle);
 
             // Calculate steering wheel input
-            float steeringLimit = Mathf.Min(SteeringSpeedFactor / state.Velocity.z, 90.0f);
-            inputX = Mathf.Clamp(angDelta / state.Velocity.z * SteeringRate, -steeringLimit, steeringLimit);
+            float steeringLimit = Mathf.Min(aiParams.SteeringSpeedFactor / state.Velocity.z, 90.0f);
+            inputX = Mathf.Clamp(angDelta / state.Velocity.z * aiParams.SteeringRate, -steeringLimit, steeringLimit);
         }
 
-        inputX = Mathf.Clamp(inputX, -SteeringLimit, SteeringLimit);
-        inputX = Mathf.Lerp(inputX, prevInputX, SteeringSmooth);
+        inputX = Mathf.Clamp(inputX, -aiParams.SteeringLimit, aiParams.SteeringLimit);
+        inputX = Mathf.Lerp(inputX, prevInputX, aiParams.SteeringSmooth);
 
         // Acceleration/braking
         inputY = 1.0f;
-        float targetVel = Mathf.Min(PreferredSpeed, preventCollisionSpeed);             // Start with preferred speed, reduced if necessary to prevent a collision
+        float targetVel = Mathf.Min(aiParams.PreferredSpeed, preventCollisionSpeed);             // Start with preferred speed, reduced if necessary to prevent a collision
         if (segData != null)                                                            // Apply AI data min/max speeds
         {
-            if (segData.MaxSpeed - segData.MinSpeed < MinMaxSpeedBuffer * 2.0f)
+            if (segData.MaxSpeed - segData.MinSpeed < aiParams.MinMaxSpeedBuffer * 2.0f)
             {
                 // No room for buffer, just aim for middle of range
                 targetVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;                
@@ -163,7 +164,7 @@ public class AICarController : MonoBehaviour
             else
             {                
                 // Clamp to speed range
-                targetVel = Mathf.Clamp(targetVel, segData.MinSpeed + MinMaxSpeedBuffer, segData.MaxSpeed - MinMaxSpeedBuffer);
+                targetVel = Mathf.Clamp(targetVel, segData.MinSpeed + aiParams.MinMaxSpeedBuffer, segData.MaxSpeed - aiParams.MinMaxSpeedBuffer);
             }
         }
 

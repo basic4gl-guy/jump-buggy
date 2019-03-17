@@ -6,7 +6,7 @@ using UnityEngine;
 public class RacetrackAIData : MonoBehaviour
 {
     public Racetrack Racetrack;
-    public AICarParams AICarParams;
+    public AICarGlobalParams AICarParams;
 
     private SegmentAIData[] segmentDatas;
 

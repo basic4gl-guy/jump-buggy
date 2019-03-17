@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 
-public class AICarParams : MonoBehaviour
+/// <summary>
+/// Global AI parameters shared across all cars.
+/// Used when building RacetrackAIData
+/// </summary>
+public class AICarGlobalParams : MonoBehaviour
 {
     [Header("Acceleration")]
     public float MaxAccel;
