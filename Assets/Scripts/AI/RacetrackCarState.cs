@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(RacetrackProgressTracker))]
@@ -103,7 +104,6 @@ public class RacetrackCarState : MonoBehaviour
         }
         var curve = curves[curveIndex];
         var info = infos[curveIndex];
-        track.GetSegments();            // (Ensures segments are generated)
 
         // Calculate car position and direction in track space
         Matrix4x4 worldFromTrack = track.transform.localToWorldMatrix;
@@ -171,5 +171,37 @@ public class RacetrackCarState : MonoBehaviour
         state.Angle = carAng;
         state.TrackFromSeg = trackFromSeg;
         state.SegFromTrack = segFromTrack;
+    }
+}
+
+public class CarState
+{
+    public Racetrack Track { get; set; }
+    public RacetrackCurve Curve { get; set; }
+    public Racetrack.CurveRuntimeInfo Info { get; set; }
+    public Racetrack.Segment Segment { get; set; }
+    public int SegmentIndex { get; set; }
+    public Vector3 Position { get; set; }
+    public Vector3 Direction { get; set; }
+    public Vector3 Velocity { get; set; }
+    public float Angle { get; set; }
+    public Matrix4x4 TrackFromSeg { get; set; }
+    public Matrix4x4 SegFromTrack { get; set; }
+    public bool IsAboveRoad { get; set; }
+
+    public float TrackZ
+    {
+        get { return SegmentIndex * Track.SegmentLength + Position.z; }
+    }
+
+    public Vector3 GetRelativePosition(CarState nextState)
+    {
+        float z = nextState.TrackZ - TrackZ;
+        float trackLength = Track.Segments.Count * Track.SegmentLength;
+        if (z < -trackLength / 2.0f)
+            z += trackLength;
+        if (z >= trackLength / 2.0f)
+            z -= trackLength;
+        return new Vector3(nextState.Position.x - Position.x, nextState.Position.y - Position.y, z);
     }
 }

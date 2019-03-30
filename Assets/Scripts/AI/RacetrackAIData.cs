@@ -32,7 +32,7 @@ public class RacetrackAIData : MonoBehaviour
             return;
         }
 
-        var segments = Racetrack.GetSegments();
+        var segments = Racetrack.Segments;
         if (!segments.Any())
         {
             Debug.LogFormat("RacetrackAIData - Racetrack has no segments");
@@ -126,7 +126,7 @@ public class RacetrackAIData : MonoBehaviour
                 ci++;
                 curveEndZ = ci < curves.Count
                     ? curveInfos[ci].zOffset + curves[ci].Length
-                    : segments.Count * Racetrack.SegmentLength;
+                    : segments.Count() * Racetrack.SegmentLength;
             }
 
             segmentDatas[i] = new SegmentAIData { MinSpeed = min, MaxSpeed = max, DistToJump = distToJump };
