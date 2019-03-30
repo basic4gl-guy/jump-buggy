@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +16,12 @@ public class Racetrack : MonoBehaviour {
     [Header("Parameters")]
     public float SegmentLength = 0.25f;
     public float RespawnHeight = 0.75f;
+    public RacetrackMeshOverrunOption MeshOverrun = RacetrackMeshOverrunOption.Extrapolate;
+    public float LoopYOffset = -0.001f;
+
+    [Header("UI settings")]
+    public bool ShowManipulationHandles = true;
+    public bool ShowOnScreenButtons = true;
 
     /// <summary>
     /// Runtime information for each curve. Used by RacetrackProgressTracker.
@@ -34,25 +39,61 @@ public class Racetrack : MonoBehaviour {
     // Working
 
     /// <summary>
-    /// Curves processed into a set of small linear segments
-    /// </summary>
-    private List<Segment> segments;
-
-    /// <summary>
     /// Singleton instance
     /// </summary>
     public static Racetrack Instance;
 
+    /// <summary>
+    /// Host services
+    /// </summary>
+    private IRacetrackHostServices hostServices = RuntimeRacetrackHostServices.Instance;
+
+    // Segments calculaged field
+    [SerializeField]
+    [HideInInspector]
+    private int segmentsRequiredVersion = 1;
+
+    private int segmentsVersion = 0;
+
+    private int segmentsHighestVersion;
+
+    /// <summary>
+    /// Curves processed into a set of small linear segments
+    /// </summary>
+    private List<Segment> _segments;
+
+    public List<Segment> Segments
+    {
+        get
+        {
+            // Regenerate segments if necessary
+            if (segmentsVersion != segmentsRequiredVersion || _segments == null)
+            {
+                UpdateSegments();
+                segmentsVersion = segmentsRequiredVersion;
+                if (segmentsVersion > segmentsHighestVersion)
+                    segmentsHighestVersion = segmentsVersion;
+            }
+
+            return _segments;
+        }
+    }
+
+    public void InvalidateSegments()
+    {
+        // Generate a new version number
+        hostServices.ObjectChanging(this);
+        segmentsRequiredVersion = segmentsHighestVersion + 1;
+    }
+
     private void Awake()
     {
         Instance = this;
+        segmentsHighestVersion = segmentsRequiredVersion;
     }
 
     void Start()
     {
-        // Ensure segment and curve runtime information arrays are populated.
-        segments = GenerateSegments().ToList();
-        PositionCurves();
     }
 
     void OnDestroy()
@@ -79,12 +120,64 @@ public class Racetrack : MonoBehaviour {
         // Delete any previous meshes
         DeleteMeshes(startCurveIndex, endCurveIndex);
 
-        // Ensure segments array and curve positions are up to date
-        segments = GenerateSegments().ToList();
-        PositionCurves();
-
         // Create new meshes
+        RepositionCurves();
         BuildMeshes(startCurveIndex, endCurveIndex);
+    }
+
+    public RacetrackCurve CreateCircuit()
+    {
+        // Link the last curve to the start of the track
+        var curves = Curves;
+        if (curves.Count < 1)
+            throw new ApplicationException("Must have at least 1 curve to create a circuit");
+
+        RacetrackCurve newCurve = null;
+        if (MeshOverrun != RacetrackMeshOverrunOption.Loop)
+        {
+            // Switch to looped mode
+            hostServices.ObjectChanging(this);
+            MeshOverrun = RacetrackMeshOverrunOption.Loop;
+
+            // Create a new curve to close the loop
+            var obj = new GameObject();
+            hostServices.ObjectCreated(obj);
+            obj.transform.parent = transform;
+            obj.name = "Curve";
+            obj.isStatic = gameObject.isStatic;
+            newCurve = obj.AddComponent<RacetrackCurve>();
+            newCurve.Index = curves.Count;
+
+            // Segments need recalculating
+            InvalidateSegments();
+
+            // Update curves array
+            curves = Curves;
+
+            // Ensure curves are positioned correctly
+            RepositionCurves();
+        }
+
+        // Join last curve to first
+        var first = curves.First();
+        var last = curves.Last();
+        last.Type = RacetrackCurveType.Bezier;
+        last.EndPosition = first.transform.localPosition;
+
+        // Line up angles
+        var yAng = curves.Sum(c => c.Angles.y) - last.Angles.y;
+        float lastCurveX = 0.0f;
+        float lastCurveY = RacetrackUtil.LocalAngle(0.0f - yAng);
+        float lastCurveZ = 0.0f;
+        last.Angles = new Vector3(lastCurveX, lastCurveY, lastCurveZ);
+
+        InvalidateSegments();
+
+        // Update last curve meshes
+        CreateMeshes(curves.Count - 2, curves.Count);
+
+        // Return new curve created (or null if existing curve used)
+        return newCurve;
     }
 
     /// <summary>
@@ -94,7 +187,10 @@ public class Racetrack : MonoBehaviour {
     {
         var curves = Curves;
         foreach (var curve in curves)
+        {
+            hostServices.ObjectChanging(curve);
             curve.Template = null;
+        }
         DeleteMeshes();
     }
 
@@ -110,12 +206,57 @@ public class Racetrack : MonoBehaviour {
 
         // Add curve to end of list
         var obj = new GameObject();
+        hostServices.ObjectCreated(obj);
         obj.transform.parent = transform;
         obj.name = "Curve";
         obj.isStatic = gameObject.isStatic;
         var curve = obj.AddComponent<RacetrackCurve>();
         curve.Index = curves.Count;
 
+        InvalidateSegments();
+
+        ConfigureNewCurve(lastCurve, curve);
+
+        // Switch back to extrapolate overrun mode
+        hostServices.ObjectChanging(this);
+        MeshOverrun = RacetrackMeshOverrunOption.Extrapolate;
+
+        // Create curve meshes
+        ScheduleCreateMeshes(curve, false);
+
+        return curve;
+    }
+
+    public RacetrackCurve InsertCurveAfter(int index)
+    {
+        var curves = Curves;
+        var lastCurve = curves[index];
+
+        // Create new curve
+        var obj = new GameObject();
+        hostServices.ObjectCreated(obj);
+        obj.transform.parent = transform;
+        obj.name = "Curve";
+        obj.isStatic = gameObject.isStatic;
+        var curve = obj.AddComponent<RacetrackCurve>();
+
+        InvalidateSegments();
+
+        // Position immediately after previous curve
+        curve.Index = index + 1;
+        hostServices.SetTransformParent(curve.transform, curve.transform.parent);       // This seems to be required to get undo support for SetSiblingIndex
+        obj.transform.SetSiblingIndex(curve.Index);
+
+        ConfigureNewCurve(lastCurve, curve);
+
+        // Create curve meshes
+        ScheduleCreateMeshes(index - 1, curve.Index + 2);
+
+        return curve;
+    }
+
+    private void ConfigureNewCurve(RacetrackCurve lastCurve, RacetrackCurve curve)
+    {
         // Copy values from last curve
         if (lastCurve != null)
         {
@@ -123,12 +264,19 @@ public class Racetrack : MonoBehaviour {
             curve.Angles = lastCurve.Angles;
             curve.IsJump = lastCurve.IsJump;
             curve.CanRespawn = lastCurve.CanRespawn;
+            if (lastCurve.Type == RacetrackCurveType.Bezier)
+            {
+                // Create a straight arc curve to calculate the end position.
+                // (Will then switch to bezier after)
+                curve.Type = RacetrackCurveType.Arc;
+                curve.Angles.y = 0.0f;
+                curve.Length = 50;
+
+                // Update segments will calculate EndPosition
+                var temp = Segments;
+            }
+            curve.Type = lastCurve.Type;
         }
-
-        // Create curve meshes
-        CreateMeshes(curve.Index - 1, curve.Index + 1);
-
-        return curve;
     }
 
     /// <summary>
@@ -155,22 +303,18 @@ public class Racetrack : MonoBehaviour {
 
         // Delete them
         foreach (var child in children)
-        {
-            if (Application.isEditor)
-                DestroyImmediate(child.gameObject);
-            else
-                Destroy(child.gameObject);
-        }
+            hostServices.DestroyObject(child.gameObject);
     }
 
     /// <summary>
     /// Calculate each curve's position.
     /// Also builds the curve runtime information array.
     /// </summary>
-    public void PositionCurves()
+    private void RepositionCurves()
     {
         // Position curve objects at the start of their curves
         var curves = Curves;
+        hostServices.ObjectChanging(this);
         CurveInfos = new CurveRuntimeInfo[curves.Count];
         float curveZOffset = 0.0f;
         int index = 0;
@@ -179,7 +323,9 @@ public class Racetrack : MonoBehaviour {
             // Position curve at first segment
             int segIndex = Mathf.FloorToInt(curveZOffset / SegmentLength);
             var seg = GetSegment(segIndex);
+            hostServices.ObjectChanging(curve.transform);
             GetSegmentTransform(seg, curve.transform);
+            hostServices.ObjectChanging(curve);
             curve.Index = index;
 
             // Calculate curve runtime info
@@ -209,13 +355,13 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// Rebuild segments array
-    /// </summary>
-    public void UpdateSegments()
-    {
-        segments = GenerateSegments().ToList();
-    }
+    ///// <summary>
+    ///// Rebuild segments array
+    ///// </summary>
+    //public void UpdateSegments2()
+    //{
+    //    segments = GenerateSegments();
+    //}
 
     /// <summary>
     /// Get segment array for single curve.
@@ -225,30 +371,17 @@ public class Racetrack : MonoBehaviour {
     /// <returns>Enumerable of segments for the specified curve</returns>
     public IEnumerable<Segment> GetCurveSegments(RacetrackCurve curve)
     {
-        if (segments == null) segments = GenerateSegments().ToList();
-
         // Find start of curve
         int i = 0;
-        while (i < segments.Count && segments[i].Curve.Index < curve.Index)
+        while (i < Segments.Count && Segments[i].Curve.Index < curve.Index)
             i++;
 
         // Return curve segments
-        while (i < segments.Count && segments[i].Curve.Index == curve.Index)
+        while (i < Segments.Count && Segments[i].Curve.Index == curve.Index)
         {
-            yield return segments[i];
+            yield return Segments[i];
             i++;
         }
-    }
-
-    /// <summary>
-    /// Get all segments.
-    /// Used by RacetrackCurveEditor to display curves in scene GUI
-    /// </summary>
-    /// <returns>Enumerable of all segments across all curves</returns>
-    public List<Segment> GetSegments()
-    {
-        if (segments == null) segments = GenerateSegments().ToList();
-        return segments;
     }
 
     /// <summary>
@@ -266,7 +399,7 @@ public class Racetrack : MonoBehaviour {
     /// <param name="endCurveIndex">EXCLUSIVE end curve index</param>
     private void BuildMeshes(int startCurveIndex, int endCurveIndex)
     {
-        if (!segments.Any()) return;
+        if (!Segments.Any()) return;
         var curves = Curves;
 
         // Clamp curve range
@@ -276,6 +409,7 @@ public class Racetrack : MonoBehaviour {
             endCurveIndex = curves.Count;
 
         // Create/update build mesh state array in parallel
+        hostServices.ObjectChanging(this);
         if (CurveBuildMeshState == null)
             CurveBuildMeshState = new BuildMeshesState[curves.Count];
         else
@@ -292,13 +426,13 @@ public class Racetrack : MonoBehaviour {
         RacetrackMeshTemplate template = state.Template;
 
         // Work down the curve. Add meshes as we go.
-        var totalLength = segments.Count * SegmentLength;
+        var totalLength = Segments.Count * SegmentLength;
         var curveIndex = startCurveIndex;
         while (meshZOffset < totalLength)
         {
             // Find segment where mesh starts
             int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
-            var seg = segments[segIndex];
+            var seg = Segments[segIndex];
             var curve = seg.Curve;
 
             // Store state at end of each curve
@@ -332,6 +466,7 @@ public class Racetrack : MonoBehaviour {
             {
                 // Create template copy object
                 var templateCopyObj = new GameObject();
+                hostServices.ObjectCreated(templateCopyObj);
                 templateCopyObj.transform.parent = curve.transform;
                 templateCopyObj.isStatic = gameObject.isStatic;
                 templateCopyObj.name = curve.name + " > " + template.name;
@@ -368,7 +503,7 @@ public class Racetrack : MonoBehaviour {
                         Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
                         Matrix4x4 meshFromWorld = mf.transform.localToWorldMatrix.inverse;
                         float meshLength = WarpMeshToCurves(mf.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !UNITY_STANDALONE
                         Unwrapping.GenerateSecondaryUVSet(mf.sharedMesh);
 #endif
 
@@ -378,7 +513,7 @@ public class Racetrack : MonoBehaviour {
                         {
                             var surface = mf.gameObject.AddComponent<RacetrackSurface>();
                             int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
-                            Segment endSeg = segments[Math.Min(endSegIndex, segments.Count - 1)];
+                            Segment endSeg = Segments[Math.Min(endSegIndex, Segments.Count - 1)];
                             surface.StartCurveIndex = seg.Curve.Index;
                             surface.EndCurveIndex = endSeg.Curve.Index;
                             mainMeshLength = meshLength;
@@ -533,7 +668,7 @@ public class Racetrack : MonoBehaviour {
 
         // Lookup first segment
         int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
-        Segment seg = segments[segIndex];
+        Segment seg = Segments[segIndex];
 
         // Warp vertices around road curve
         Debug.Assert(mesh.vertices.Length == mesh.normals.Length);
@@ -599,11 +734,29 @@ public class Racetrack : MonoBehaviour {
         dstTransform.rotation = Quaternion.LookRotation(worldForward);
     }
 
+    public void UpdateSegments()
+    {
+        // Re-index curves
+        var curves = Curves;
+        for (int i = 0; i < curves.Count; i++)
+        {
+            hostServices.ObjectChanging(curves[i]);
+            curves[i].Index = i;
+        }
+
+        // Generate segments without deltas
+        _segments = GenerateSegmentsEnumerable().ToList();
+
+        // Calculate direction deltas
+        for (int i = 0; i < _segments.Count - 1; i++)
+            _segments[i].DirectionDelta = _segments[i + 1].Direction - _segments[i].Direction;
+    }
+
     /// <summary>
     /// Generate segments from track curves
     /// </summary>
     /// <returns>Enumerable of segments for all curves</returns>
-    private IEnumerable<Segment> GenerateSegments()
+    private IEnumerable<Segment> GenerateSegmentsEnumerable()
     {
         // Find curves. Must be in immediate children.
         var curves = Curves;
@@ -611,37 +764,111 @@ public class Racetrack : MonoBehaviour {
         // Walk along curve in track space.
         Vector3 pos = Vector3.zero;
         Vector3 dir = Vector3.zero;
+        Vector3 segPosDelta = Vector3.zero;
 
         Vector3 dirDelta = Vector3.zero;
         Vector3 posDelta = Vector3.forward * SegmentLength;
         foreach (var curve in curves)
         {
-            // Find delta to add to curve each segment
-            dirDelta = new Vector3(
-                RacetrackUtil.LocalAngle(curve.Angles.x - dir.x),
-                curve.Angles.y,
-                RacetrackUtil.LocalAngle(curve.Angles.z - dir.z)
-            ) / curve.Length * SegmentLength;
+            // Calculate direction at the end of the curve
+            Vector3 endDir = new Vector3(curve.Angles.x, dir.y + curve.Angles.y, curve.Angles.z);
 
-            // Generate segments
-            for (float d = 0.0f; d < curve.Length; d += SegmentLength)
+            switch (curve.Type)
             {
-                var segPosDelta = Matrix4x4.Rotate(Quaternion.Euler(dir)).MultiplyVector(posDelta);
+                case RacetrackCurveType.Arc:
+                    {
+                        // Find delta to add to curve each segment
+                        dirDelta = new Vector3(
+                            RacetrackUtil.LocalAngle(curve.Angles.x - dir.x),
+                            curve.Angles.y,
+                            RacetrackUtil.LocalAngle(curve.Angles.z - dir.z)
+                        ) / curve.Length * SegmentLength;
 
-                var segment = new Segment
-                {
-                    Position = pos,
-                    PositionDelta = segPosDelta,
-                    Direction = dir,
-                    DirectionDelta = dirDelta,
-                    Length = SegmentLength,
-                    Curve = curve
-                };
-                yield return segment;
+                        // Generate segments
+                        for (float d = 0.0f; d < curve.Length; d += SegmentLength)
+                        {
+                            segPosDelta = Matrix4x4.Rotate(Quaternion.Euler(dir)).MultiplyVector(posDelta);
 
-                // Advance to start of next segment
-                pos += segPosDelta;
-                dir += dirDelta;
+                            var segment = new Segment
+                            {
+                                Position = pos,
+                                PositionDelta = segPosDelta,
+                                Direction = dir,
+                                DirectionDelta = dirDelta,
+                                Length = SegmentLength,
+                                Curve = curve
+                            };
+                            yield return segment;
+
+                            // Advance to start of next segment
+                            pos += segPosDelta;
+                            dir += dirDelta;
+                        }
+                    }
+
+                    hostServices.ObjectChanging(curve);
+                    curve.EndPosition = pos;
+
+                    break;
+
+                case RacetrackCurveType.Bezier:
+                    {
+                        // Calculate end position
+                        Vector3 endPos = curve.EndPosition;
+
+                        // Calculate start and end tangental vectors
+                        Vector3 startTangent = Matrix4x4.Rotate(Quaternion.Euler(dir)).MultiplyVector(Vector3.forward);
+                        Vector3 endTangent = Matrix4x4.Rotate(Quaternion.Euler(endDir)).MultiplyVector(Vector3.forward);
+                        float separationDist = (endPos - pos).magnitude;
+                        float startTangentLength = separationDist * curve.StartControlPtDist;
+                        float endTangentLength = separationDist * curve.EndControlPtDist;
+
+                        // Create bezier curve from control points
+                        Bezier bezier = new Bezier(
+                            pos,
+                            pos + startTangent * startTangentLength,
+                            endPos - endTangent * endTangentLength,
+                            endPos);
+
+                        // Build distance lookup with t values for each segment length
+                        float length;
+                        var lookup = bezier.BuildDistanceLookup(0.0001f, SegmentLength, out length);
+                        hostServices.ObjectChanging(curve);
+                        curve.Length = length;
+
+                        // Generate curve segments along bezier
+                        float dirZDelta = (curve.Angles.z - dir.z) / length * SegmentLength;
+                        foreach (var t in lookup)
+                        {
+                            // Get position and tangent
+                            pos = bezier.GetPt(t);
+                            Vector3 tangent = bezier.GetTangent(t);
+                            segPosDelta = tangent * SegmentLength;
+
+                            // Calculate corresponding euler angles
+                            dir.y = Mathf.Atan2(segPosDelta.x, segPosDelta.z) * Mathf.Rad2Deg;
+                            float xz = Mathf.Sqrt(segPosDelta.x * segPosDelta.x + segPosDelta.z * segPosDelta.z);
+                            dir.x = -Mathf.Atan2(segPosDelta.y, xz) * Mathf.Rad2Deg;
+                            dir.z += dirZDelta;
+
+                            var segment = new Segment
+                            {
+                                Position = pos,
+                                PositionDelta = segPosDelta,
+                                Direction = dir,
+                                DirectionDelta = Vector3.zero,  // TODO!
+                                Length = SegmentLength,
+                                Curve = curve
+                            };
+                            yield return segment;
+                        }
+
+                        // Update dir to end-of-curve direction.
+                        // Otherwise it will be the direction based on the last sampled bezier tangent,
+                        // which may not exactly align.
+                        dir = endDir;
+                    }
+                    break;
             }
         }
 
@@ -649,6 +876,7 @@ public class Racetrack : MonoBehaviour {
         yield return new Segment
         {
             Position = pos,
+            PositionDelta = segPosDelta,
             Direction = dir,
             DirectionDelta = dirDelta,
             Length = SegmentLength,
@@ -663,20 +891,44 @@ public class Racetrack : MonoBehaviour {
     /// <returns>Corresponding segment.</returns>
     public Segment GetSegment(int i)
     {
-        if (i < 0) return segments[0];
-        if (i < segments.Count) return segments[i];
+        if (i < 0) return Segments[0];
+        if (i < Segments.Count) return Segments[i];
 
         // It's likely meshes won't exactly add up to the Z length of the curves, so the last one will overhang.
-        // We allow for this by generating a virtual segment extruded from the last segment in the list.
-        var lastSeg = segments[segments.Count - 1];
-        return new Segment
+        // Handle this
+        switch (MeshOverrun)
         {
-            Position = lastSeg.Position + lastSeg.GetSegmentToTrack(0.0f).MultiplyVector(Vector3.forward * lastSeg.Length * (i - segments.Count)),
-            Direction = lastSeg.Direction,
-            DirectionDelta = Vector3.zero,
-            Length = lastSeg.Length,
-            Curve = lastSeg.Curve
-        };
+            case RacetrackMeshOverrunOption.Extrapolate:
+                // We allow for this by generating a virtual segment extruded from the last segment in the list.
+                var lastSeg = Segments.Last();
+                return new Segment
+                {
+                    Position = lastSeg.Position + lastSeg.GetSegmentToTrack(0.0f).MultiplyVector(Vector3.forward * lastSeg.Length * (i - Segments.Count)),
+                    PositionDelta = lastSeg.PositionDelta,
+                    Direction = lastSeg.Direction,
+                    DirectionDelta = Vector3.zero,
+                    Length = lastSeg.Length,
+                    Curve = lastSeg.Curve
+                };
+
+            case RacetrackMeshOverrunOption.Loop:
+                var loopedSeg = Segments[i % Segments.Count];
+
+                // Create a copy translated down slightly.
+                // If meshes line up exactly it can lead to ugly Z fighting.
+                return new Segment {
+                    Position = loopedSeg.Position + new Vector3(0.0f, LoopYOffset, 0.0f),
+                    PositionDelta = loopedSeg.PositionDelta,
+                    Direction = loopedSeg.Direction,
+                    DirectionDelta = loopedSeg.DirectionDelta,
+                    Length = loopedSeg.Length,
+                    Curve = Segments.Last().Curve
+                };
+
+
+            default:
+                throw new ArgumentOutOfRangeException();            // This should never happen
+        }
     }
 
     private List<RacetrackCurve> cachedCurves;
@@ -737,6 +989,66 @@ public class Racetrack : MonoBehaviour {
         for (int i = 0; i < src.subMeshCount; i++)
             dst.SetTriangles(src.GetTriangles(i), i);
         return dst;
+    }
+
+    private bool scheduleCreate;
+    private int scheduleFrom;
+    private int scheduleTo;
+    private int scheduleBezier;
+
+    public void ScheduleCreateMeshes(RacetrackCurve curve, bool isSingleCurveOnly)
+    {
+        var curves = Curves;
+        scheduleCreate = true;
+        scheduleFrom = curve.Index - 1;
+        scheduleTo = isSingleCurveOnly ? curve.Index + 2 : curves.Count;
+
+        // After updating a single curve, also update the next bezier curve
+        scheduleBezier = -1;
+        if (isSingleCurveOnly)
+        {
+            var nextBezier = curves.Skip(curve.Index + 1).FirstOrDefault(c => c.Type == RacetrackCurveType.Bezier);
+            if (nextBezier)
+                scheduleBezier = nextBezier.Index;
+        }
+    }
+
+    private void ScheduleCreateMeshes(int fromIndex, int toIndex)
+    {
+        scheduleCreate = true;
+        scheduleFrom = fromIndex;
+        scheduleTo = toIndex;
+        scheduleBezier = -1;
+    }
+
+    public void CreateScheduledMeshes()
+    {
+        // Rebuild scheduled curve(s)
+        if (scheduleCreate)
+        {
+            try
+            {
+                CreateMeshes(scheduleFrom, scheduleTo);
+                if (scheduleBezier >= 0)
+                {
+                    int bFrom = scheduleBezier - 1;
+                    int bTo = scheduleBezier + 2;
+                    if (bFrom < scheduleTo)         // Don't create meshes twice if ranges overlap
+                        bFrom = scheduleTo;
+                    if (bTo > bFrom)
+                        CreateMeshes(bFrom, bTo);
+                }
+            }
+            finally
+            {
+                scheduleCreate = false;
+            }
+        }
+    }
+
+    public void SetHostServices(IRacetrackHostServices services)
+    {
+        hostServices = services;
     }
 
     /// <summary>
@@ -823,5 +1135,70 @@ public class Racetrack : MonoBehaviour {
             for (int i = 0; i < SpacingGroups.Length; i++)
                 SpacingGroups[i] = new SpacingGroupBaseState();
         }
+    }
+}
+
+public enum RacetrackMeshOverrunOption
+{
+    Extrapolate,
+    Loop
+}
+
+/// <summary>
+/// Services from the hosting environment.
+/// Injected into Racetrack objects to provide access to editor functionality, particularly Undo tracking.
+/// A cut down default implementation is used at runtime.
+/// </summary>
+public interface IRacetrackHostServices
+{
+    /// <summary>
+    /// Handle newly created object
+    /// </summary>
+    void ObjectCreated(UnityEngine.Object o);
+
+    /// <summary>
+    /// Destroy a game object
+    /// </summary>
+    void DestroyObject(UnityEngine.Object o);
+
+    /// <summary>
+    /// An object is (/may be) about to change
+    /// </summary>
+    void ObjectChanging(UnityEngine.Object o);
+
+    /// <summary>
+    /// Set transformation's parent
+    /// </summary>
+    void SetTransformParent(Transform transform, Transform parent);
+}
+
+/// <summary>
+/// Default runtime implementation (no Undo tracking etc)
+/// </summary>
+public sealed class RuntimeRacetrackHostServices : IRacetrackHostServices
+{
+    public static readonly RuntimeRacetrackHostServices Instance = new RuntimeRacetrackHostServices();
+
+    private RuntimeRacetrackHostServices() { }
+
+    public void DestroyObject(UnityEngine.Object o)
+    {
+        if (Application.isEditor)
+            UnityEngine.Object.DestroyImmediate(o);
+        else
+            UnityEngine.Object.Destroy(o);
+    }
+
+    public void ObjectChanging(UnityEngine.Object o)
+    {
+    }
+
+    public void ObjectCreated(UnityEngine.Object o)
+    {
+    }
+
+    public void SetTransformParent(Transform transform, Transform parent)
+    {
+        transform.parent = parent;
     }
 }

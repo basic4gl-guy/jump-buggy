@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// Attached to RacetrackCurve.Angles to invoke the custom property drawer.

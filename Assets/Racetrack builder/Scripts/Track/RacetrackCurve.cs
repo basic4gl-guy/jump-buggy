@@ -8,7 +8,22 @@ using UnityEngine;
 /// </summary>
 public class RacetrackCurve : MonoBehaviour {
 
-    [Header("Shape")]    
+    [Header("Mode")]
+    public RacetrackCurveType Type = RacetrackCurveType.Arc;
+
+    [Header("Bezier")]
+    [Tooltip("The end point of the Bezier curve")]
+    public Vector3 EndPosition;
+
+    [Tooltip("Distance from the start point to its control point. (As a fraction of the distance between the start and end points)")]
+    [Range(0.0f, 1.0f)]
+    public float StartControlPtDist = 0.5f;
+
+    [Tooltip("Distance from the end point to its control point. (As a fraction of the distance between the start and end points)")]
+    [Range(0.0f, 1.0f)]
+    public float EndControlPtDist = 0.5f;
+
+    [Header("Arc")]
     [RacetrackCurveLength]    
     public float Length = 50.0f;
 
@@ -19,6 +34,7 @@ public class RacetrackCurve : MonoBehaviour {
     /// The X and Z at the start of the curve are inherited from the previous curve and
     /// lerp to the current curve's values across the length of the curve.
     /// </summary>
+    [Header("Shape")]
     [RacetrackCurveAngles]
     public Vector3 Angles = new Vector3();
 
@@ -53,10 +69,6 @@ public class RacetrackCurve : MonoBehaviour {
     [HideInInspector]
     public int Index;
 
-    [Header("Miscellaneous")]
-    [Tooltip("Allow this curve's length to be adjusted to create a closed circuit racetrack.")]
-    public bool AutoAdjustLength = false;
-
     /// <summary>
     /// Find the track
     /// </summary>
@@ -72,4 +84,20 @@ public class RacetrackCurve : MonoBehaviour {
             return track;
         }
     }
+
+    //private void OnValidate()
+    //{
+    //    if (transform.parent != null)
+    //    {
+    //        var track = transform.parent.GetComponent<Racetrack>();
+    //        if (track != null)
+    //            track.GenerateSegments();
+    //    }
+    //}
+}
+
+public enum RacetrackCurveType
+{
+    Arc,
+    Bezier
 }
