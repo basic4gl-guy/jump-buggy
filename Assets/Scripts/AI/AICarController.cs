@@ -84,12 +84,9 @@ public class AICarController : MonoBehaviour
         if (Mathf.Abs(state.Velocity.z) > 0.01f)
         {
             float targetX = Mathf.Clamp(state.Position.x, -aiParams.CenterXOffsetLimit, aiParams.CenterXOffsetLimit);     // TODO: Comfortable X range variable
-
-            if (segData != null && segData.DistToJump < aiParams.StraightenForJumpDistance)
-                targetX = state.Position.x;                     // Attempt to line up car with jump
-
+            
             // Attempt to drive around the car infront if necessary
-            else if (nextCarState != null)
+            if (nextCarState != null)
             {
                 var nextState = nextCarState.State;
                 Vector3 relPos = state.GetRelativePosition(nextState);
@@ -108,26 +105,51 @@ public class AICarController : MonoBehaviour
 
                 if (avoid)
                 {
-                    // Determine room down left and right hand side
+                    const float PassingRoom = 0.5f;                         // TODO: Make parameter
+
+                    // Determine left and right hand side limits
                     float roadLeft = -aiParams.RoadWidth /2.0f;
                     float roadRight = aiParams.RoadWidth /2.0f;
                     float carLeft = Mathf.Min(roadRight, nextState.Position.x - aiParams.CarWidth /2.0f);
                     float carRight = Mathf.Max(roadLeft, nextState.Position.x + aiParams.CarWidth /2.0f);
+
+                    // Subtract space to account for width of current car and required passing room
+                    roadLeft    += aiParams.CarWidth / 2.0f + PassingRoom;
+                    roadRight   -= aiParams.CarWidth / 2.0f + PassingRoom;
+                    carRight    += aiParams.CarWidth / 2.0f + PassingRoom;
+                    carLeft     -= aiParams.CarWidth / 2.0f + PassingRoom;
+
+                    // Determine actual room
                     float roomLeft = carLeft - roadLeft;
                     float roomRight = roadRight - carRight;
-                    float targetLeft = (carLeft + roadLeft) / 2.0f;
-                    float targetRight = (carRight + roadRight) / 2.0f;
 
                     // Choose which side to go down
                     bool goLeft;
-                    if (roomRight < aiParams.AvoidGapLimit)
+                    if (roomRight < 0)
                         goLeft = true;
-                    else if (roomLeft < aiParams.AvoidGapLimit)
+                    else if (roomLeft < 0)
                         goLeft = false;
                     else
                         goLeft = relPos.x > 0;
 
-                    targetX = goLeft ? targetLeft : targetRight;
+                    // Find limits based on side chosen. Clamp target X
+                    float left = goLeft ? roadLeft : carRight;
+                    float right = goLeft ? carLeft : roadRight;
+                    targetX = Mathf.Clamp(targetX, left, right);
+
+                    //float targetLeft = (carLeft + roadLeft) / 2.0f;
+                    //float targetRight = (carRight + roadRight) / 2.0f;
+
+                    //// Choose which side to go down
+                    //bool goLeft;
+                    //if (roomRight < aiParams.AvoidGapLimit)
+                    //    goLeft = true;
+                    //else if (roomLeft < aiParams.AvoidGapLimit)
+                    //    goLeft = false;
+                    //else
+                    //    goLeft = relPos.x > 0;
+
+                    //targetX = goLeft ? targetLeft : targetRight;
 
                     // Slow down if necessary to prevent a crash
                     if (dist + relVel.z * aiParams.CatchupDurationBrakeLimit < aiParams.CarLength && Mathf.Abs(relPos.x) < aiParams.BrakeXOffsetLimit)
@@ -139,6 +161,11 @@ public class AICarController : MonoBehaviour
             Vector2 targetDir = new Vector2((targetX - state.Position.x) / aiParams.RecenterTime, state.Velocity.z);
             float targetAng = Mathf.Atan2(targetDir.x, targetDir.y) * Mathf.Rad2Deg;
             targetAng = Mathf.Clamp(targetAng, -aiParams.RecenterAngleRange, aiParams.RecenterAngleRange);
+
+            // Override angle if nearing a jump
+            if (segData != null && segData.DistToJump < aiParams.StraightenForJumpDistance)
+                targetAng = 0;
+            targetAng += aiParams.SteeringAngleOffset;
 
             // Calculate direction to turn
             float angDelta = RacetrackUtil.LocalAngle(targetAng - state.Angle);

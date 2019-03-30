@@ -30,6 +30,7 @@ public class AICarIndividualParams : MonoBehaviour
     public float CenterXOffsetLimit = 2.0f;
     [Tooltip("Distance from jump at which to ignore other cars and just straighten with track (units)")]
     public float StraightenForJumpDistance = 50.0f;
+    public float SteeringAngleOffset = 0.0f;
 
     [Header("Speed")]
     [Tooltip("Car will aim for this speed when possible (units/second)")]
