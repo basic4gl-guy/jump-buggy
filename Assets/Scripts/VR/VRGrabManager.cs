@@ -91,6 +91,7 @@ public class VRGrabManager : MonoBehaviour
             return false;
 
         // Find grabbed object, or create new one
+        // Notify grabbed object
         var grabbedObj = grabbedObjects.FirstOrDefault(o => o.Object == nearestObject);
         if (grabbedObj == null)
         {
@@ -103,6 +104,9 @@ public class VRGrabManager : MonoBehaviour
             Grabber = grabber,
             Pt = nearestPt
         });
+
+        // Notify object
+        grabbedObj.Object.OnGrab(grabbedObj.Grabs.Count);
 
         Debug.LogFormat("{0} ({1}) grabbed {2} ({3} grabs). {4} objects are grabbed", grabber.name, grabber.Controller, nearestObject.name, grabbedObj.Grabs.Count, grabbedObjects.Count);
 
@@ -122,11 +126,13 @@ public class VRGrabManager : MonoBehaviour
                 if (obj.Object.RecalcRemainingGrabPtsOnRelease)
                     foreach (var grab in obj.Grabs)
                         grab.Pt = GetGrabPt(grab.Grabber, obj.Object);
+
+                // Notify object
+                obj.Object.OnGrabRelease(obj.Grabs.Count);
             }
         }
 
         // Remove grabbed objects that no longer have any grabs
-        // TODO: Notify?
         grabbedObjects.RemoveAll(o => !o.Grabs.Any());
 
         Debug.LogFormat("{0} ({1}) released. {2} objects are grabbed", grabber.name, grabber.Controller, grabbedObjects.Count);

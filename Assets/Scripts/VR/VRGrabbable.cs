@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class VRGrabbable : MonoBehaviour
 {
+    protected int grabCount = 0;
+    protected bool IsGrabbed
+    {
+        get { return grabCount > 0; }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,5 +42,15 @@ public class VRGrabbable : MonoBehaviour
     /// </summary>
     public virtual bool RecalcRemainingGrabPtsOnRelease {
         get { return true; }
+    }
+
+    public virtual void OnGrab(int count)
+    {
+        grabCount = count;
+    }
+
+    public virtual void OnGrabRelease(int count)
+    {
+        grabCount = count;
     }
 }

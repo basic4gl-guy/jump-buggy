@@ -9,9 +9,12 @@ public class VRGrabbableWheel : VRGrabbable
     public float GrabRadius = 1.0f;
     public float Depth = 0.1f;
 
-    [Header("Constraints")]
+    [Header("Constraints & Behaviour")]
     [Tooltip("Maximum angle turned in degrees. 0 = no restriction")]
     public float MaxTurnAngle = 0.0f;
+
+    [Tooltip("Recenter rate when released in degrees per second")]
+    public float RecenterRate = 100.0f;
 
     public override bool CanGrab(VRGrabPoint pt, out float dist)
     {
@@ -23,6 +26,22 @@ public class VRGrabbableWheel : VRGrabbable
 
         // Grab is valid if within parameters
         return zDist <= Depth && radDist <= MaxRadius;
+    }
+
+    private void FixedUpdate()
+    {
+        if (!IsGrabbed && RecenterRate > 0.0f)
+        {
+            // Move wheel back towards center
+            float recenterDelta = Time.fixedDeltaTime * RecenterRate;            
+            var angles = transform.rotation.eulerAngles;
+            angles.z = VRUtil.LocalAngle(angles.z);
+            if (Mathf.Abs(angles.z) < recenterDelta)
+                angles.z = 0.0f;
+            else
+                angles.z -= recenterDelta * Mathf.Sign(angles.z);
+            transform.rotation = Quaternion.Euler(angles);
+        }
     }
 
     public override void Moved(List<VRMovedGrabPoint> grabs)
