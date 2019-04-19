@@ -10,11 +10,15 @@ public class VRGrabbable : MonoBehaviour
         get { return grabCount > 0; }
     }
 
+    [NonSerialized]
+    public bool WasGrabbed;
+
     // Start is called before the first frame update
     void Start()
     {
         if (VRGrabManager.Instance != null)
             VRGrabManager.Instance.RegisterGrabbable(this);
+        WasGrabbed = false;
     }
 
     private void OnDestroy()
@@ -47,6 +51,7 @@ public class VRGrabbable : MonoBehaviour
     public virtual void OnGrab(int count)
     {
         grabCount = count;
+        WasGrabbed = true;
     }
 
     public virtual void OnGrabRelease(int count)

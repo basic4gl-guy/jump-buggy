@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(OVRManager))]
 public class VRSetup : MonoBehaviour
 {
     [Tooltip("Forcibly disable VR")]

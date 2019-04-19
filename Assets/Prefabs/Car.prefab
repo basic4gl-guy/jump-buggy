@@ -5557,7 +5557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3ef1f99ce9f614baf05e2c494708ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurveSearchAhead: 2
+  CurveSearchAhead: 3
   OffRoadTimeout: 10
   AutoReset: 1
   currentCurve: 0
@@ -5567,7 +5567,7 @@ MonoBehaviour:
   LastLapTime: 0
   BestLapTime: 0
   CurrentLapTime: 0
-  RayOffset: {x: 0, y: 0, z: 0}
+  RayOffset: {x: 0, y: 0.5, z: 0}
 --- !u!114 &1391639061045779234
 MonoBehaviour:
   m_ObjectHideFlags: 0

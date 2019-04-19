@@ -34,13 +34,13 @@ public class VRGrabbableWheel : VRGrabbable
         {
             // Move wheel back towards center
             float recenterDelta = Time.fixedDeltaTime * RecenterRate;            
-            var angles = transform.rotation.eulerAngles;
+            var angles = transform.localRotation.eulerAngles;
             angles.z = VRUtil.LocalAngle(angles.z);
             if (Mathf.Abs(angles.z) < recenterDelta)
                 angles.z = 0.0f;
             else
                 angles.z -= recenterDelta * Mathf.Sign(angles.z);
-            transform.rotation = Quaternion.Euler(angles);
+            transform.localRotation = Quaternion.Euler(angles);
         }
     }
 
@@ -81,7 +81,7 @@ public class VRGrabbableWheel : VRGrabbable
     private void TurnWheelBy(float delta)
     {
         // Rotate steering wheel
-        var angles = transform.rotation.eulerAngles;
+        var angles = transform.localRotation.eulerAngles;
         angles.z = VRUtil.LocalAngle(angles.z + delta);
 
         // Constrain if necessary
@@ -89,6 +89,6 @@ public class VRGrabbableWheel : VRGrabbable
             angles.z = Mathf.Clamp(angles.z, -MaxTurnAngle, MaxTurnAngle);
 
         // Update rotation
-        transform.rotation = Quaternion.Euler(angles);
+        transform.localRotation = Quaternion.Euler(angles);
     }
 }

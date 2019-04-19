@@ -49,7 +49,7 @@ public class CarUserControlExt : MonoBehaviour
         }
 
         // Set steering wheel rotation
-        if (!VRUtil.Is6DOFVR() && SteeringWheel != null)
+        if (SteeringWheel != null && !UseWheelRotation)
         {
             Vector3 r = SteeringWheel.localRotation.eulerAngles;
             SteeringWheel.localRotation = Quaternion.Euler(r.x, r.y, h * -90.0f);
@@ -84,36 +84,65 @@ public class CarUserControlExt : MonoBehaviour
 
     private void GetInput(out float h, out float v)
     {
-        if (UnityEngine.XR.XRSettings.isDeviceActive && OVRPlugin.productName == "Oculus Go")
+        if (VRUtil.IsOculusGoVR())
         {
             // Use controller orientation on Oculus Go
-            GetVRControllerOrientationInput(out h, out v);
-        }
-        else
+            GetOculusGoInput(out h, out v);
+        }        
+        else if (VRUtil.Is6DOFVR())
         {
-            // For other platforms, use CrossPlatformInputManager
-            h = CrossPlatformInputManager.GetAxis("Horizontal") * HInputFactor;
-            v = CrossPlatformInputManager.GetAxis("Vertical") * VInputFactor;
-
-            if (VRUtil.Is6DOFVR() && SteeringWheel != null)
+            // If the steering wheel exists and has been grabbed at least once, default to steering wheel steering
+            if (UseWheelRotation)
             {
                 var angles = SteeringWheel.localRotation.eulerAngles;
                 h = -VRUtil.LocalAngle(angles.z) / 90.0f;
             }
+            else
+                // Otherwise get right controller tilt value
+                h = GetTiltSteering(OVRInput.Controller.RTouch);
+
+            var brake = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
+            var accel = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+            v = accel - brake;
+        }
+        else 
+        {
+            // For other platforms, use CrossPlatformInputManager
+            h = CrossPlatformInputManager.GetAxis("Horizontal") * HInputFactor;
+            v = CrossPlatformInputManager.GetAxis("Vertical") * VInputFactor;
         }
     }
 
-    private void GetVRControllerOrientationInput(out float h, out float v)
+    private void GetOculusGoInput(out float h, out float v)
     {
-        // Controller orientation used for steering
-        // Get Z axis
-        float steer = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTrackedRemote).eulerAngles.z;
-        if (steer > 180.0f) steer -= 360.0f;            // Convert to -180 to 180 range
-        h = Mathf.Clamp(-steer / 90.0f, -1.0f, 1.0f);
+        h = GetTiltSteering(OVRInput.Controller.RTrackedRemote);
 
         // Trigger accelerates. Click touch pad to brake.
         bool accel = OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger);
         bool brake = OVRInput.Get(OVRInput.Button.PrimaryTouchpad);
         v = (accel ? 1.0f : 0.0f) - (brake ? 1.0f : 0.0f);
+    }
+
+    private static float GetTiltSteering(OVRInput.Controller controller)
+    {
+        float h;
+        // Controller orientation used for steering
+        // Get Z axis
+        float steer = OVRInput.GetLocalControllerRotation(controller).eulerAngles.z;
+        if (steer > 180.0f) steer -= 360.0f;            // Convert to -180 to 180 range
+        h = Mathf.Clamp(-steer / 90.0f, -1.0f, 1.0f);
+        return h;
+    }
+
+    private bool UseWheelRotation
+    {
+        get
+        {
+            if (SteeringWheel == null) return false;
+
+            // Use wheel rotation if it has been grabbed at least once
+            var grab = SteeringWheel.GetComponent<VRGrabbable>();
+            return grab.WasGrabbed;
+        }
     }
 }

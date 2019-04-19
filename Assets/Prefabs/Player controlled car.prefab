@@ -812,6 +812,37 @@ MonoBehaviour:
   GrabRadius: 0.165
   Depth: 0.05
   MaxTurnAngle: 90
+  RecenterRate: 100
+--- !u!114 &8385263397999053447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4406779323287737577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf9744303ccc58745a7bf265d3fd7a8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Controller: 1
+  GrabBegin: 0.55
+  GrabEnd: 0.35
+--- !u!114 &4314891890780187677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4406868980145329059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf9744303ccc58745a7bf265d3fd7a8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Controller: 2
+  GrabBegin: 0.55
+  GrabEnd: 0.35
 --- !u!1 &4970897334659644196
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,7 +852,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8281604357269706739}
-  - component: {fileID: 3389220167229265035}
   - component: {fileID: 1718558730510985256}
   - component: {fileID: 6771893681949706745}
   m_Layer: 0
@@ -839,66 +869,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970897334659644196}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.794}
+  m_LocalPosition: {x: -0.003, y: -0.112, z: -0.661}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4221482833044630242}
   m_Father: {fileID: 3870380373145493809}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3389220167229265035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4970897334659644196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e933e81d3c20c74ea6fdc708a67e3a5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  queueAhead: 1
-  useRecommendedMSAALevel: 0
-  _monoscopic: 0
-  enableAdaptiveResolution: 0
-  minRenderScale: 0.7
-  maxRenderScale: 1
-  _headPoseRelativeOffsetRotation: {x: 0, y: 0, z: 0}
-  _headPoseRelativeOffsetTranslation: {x: 0, y: 0, z: 0}
-  profilerTcpPort: 32419
-  expandMixedRealityCapturePropertySheet: 0
-  enableMixedReality: 0
-  compositionMethod: 0
-  extraHiddenLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  capturingCameraDevice: 0
-  flipCameraFrameHorizontally: 0
-  flipCameraFrameVertically: 0
-  handPoseStateLatency: 0
-  sandwichCompositionRenderLatency: 0
-  sandwichCompositionBufferedFrames: 8
-  chromaKeyColor: {r: 0, g: 1, b: 0, a: 1}
-  chromaKeySimilarity: 0.6
-  chromaKeySmoothRange: 0.03
-  chromaKeySpillRange: 0.06
-  useDynamicLighting: 0
-  depthQuality: 1
-  dynamicLightingSmoothFactor: 8
-  dynamicLightingDepthVariationClampingValue: 0.001
-  virtualGreenScreenType: 0
-  virtualGreenScreenTopY: 10
-  virtualGreenScreenBottomY: -10
-  virtualGreenScreenApplyDepthCulling: 0
-  virtualGreenScreenDepthTolerance: 0.2
-  _trackingOriginType: 1
-  usePositionTracking: 1
-  useRotationTracking: 1
-  useIPDInPositionTracking: 1
-  resetTrackerOnLoad: 0
-  AllowRecenter: 1
-  _reorientHMDOnControllerRecenter: 1
 --- !u!114 &1718558730510985256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -911,10 +888,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c784ef632db61824a9916136b9619ac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disableVR: 1
-  EyeOffset: {x: 0, y: 1.25, z: 0}
+  disableVR: 0
+  EyeOffset: {x: 0, y: 1, z: -0.125}
   nonVRFieldOfView: 50
-  nonVRRotation: 8
+  nonVRRotation: 12
 --- !u!114 &6771893681949706745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1383,36 +1360,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Main menu
---- !u!114 &8385263397999053447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4406779323287737577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf9744303ccc58745a7bf265d3fd7a8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Controller: 1
-  GrabBegin: 0.55
-  GrabEnd: 0.35
---- !u!114 &4314891890780187677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4406868980145329059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf9744303ccc58745a7bf265d3fd7a8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Controller: 2
-  GrabBegin: 0.55
-  GrabEnd: 0.35
 --- !u!1 &7971561633966075662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1923,6 +1870,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87209c428a5c97a4eb9bcbf879faa6cf, type: 3}
+--- !u!146 &4012278930733129375 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 247338560574648956, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+    type: 3}
+  m_PrefabInstance: {fileID: 3801252978626604259}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3760608784897683891 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 67728483352386896, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
@@ -2199,12 +2152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c62479c3465024b48b42983b1b2eeaaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!146 &4012278930733129375 stripped
-WheelCollider:
-  m_CorrespondingSourceObject: {fileID: 247338560574648956, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
-    type: 3}
-  m_PrefabInstance: {fileID: 3801252978626604259}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5600535234596079794
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2509,7 +2456,12 @@ PrefabInstance:
     - target: {fileID: 5919601564261611046, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}
       propertyPath: _trackingOriginType
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919601564261611046, guid: ef4cf9c759a650547a0ade201fe3ca8c,
+        type: 3}
+      propertyPath: usePositionTracking
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5919439242346423486, guid: ef4cf9c759a650547a0ade201fe3ca8c,
         type: 3}

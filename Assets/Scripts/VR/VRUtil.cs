@@ -4,6 +4,22 @@ using UnityEngine;
 
 public static class VRUtil
 {
+    private static bool isInitialised = false;
+    private static bool isGo = false;
+    private static bool isGearVR = false;
+
+    private static void CheckInitialised()
+    {
+        // Initialise once, to prevent multiple string manipulations
+        if (!isInitialised)
+        {
+            var vrProduct = OVRPlugin.productName.ToLower();
+            isGo = vrProduct.StartsWith("oculus go");
+            isGearVR = vrProduct.StartsWith("gear vr");
+            isInitialised = true;
+        }
+    }
+
     /// <summary>
     /// Convert angle to equivalent angle between [-180, 180)
     /// </summary>
@@ -19,22 +35,18 @@ public static class VRUtil
 
     public static bool Is6DOFVR()
     {
-        // VR not active => False
-        if (!IsVR())
-            return false;
-
-        // Oculus Go and Gear VR are only 3DOF
-        // TODO: More robust way to distinguish 6DOF from 3DOF?
-        var vrProduct = OVRPlugin.productName.ToLower();
-        if (vrProduct.StartsWith("oculus go") || vrProduct.StartsWith("gear vr"))
-            return false;
-
-        return true;
+        CheckInitialised();
+        return IsVR() && !isGo && !isGearVR;        // TODO: More robust method of detecting 6DOF?
     }
 
     public static bool IsVR()
     {
         return UnityEngine.XR.XRSettings.isDeviceActive;
+    }
+
+    public static bool IsOculusGoVR()
+    {
+        return IsVR() && isGo;
     }
 
     public static void DisableVR()
