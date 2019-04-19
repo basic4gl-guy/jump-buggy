@@ -77,7 +77,7 @@ public class OVRLint : EditorWindow
 #endif
 	private Vector2 mScrollPosition;
 
-	[MenuItem("Tools/Oculus/OVR Performance Lint Tool")]
+	[MenuItem("Oculus/Tools/OVR Performance Lint Tool")]
 	static void Init()
 	{
 		// Get existing open window or if none, make a new one:

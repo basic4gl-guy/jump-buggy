@@ -25,7 +25,7 @@ using System.IO;
 
 public class OVRManifestPreprocessor
 {
-	[MenuItem("Tools/Oculus/Create store-compatible AndroidManifest.xml", false, 100000)]
+	[MenuItem("Oculus/Tools/Create store-compatible AndroidManifest.xml", false, 100000)]
 	public static void GenerateManifestForSubmission()
 	{
 		var so = ScriptableObject.CreateInstance(typeof(OVRPluginUpdaterStub));
@@ -55,11 +55,27 @@ public class OVRManifestPreprocessor
 			return;
 		}
 
-		File.Copy(srcFile, dstFile);
+		string manifestText = File.ReadAllText(srcFile);
+		int dofTextIndex = manifestText.IndexOf("<!-- Request the headset DoF mode -->");
+		if (dofTextIndex != -1)
+		{
+			if (OVRDeviceSelector.isTargetDeviceQuest)
+			{
+				string headTrackingFeatureText = string.Format("<uses-feature android:name=\"android.hardware.vr.headtracking\" android:version=\"1\" android:required=\"{0}\" />", 
+					OVRDeviceSelector.isTargetDeviceGearVrOrGo ? "false" : "true");
+				manifestText = manifestText.Insert(dofTextIndex, headTrackingFeatureText);
+			}
+		}
+		else
+		{
+			Debug.LogWarning("Manifest error: unable to locate headset DoF mode");
+		}
+
+		System.IO.File.WriteAllText(dstFile, manifestText);
 		AssetDatabase.Refresh();
 	}
 
-	[MenuItem("Tools/Oculus/Remove AndroidManifest.xml")]
+	[MenuItem("Oculus/Tools/Remove AndroidManifest.xml")]
 	public static void RemoveAndroidManifest()
 	{
 		AssetDatabase.DeleteAsset("Assets/Plugins/Android/AndroidManifest.xml");

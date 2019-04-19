@@ -42,7 +42,7 @@ public class Bezier
         return derivative.normalized;
     }
 
-    public List<float> BuildDistanceLookup(float step, float interval, out float length)
+    public List<float> BuildDistanceLookup(float step, float interval)
     {
         // Start with start of curve
         var lookup = new List<float>();
@@ -70,7 +70,6 @@ public class Bezier
             prevPos = pos;
         }
 
-        length = distance;
         return lookup;
     }
 }

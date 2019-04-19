@@ -17,11 +17,11 @@ public class RacetrackCurve : MonoBehaviour {
 
     [Tooltip("Distance from the start point to its control point. (As a fraction of the distance between the start and end points)")]
     [Range(0.0f, 1.0f)]
-    public float StartControlPtDist = 0.5f;
+    public float StartControlPtDist = 0.35f;
 
     [Tooltip("Distance from the end point to its control point. (As a fraction of the distance between the start and end points)")]
     [Range(0.0f, 1.0f)]
-    public float EndControlPtDist = 0.5f;
+    public float EndControlPtDist = 0.35f;
 
     [Header("Arc")]
     [RacetrackCurveLength]    
@@ -84,20 +84,10 @@ public class RacetrackCurve : MonoBehaviour {
             return track;
         }
     }
-
-    //private void OnValidate()
-    //{
-    //    if (transform.parent != null)
-    //    {
-    //        var track = transform.parent.GetComponent<Racetrack>();
-    //        if (track != null)
-    //            track.GenerateSegments();
-    //    }
-    //}
 }
 
 public enum RacetrackCurveType
 {
-    Arc,
-    Bezier
+    Arc,            // Circle arc curve, defined by angle and length
+    Bezier          // Bezier curve, defined by end point, angles and control points
 }

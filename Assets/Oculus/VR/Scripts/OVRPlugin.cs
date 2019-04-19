@@ -35,7 +35,7 @@ public static class OVRPlugin
 #if OVRPLUGIN_UNSUPPORTED_PLATFORM
 	public static readonly System.Version wrapperVersion = _versionZero;
 #else
-	public static readonly System.Version wrapperVersion = OVRP_1_32_0.version;
+	public static readonly System.Version wrapperVersion = OVRP_1_35_0.version;
 #endif
 
 #if !OVRPLUGIN_UNSUPPORTED_PLATFORM
@@ -340,6 +340,8 @@ public static class OVRPlugin
 		LMSLow = 1,
 		LMSMedium = 2,
 		LMSHigh = 3,
+		// High foveation setting with more detail toward the bottom of the view and more foveation near the top (Same as High on Oculus Go)
+		LMSHighTop = 4,
 		EnumSize = 0x7FFFFFFF
 	}
 
@@ -444,6 +446,21 @@ public static class OVRPlugin
 		public override string ToString()
 		{
 			return string.Format("Position ({0}), Orientation({1})", Position, Orientation);
+		}
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct TextureRectMatrixf
+	{
+		public Rect leftRect;
+		public Rect rightRect;
+		public Vector4 leftScaleBias;
+		public Vector4 rightScaleBias;
+		public static readonly TextureRectMatrixf zero = new TextureRectMatrixf { leftRect = new Rect(0, 0, 1, 1), rightRect = new Rect(0, 0, 1, 1), leftScaleBias = new Vector4(1, 1, 0, 0), rightScaleBias = new Vector4(1, 1, 0, 0) };
+
+		public override string ToString()
+		{
+			return string.Format("Rect Left ({0}), Rect Right({1}), Scale Bias Left ({2}), Scale Bias Right({3})", leftRect, rightRect, leftScaleBias, rightScaleBias);
 		}
 	}
 
@@ -1473,7 +1490,8 @@ public static class OVRPlugin
 #endif
 	}
 
-	public static bool EnqueueSubmitLayer(bool onTop, bool headLocked, bool noDepthBufferTesting, IntPtr leftTexture, IntPtr rightTexture, int layerId, int frameIndex, Posef pose, Vector3f scale, int layerIndex=0, OverlayShape shape=OverlayShape.Quad)
+	public static bool EnqueueSubmitLayer(bool onTop, bool headLocked, bool noDepthBufferTesting, IntPtr leftTexture, IntPtr rightTexture, int layerId, int frameIndex, Posef pose, Vector3f scale, int layerIndex=0, OverlayShape shape=OverlayShape.Quad,
+										bool overrideTextureRectMatrix = false, TextureRectMatrixf textureRectMatrix = default(TextureRectMatrixf), bool overridePerLayerColorScaleAndOffset = false, Vector4 colorScale = default(Vector4), Vector4 colorOffset = default(Vector4))
 	{
 #if OVRPLUGIN_UNSUPPORTED_PLATFORM
 		return false;
@@ -1527,7 +1545,10 @@ public static class OVRPlugin
 				return false;
 			}
 
-			if (version >= OVRP_1_15_0.version && layerId != -1)
+			if (version >= OVRP_1_34_0.version && layerId != -1)
+				return OVRP_1_34_0.ovrp_EnqueueSubmitLayer2(flags, leftTexture, rightTexture, layerId, frameIndex, ref pose, ref scale, layerIndex,
+				overrideTextureRectMatrix ? Bool.True : Bool.False, ref textureRectMatrix, overridePerLayerColorScaleAndOffset ? Bool.True : Bool.False, ref colorScale, ref colorOffset) == Result.Success;
+			else if (version >= OVRP_1_15_0.version && layerId != -1)
 				return OVRP_1_15_0.ovrp_EnqueueSubmitLayer(flags, leftTexture, rightTexture, layerId, frameIndex, ref pose, ref scale, layerIndex) == Result.Success;
 
 			return OVRP_1_6_0.ovrp_SetOverlayQuad3(flags, leftTexture, rightTexture, IntPtr.Zero, pose, scale, layerIndex) == Bool.True;
@@ -3987,6 +4008,21 @@ public static class OVRPlugin
 
 		[DllImport(pluginName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern Result ovrp_AddCustomMetadata(string name, string param);
+	}
+
+	private static class OVRP_1_34_0
+	{
+		public static readonly System.Version version = new System.Version(1, 34, 0);
+
+		[DllImport(pluginName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern Result ovrp_EnqueueSubmitLayer2(uint flags, IntPtr textureLeft, IntPtr textureRight, int layerId, int frameIndex, ref Posef pose, ref Vector3f scale, int layerIndex,
+		Bool overrideTextureRectMatrix, ref TextureRectMatrixf textureRectMatrix, Bool overridePerLayerColorScaleAndOffset, ref Vector4 colorScale, ref Vector4 colorOffset);
+
+	}
+
+	private static class OVRP_1_35_0
+	{
+		public static readonly System.Version version = new System.Version(1, 35, 0);
 	}
 
 #endif // !OVRPLUGIN_UNSUPPORTED_PLATFORM

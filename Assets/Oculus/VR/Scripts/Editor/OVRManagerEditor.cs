@@ -16,7 +16,7 @@ permissions and limitations under the License.
 
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 [CustomEditor(typeof(OVRManager))]
@@ -24,6 +24,42 @@ public class OVRManagerEditor : Editor
 {
 	override public void OnInspectorGUI()
 	{
+#if UNITY_ANDROID
+		EditorGUILayout.LabelField("Target Devices");
+		EditorGUI.indentLevel++;
+		OVRProjectConfig projectConfig = OVRProjectConfig.GetProjectConfig();
+		List<OVRProjectConfig.DeviceType> oldTargetDeviceTypes = projectConfig.targetDeviceTypes;
+		List<OVRProjectConfig.DeviceType> targetDeviceTypes = new List<OVRProjectConfig.DeviceType>(oldTargetDeviceTypes);
+		bool hasModified = false;
+		int newCount = Mathf.Max(0, EditorGUILayout.IntField("Size", targetDeviceTypes.Count));
+		while (newCount < targetDeviceTypes.Count)
+		{
+			targetDeviceTypes.RemoveAt(targetDeviceTypes.Count - 1);
+			hasModified = true;
+		}
+		while (newCount > targetDeviceTypes.Count)
+		{
+			targetDeviceTypes.Add(OVRProjectConfig.DeviceType.GearVrOrGo);
+			hasModified = true;
+		}
+		for (int i = 0; i < targetDeviceTypes.Count; i++)
+		{
+			var deviceType = (OVRProjectConfig.DeviceType)EditorGUILayout.EnumPopup(string.Format("Element {0}", i), targetDeviceTypes[i]);
+			if (deviceType != targetDeviceTypes[i])
+			{
+				targetDeviceTypes[i] = deviceType;
+				hasModified = true;
+			}
+		}
+		if (hasModified)
+		{
+			projectConfig.targetDeviceTypes = targetDeviceTypes;
+			OVRProjectConfig.CommitProjectConfig(projectConfig);
+		}
+		EditorGUI.indentLevel--;
+		EditorGUILayout.Space();
+#endif
+
 		DrawDefaultInspector();
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN

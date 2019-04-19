@@ -95,6 +95,21 @@ public class OVROverlay : MonoBehaviour
 	[Tooltip("If true, the layer would be used to present protected content (e.g. HDCP). The flag is effective only on PC.")]
 	public bool isProtectedContent = false;
 
+	//Source and dest rects
+	public Rect srcRectLeft = new Rect();
+	public Rect srcRectRight = new Rect();
+	public Rect destRectLeft = new Rect();
+	public Rect destRectRight = new Rect();
+
+	private OVRPlugin.TextureRectMatrixf textureRectMatrix = OVRPlugin.TextureRectMatrixf.zero;
+
+	public bool overrideTextureRectMatrix = false;
+
+	public bool overridePerLayerColorScaleAndOffset = false;
+
+	public	Vector4 colorScale = Vector4.one;
+
+	public Vector4 colorOffset = Vector4.zero;
 	/// <summary>
 	/// If true, the layer will be created as an external surface. externalSurfaceObject contains the Surface object. It's effective only on Android.
 	/// </summary>
@@ -390,6 +405,36 @@ public class OVROverlay : MonoBehaviour
 		prevFrameIndex = -1;
 	}
 
+	/// <summary>
+	/// Sets the source and dest rects for both eyes. Source explains what portion of the source texture is used, and
+	/// dest is what portion of the destination texture is rendered into.
+	/// </summary>
+	public void SetSrcDestRects(Rect srcLeft, Rect srcRight, Rect destLeft, Rect destRight)
+	{
+		srcRectLeft = srcLeft;
+		srcRectRight = srcRight;
+		destRectLeft = destLeft;
+		destRectRight = destRight;
+	}
+
+	public void UpdateTextureRectMatrix()
+	{
+		textureRectMatrix.leftRect = new Rect(srcRectLeft);
+		textureRectMatrix.rightRect = new Rect(srcRectRight);
+		float leftWidthFactor = srcRectLeft.width / destRectLeft.width;
+		float leftHeightFactor = srcRectLeft.height / destRectLeft.height;
+		textureRectMatrix.leftScaleBias = new Vector4(leftWidthFactor, leftHeightFactor, srcRectLeft.x - destRectLeft.x * leftWidthFactor, srcRectLeft.y - destRectLeft.y * leftHeightFactor);
+		float rightWidthFactor = srcRectRight.width / destRectRight.width;
+		float rightHeightFactor = srcRectRight.height / destRectRight.height;
+		textureRectMatrix.rightScaleBias = new Vector4(rightWidthFactor, rightHeightFactor, srcRectRight.x - destRectRight.x * rightWidthFactor, srcRectRight.y - destRectRight.y * rightHeightFactor);
+	}
+
+	public void SetPerLayerColorScaleAndOffset(Vector4 scale, Vector4 offset)
+	{
+		colorScale = scale;
+		colorOffset = offset;
+	}
+
 	private bool LatchLayerTextures()
 	{
 		if (isExternalSurface)
@@ -608,10 +653,15 @@ public class OVROverlay : MonoBehaviour
 	private bool SubmitLayer(bool overlay, bool headLocked, bool noDepthBufferTesting, OVRPose pose, Vector3 scale, int frameIndex)
 	{
 		int rightEyeIndex = (texturesPerStage >= 2) ? 1 : 0;
+		if (overrideTextureRectMatrix)
+		{
+			UpdateTextureRectMatrix();
+		}
 		bool isOverlayVisible = OVRPlugin.EnqueueSubmitLayer(overlay, headLocked, noDepthBufferTesting,
 			isExternalSurface ? System.IntPtr.Zero : layerTextures[0].appTexturePtr,
 			isExternalSurface ? System.IntPtr.Zero : layerTextures[rightEyeIndex].appTexturePtr,
-			layerId, frameIndex, pose.flipZ().ToPosef(), scale.ToVector3f(), layerIndex, (OVRPlugin.OverlayShape)currentOverlayShape);
+			layerId, frameIndex, pose.flipZ().ToPosef(), scale.ToVector3f(), layerIndex, (OVRPlugin.OverlayShape)currentOverlayShape,
+			overrideTextureRectMatrix, textureRectMatrix, overridePerLayerColorScaleAndOffset, colorScale, colorOffset);
 
 		prevOverlayShape = currentOverlayShape;
 

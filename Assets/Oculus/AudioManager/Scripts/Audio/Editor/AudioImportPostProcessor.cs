@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEditor;
 
+namespace OVR
+{
+
 /*
 -----------------------
 AudioImportPostProcessor()
@@ -11,9 +14,13 @@ public class AudioImportPostProcessor : AssetPostprocessor {
 	static void OnPostprocessAllAssets( string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths ) {
 		AudioManager audioManager = AudioManager.Instance;
 		if ( audioManager != null ) {
-			// find the asset path to the loaded audio manager prefab
-			Object prefabObject = PrefabUtility.GetCorrespondingObjectFromSource( audioManager );
-			if ( prefabObject != null ) {
+      // find the asset path to the loaded audio manager prefab
+#if UNITY_2018_2_OR_NEWER
+      Object prefabObject = PrefabUtility.GetCorrespondingObjectFromSource(audioManager);
+#else
+      Object prefabObject = PrefabUtility.GetPrefabParent( audioManager );
+#endif
+      if ( prefabObject != null ) {
 				string path = AssetDatabase.GetAssetPath( prefabObject );
 				// check to see if the AudioManager prefab has been reimported.
 				// if so, rebuild everything
@@ -35,3 +42,5 @@ public class AudioImportPostProcessor : AssetPostprocessor {
 		}
 	}
 }
+
+} // namespace OVR

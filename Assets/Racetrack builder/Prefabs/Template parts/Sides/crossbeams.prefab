@@ -212,6 +212,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: crossbeams
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: a116e5f84f097404785898cf118a829e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: a116e5f84f097404785898cf118a829e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -275,6 +279,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: horizontal_beam
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 3557b1a3ac9335a4ba946c9059fd3b97, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 3557b1a3ac9335a4ba946c9059fd3b97, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -337,6 +345,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 3557b1a3ac9335a4ba946c9059fd3b97, type: 3}
       propertyPath: m_Name
       value: horizontal_beam
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 3557b1a3ac9335a4ba946c9059fd3b97, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 3557b1a3ac9335a4ba946c9059fd3b97, type: 3}
       propertyPath: m_LocalPosition.x

@@ -34,19 +34,11 @@ public class OculusSpatializerUserParamsEditor : Editor
 {
 	// target component
 	private ONSPAudioSource m_Component;
-	
-	// highlight color
-	// Color HColor = Color.green;
 
 	// OnEnable
 	void OnEnable()
 	{
 		m_Component = (ONSPAudioSource)target;
-	}
-	
-	// OnDestroy
-	void OnDestroy()
-	{
 	}
 	
 	// OnInspectorGUI
@@ -75,18 +67,12 @@ public class OculusSpatializerUserParamsEditor : Editor
             m_Component.VolumetricRadius = EditorGUILayout.FloatField("Radius", m_Component.VolumetricRadius);
 
 			Separator();
-/*
-			// Reference GUI Layout fields
-			m_Component.VerticalFOV         = EditorGUILayout.FloatField("Vertical FOV", m_Component.VerticalFOV);
-			m_Component.NeckPosition 		= EditorGUILayout.Vector3Field("Neck Position", m_Component.NeckPosition);
-			m_Component.UsePlayerEyeHeight  = EditorGUILayout.Toggle ("Use Player Eye Height", m_Component.UsePlayerEeHeight);
-			m_Component.FollowOrientation   = EditorGUILayout.ObjectField("Follow Orientation", 
-																		m_Component.FollowOrientation,
-																		typeof(Transform), true) as Transform;
-			m_Component.BackgroundColor 	= EditorGUILayout.ColorField("Background Color", m_Component.BackgroundColor);
-			OVREditorGUIUtility.Separator();
-*/
-			
+
+			Label("REVERB SEND LEVEL (-60.0 - 20.0 decibels)");
+			m_Component.ReverbSend  = EditorGUILayout.FloatField(" ", m_Component.ReverbSend);
+
+			Separator();
+
 			#else			 
 			DrawDefaultInspector ();
 			#endif

@@ -3,12 +3,18 @@
 [RequireComponent(typeof(OVRManager))]
 public class VRSetup : MonoBehaviour
 {
-    // Forcibly disable VR. (Useful for testing.)
-    public bool disableVR = false;    
-    public Vector3 floorLocalPosition = new Vector3(0.0f, 0.0f, 0.0f);
-    public Vector3 ThreeDOFOffset = new Vector3(0.0f, 0.0f, 0.0f);
+    [Tooltip("Forcibly disable VR")]
+    public bool disableVR = false;
+
+    [Tooltip("Eye offset from origin. Applied for non-VR and 3DOF VR only. For 6DOF VR, set the 'Tracking origin type' to 'Floor level', and set 'Use position tracking'.")]
+    public Vector3 EyeOffset = new Vector3(0.0f, 1.25f, 0.0f);
+
+    [Header("Non VR mode")]
+    [Tooltip("Force field of view in non-VR mode")]
     public float nonVRFieldOfView = 60.0f;
-    public float nonVRRotation = 15.0f;
+
+    [Tooltip("X axis rotation adjustment in non-VR mode")]
+    public float nonVRRotation = 15.0f;    
 
     // Start is called before the first frame update
     void Start()
@@ -16,48 +22,21 @@ public class VRSetup : MonoBehaviour
         // Forcibly disable VR
         if (disableVR)
         {
-            UnityEngine.XR.XRSettings.enabled = false;
+            VRUtil.DisableVR();
+        }
+
+        // Set camera angle and FOV if not in VR mode
+        if (!VRUtil.IsVR())
+        {
             Camera.main.fieldOfView = nonVRFieldOfView;
-            Vector3 angles = Camera.main.transform.rotation.eulerAngles;
-            Camera.main.transform.rotation = Quaternion.Euler(angles.x + nonVRRotation, angles.y, angles.z);
+            Vector3 angles = transform.localRotation.eulerAngles;
+            transform.localRotation = Quaternion.Euler(angles.x + nonVRRotation, angles.y, angles.z);
         }
 
-        // Set floor level tracking if 6DOF VR is active
-        if (Is6DOFVR())
+        // Adjust camera position if not in 6DOF VR mode (as by default it is at floor level)
+        if (!VRUtil.Is6DOFVR())
         {
-            var ovr = GetComponent<OVRManager>();
-            if (ovr != null)
-            {
-                ovr.trackingOriginType = OVRManager.TrackingOrigin.FloorLevel;
-                ovr.usePositionTracking = true;
-                transform.localPosition = floorLocalPosition;
-            }
-            else
-                Debug.LogError("OVRManager component not found.");
+            transform.localPosition += EyeOffset;
         }
-        else if (Is3DOFVR())
-        {
-            transform.localPosition += ThreeDOFOffset;
-        }
-    }
-
-    private bool Is6DOFVR()
-    {
-        // VR not active => False
-        if (!UnityEngine.XR.XRSettings.isDeviceActive)
-            return false;
-
-        // Oculus Go and Gear VR are only 3DOF
-        // TODO: More robust way to distinguish 6DOF from 3DOF?
-        var vrProduct = OVRPlugin.productName.ToLower();
-        if (vrProduct.StartsWith("oculus go") || vrProduct.StartsWith("gear vr"))
-            return false;
-
-        return true;
-    }
-
-    private bool Is3DOFVR()
-    {
-        return UnityEngine.XR.XRSettings.isDeviceActive && !Is6DOFVR();
     }
 }

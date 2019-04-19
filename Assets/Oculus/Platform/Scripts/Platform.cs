@@ -42,7 +42,7 @@ namespace Oculus.Platform
       {
         if (!String.IsNullOrEmpty(configAppID))
         {
-          Debug.LogWarningFormat("The 'Oculus App Id ({0})' field in 'Oculus Platform/Edit Settings' is clobbering appId ({1}) that you passed in to Platform.Core.Init.  You should only specify this in one place.  We recommend the menu location.", configAppID, appId);
+          Debug.LogWarningFormat("The 'Oculus App Id ({0})' field in 'Oculus Platform/Edit Settings' is being overridden by the App Id ({1}) that you passed in to Platform.Core.Initialize.  You should only specify this in one place.  We recommend the menu location.", configAppID, appId);
         }
       }
       return appId;
@@ -169,55 +169,13 @@ namespace Oculus.Platform
       return null;
     }
 
-    public static void SetUpdateNotificationCallback(Message<Models.Room>.Callback callback)
-    {
-        Callback.SetNotificationCallback(
-          Message.MessageType.Notification_Room_RoomUpdate,
-          callback
-        );
-    }
-
     [Obsolete("Deprecated in favor of SetRoomInviteAcceptedNotificationCallback")]
     public static void SetRoomInviteNotificationCallback(Message<string>.Callback callback)
     {
-        Callback.SetNotificationCallback(
-          Message.MessageType.Notification_Room_InviteAccepted,
-          callback
-        );
-    }
-
-    // Be notified when someone you've invited has accepted your invitation.
-    public static void SetRoomInviteAcceptedNotificationCallback(Message<string>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Room_InviteAccepted,
-        callback
-      );
-    }
-
-    // Be notified when you've received an invitation to a room from another player.
-    // You can also poll for room invites using Notifications.GetRoomInviteNotifications.
-    public static void SetRoomInviteReceivedNotificationCallback(Message<Models.RoomInviteNotification>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Room_InviteReceived,
-        callback
-      );
+      SetRoomInviteAcceptedNotificationCallback(callback);
     }
 
   }
-
-  public static partial class Livestreaming
-  {
-    public static void SetStatusUpdateNotificationCallback(Message<Models.LivestreamingStatus>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Livestreaming_StatusChange,
-        callback
-      );
-    }
-  }
-
 
   public static partial class Matchmaking
   {
@@ -310,14 +268,6 @@ namespace Oculus.Platform
       return null;
     }
 
-    public static void SetMatchFoundNotificationCallback(Message<Models.Room>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Matchmaking_MatchFound,
-        callback
-      );
-    }
-
     public static Request<Models.MatchmakingStats> GetStats(string pool, uint maxLevel, MatchmakingStatApproach approach = MatchmakingStatApproach.Trailing)
     {
       if (Core.IsInitialized())
@@ -329,7 +279,7 @@ namespace Oculus.Platform
     }
   }
 
-  public static class Net
+  public static partial class Net
   {
     public static Packet ReadPacket()
     {
@@ -424,22 +374,6 @@ namespace Oculus.Platform
 
       return null;
     }
-
-    public static void SetPeerConnectRequestCallback(Message<Models.NetworkingPeer>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Networking_PeerConnectRequest,
-        callback
-      );
-    }
-
-    public static void SetConnectionStateChangedCallback(Message<Models.NetworkingPeer>.Callback callback)
-    {
-      Callback.SetNotificationCallback(
-        Message.MessageType.Notification_Networking_ConnectionStateChange,
-        callback
-      );
-    }
   }
 
   public static partial class Leaderboards
@@ -488,28 +422,6 @@ namespace Oculus.Platform
       if (Core.IsInitialized())
       {
         CAPI.ovr_Voip_Stop(userID);
-      }
-    }
-
-    public static void SetVoipConnectRequestCallback(Message<Models.NetworkingPeer>.Callback callback)
-    {
-      if (Core.IsInitialized())
-      {
-        Callback.SetNotificationCallback(
-          Message.MessageType.Notification_Voip_ConnectRequest,
-          callback
-        );
-      }
-    }
-
-    public static void SetVoipStateChangeCallback(Message<Models.NetworkingPeer>.Callback callback)
-    {
-      if (Core.IsInitialized())
-      {
-        Callback.SetNotificationCallback(
-          Message.MessageType.Notification_Voip_StateChange,
-          callback
-        );
       }
     }
 
@@ -579,17 +491,6 @@ namespace Oculus.Platform
       if (Core.IsInitialized())
       {
         CAPI.ovr_Voip_SetNewConnectionOptions((IntPtr)voipOptions);
-      }
-    }
-
-    public static void SetSystemVoipStateNotificationCallback(Message<Models.SystemVoipState>.Callback callback)
-    {
-      if (Core.IsInitialized())
-      {
-        Callback.SetNotificationCallback(
-          Message.MessageType.Notification_Voip_SystemVoipState,
-          callback
-        );
       }
     }
   }
@@ -902,6 +803,16 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Sent to indicate download progress for asset files.
+    ///
+    public static void SetDownloadUpdateNotificationCallback(Message<Models.AssetFileDownloadUpdate>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_AssetFile_DownloadUpdate,
+        callback
+      );
+    }
+    
   }
 
   public static partial class Avatar
@@ -1283,6 +1194,19 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Indicates that the livestreaming session has been updated. You can use this
+    /// information to throttle your game performance or increase CPU/GPU
+    /// performance. Use Message.GetLivestreamingStatus() to extract the updated
+    /// livestreaming status.
+    ///
+    public static void SetStatusUpdateNotificationCallback(Message<Models.LivestreamingStatus>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Livestreaming_StatusChange,
+        callback
+      );
+    }
+    
   }
 
   public static partial class Matchmaking
@@ -1619,6 +1543,18 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Indicates that a match has been found, for example after calling
+    /// Matchmaking.Enqueue(). Use Message.GetRoom() to extract the matchmaking
+    /// room.
+    ///
+    public static void SetMatchFoundNotificationCallback(Message<Models.Room>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Matchmaking_MatchFound,
+        callback
+      );
+    }
+    
   }
 
   public static partial class Media
@@ -1644,6 +1580,44 @@ namespace Oculus.Platform
       return null;
     }
 
+  }
+
+  public static partial class Net
+  {
+    /// Indicates that a connection has been established or there's been an error.
+    /// Use NetworkingPeer.GetState() to get the result; as above,
+    /// NetworkingPeer.GetID() returns the ID of the peer this message is for.
+    ///
+    public static void SetConnectionStateChangedCallback(Message<Models.NetworkingPeer>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Networking_ConnectionStateChange,
+        callback
+      );
+    }
+    
+    /// Indicates that another user is attempting to establish a P2P connection
+    /// with us. Use NetworkingPeer.GetID() to extract the ID of the peer.
+    ///
+    public static void SetPeerConnectRequestCallback(Message<Models.NetworkingPeer>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Networking_PeerConnectRequest,
+        callback
+      );
+    }
+    
+    /// Generated in response to Net.Ping(). Either contains ping time in
+    /// microseconds or indicates that there was a timeout.
+    ///
+    public static void SetPingResultNotificationCallback(Message<Models.PingResult>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Networking_PingResult,
+        callback
+      );
+    }
+    
   }
 
   public static partial class Notifications
@@ -2025,6 +1999,44 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Indicates that the user has accepted an invitation, for example in Oculus
+    /// Home. Use Message.GetString() to extract the ID of the room that the user
+    /// has been inivted to as a string. Then call ovrID_FromString() to parse it
+    /// into an ovrID.
+    ///
+    /// Note that you must call Room.Join() if you want to actually join the room.
+    ///
+    public static void SetRoomInviteAcceptedNotificationCallback(Message<string>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Room_InviteAccepted,
+        callback
+      );
+    }
+    
+    /// Handle this to notify the user when they've received an invitation to join
+    /// a room in your game. You can use this in lieu of, or in addition to,
+    /// polling for room invitations via Notification.GetRoomInviteNotifications().
+    ///
+    public static void SetRoomInviteReceivedNotificationCallback(Message<Models.RoomInviteNotification>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Room_InviteReceived,
+        callback
+      );
+    }
+    
+    /// Indicates that the current room has been updated. Use Message.GetRoom() to
+    /// extract the updated room.
+    ///
+    public static void SetUpdateNotificationCallback(Message<Models.Room>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Room_RoomUpdate,
+        callback
+      );
+    }
+    
   }
 
   public static partial class Users
@@ -2217,6 +2229,46 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Sent when another user is attempting to establish a VoIP connection. Use
+    /// Message.GetNetworkingPeer() to extract information about the user, and
+    /// Voip.Accept() to accept the connection.
+    ///
+    public static void SetVoipConnectRequestCallback(Message<Models.NetworkingPeer>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Voip_ConnectRequest,
+        callback
+      );
+    }
+    
+    /// Sent to indicate that the state of the VoIP connection changed. Use
+    /// Message.GetNetworkingPeer() and NetworkingPeer.GetState() to extract the
+    /// current state.
+    ///
+    public static void SetVoipStateChangeCallback(Message<Models.NetworkingPeer>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Voip_StateChange,
+        callback
+      );
+    }
+    
+    /// Sent to indicate that some part of the overall state of SystemVoip has
+    /// changed. Use Message.GetSystemVoipState() and the properties of
+    /// SystemVoipState to extract the state that triggered the notification.
+    ///
+    /// Note that the state may have changed further since the notification was
+    /// generated, and that you may call the `GetSystemVoip...()` family of
+    /// functions at any time to get the current state directly.
+    ///
+    public static void SetSystemVoipStateNotificationCallback(Message<Models.SystemVoipState>.Callback callback)
+    {
+      Callback.SetNotificationCallback(
+        Message.MessageType.Notification_Voip_SystemVoipState,
+        callback
+      );
+    }
+    
   }
 
 

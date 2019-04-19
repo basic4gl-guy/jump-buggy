@@ -14,13 +14,33 @@ public class Racetrack : MonoBehaviour {
     private const int MaxSpacingGroups = 16;
 
     [Header("Parameters")]
+
+    [Tooltip("Curves are converted into a sequence of small straight 'segments' of this length.")]
     public float SegmentLength = 0.25f;
+
+    [Tooltip("How to interpolate between curve bank (Z) angles")]
+    public Racetrack1DInterpolationType BankAngleInterpolation;
+
+    [Tooltip("Height above road for car respawn points. Used by RacetrackProgressTracker")]
     public float RespawnHeight = 0.75f;
+    public float RespawnZOffset = 2.0f;
+
+    [Tooltip("What to do with the part of the mesh that runs past the end of the last curve")]
     public RacetrackMeshOverrunOption MeshOverrun = RacetrackMeshOverrunOption.Extrapolate;
+
+    /// <summary>
+    /// 
+    /// 
+    /// </summary>
+    [Tooltip("Offset looped meshes by this amount to avoid Z fighting. Applies when MeshOverrun is set to 'Loop'")]
     public float LoopYOffset = -0.001f;
 
     [Header("UI settings")]
+
+    [Tooltip("Display rotate and translate handles for the curve shape (translate handles for Bezier curves only)")]
     public bool ShowManipulationHandles = true;
+
+    [Tooltip("Show buttons (and other UI) in the main editor window")]
     public bool ShowOnScreenButtons = true;
 
     /// <summary>
@@ -44,17 +64,34 @@ public class Racetrack : MonoBehaviour {
     public static Racetrack Instance;
 
     /// <summary>
-    /// Host services
+    /// Services from the hosting environment for creating/destroying objects and tracking changes.
+    /// Mainly used by editor so that it can add the appropriate undo logic.
     /// </summary>
     private IRacetrackHostServices hostServices = RuntimeRacetrackHostServices.Instance;
 
-    // Segments calculaged field
+    // Segments calculated field
+    // This uses a "versioning" system to detect when segments need to be recalculated.
+
+    /// <summary>
+    /// The required version of the segments array. This number is bumped whenever the curve
+    /// data is changed such that the segments array becomes invalid.
+    /// It is also serialized so that Undo/Redo operations will change it, so that we can 
+    /// detect if the segments need to be recalculated after such an operation.
+    /// </summary>
     [SerializeField]
     [HideInInspector]
     private int segmentsRequiredVersion = 1;
 
+    /// <summary>
+    /// The version of the data in the _segments array. If equal to "segmentsRequiredVersion" then
+    /// the data is up to date. Otherwise it needs recalculating.
+    /// </summary>
     private int segmentsVersion = 0;
 
+    /// <summary>
+    /// The highest known allocated segmentsRequiredVersion. Used to ensure we allocate a unique
+    /// new one when the segments array has been invalidated.
+    /// </summary>
     private int segmentsHighestVersion;
 
     /// <summary>
@@ -62,14 +99,20 @@ public class Racetrack : MonoBehaviour {
     /// </summary>
     private List<Segment> _segments;
 
+    /// <summary>
+    /// Curves processed into a set of small linear segments.
+    /// Automatically recalculated when required.
+    /// </summary>
     public List<Segment> Segments
     {
         get
         {
-            // Regenerate segments if necessary
+            // Regenerate segments if not on correct version
             if (segmentsVersion != segmentsRequiredVersion || _segments == null)
             {
                 UpdateSegments();
+
+                // Set version to indicate segments are no up to date
                 segmentsVersion = segmentsRequiredVersion;
                 if (segmentsVersion > segmentsHighestVersion)
                     segmentsHighestVersion = segmentsVersion;
@@ -79,10 +122,13 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Mark _segments array as invalid so that it will be recalculated next time "Segments" property is accesed
+    /// </summary>
     public void InvalidateSegments()
     {
         // Generate a new version number
-        hostServices.ObjectChanging(this);
+        hostServices.ObjectChanging(this);                      // Make sure segmentsRequiredVersion gets captured in Undo/Redo stacks
         segmentsRequiredVersion = segmentsHighestVersion + 1;
     }
 
@@ -125,6 +171,10 @@ public class Racetrack : MonoBehaviour {
         BuildMeshes(startCurveIndex, endCurveIndex);
     }
 
+    /// <summary>
+    /// Create a closed circuit racetrack by adding a joining curve at the end
+    /// </summary>
+    /// <returns>The newly added curve</returns>
     public RacetrackCurve CreateCircuit()
     {
         // Link the last curve to the start of the track
@@ -227,6 +277,11 @@ public class Racetrack : MonoBehaviour {
         return curve;
     }
 
+    /// <summary>
+    /// Insert curve immediately after the specified curve
+    /// </summary>
+    /// <param name="index">Index of the curve to insert after</param>
+    /// <returns>The new curve</returns>
     public RacetrackCurve InsertCurveAfter(int index)
     {
         var curves = Curves;
@@ -255,6 +310,11 @@ public class Racetrack : MonoBehaviour {
         return curve;
     }
 
+    /// <summary>
+    /// Configure properties on a newly added/inserted curve, based on the previous one
+    /// </summary>
+    /// <param name="lastCurve">The previous curve</param>
+    /// <param name="curve">The newly inserted curve</param>
     private void ConfigureNewCurve(RacetrackCurve lastCurve, RacetrackCurve curve)
     {
         // Copy values from last curve
@@ -310,7 +370,7 @@ public class Racetrack : MonoBehaviour {
     /// Calculate each curve's position.
     /// Also builds the curve runtime information array.
     /// </summary>
-    private void RepositionCurves()
+    public void RepositionCurves()
     {
         // Position curve objects at the start of their curves
         var curves = Curves;
@@ -340,7 +400,7 @@ public class Racetrack : MonoBehaviour {
             info.Normal = GetSegment(midSegIndex).GetSegmentToTrack().MultiplyVector(Vector3.up);
 
             // Calculate respawn point and direction vectors in track space
-            int respawnSeg = Math.Min(segIndex + Mathf.CeilToInt(2.0f / SegmentLength), midSegIndex);
+            int respawnSeg = Math.Min(segIndex + Mathf.CeilToInt(RespawnZOffset / SegmentLength), midSegIndex);
             Matrix4x4 respawnTransform = GetSegment(respawnSeg).GetSegmentToTrack();
             info.RespawnPosition = respawnTransform.MultiplyPoint(Vector3.up * RespawnHeight);
             info.RespawnRotation = Quaternion.LookRotation(
@@ -354,14 +414,6 @@ public class Racetrack : MonoBehaviour {
             curveZOffset += curve.Length;
         }
     }
-
-    ///// <summary>
-    ///// Rebuild segments array
-    ///// </summary>
-    //public void UpdateSegments2()
-    //{
-    //    segments = GenerateSegments();
-    //}
 
     /// <summary>
     /// Get segment array for single curve.
@@ -503,7 +555,7 @@ public class Racetrack : MonoBehaviour {
                         Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
                         Matrix4x4 meshFromWorld = mf.transform.localToWorldMatrix.inverse;
                         float meshLength = WarpMeshToCurves(mf.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
-#if UNITY_EDITOR && !UNITY_STANDALONE
+#if UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID
                         Unwrapping.GenerateSecondaryUVSet(mf.sharedMesh);
 #endif
 
@@ -734,6 +786,10 @@ public class Racetrack : MonoBehaviour {
         dstTransform.rotation = Quaternion.LookRotation(worldForward);
     }
 
+    /// <summary>
+    /// Recalculate the _segments array.
+    /// Re-indexes and repositions the curves as a side effect.
+    /// </summary>
     public void UpdateSegments()
     {
         // Re-index curves
@@ -768,10 +824,22 @@ public class Racetrack : MonoBehaviour {
 
         Vector3 dirDelta = Vector3.zero;
         Vector3 posDelta = Vector3.forward * SegmentLength;
-        foreach (var curve in curves)
+        for (int i = 0; i < curves.Count; i++)
         {
+            var curve = curves[i];
+
             // Calculate direction at the end of the curve
             Vector3 endDir = new Vector3(curve.Angles.x, dir.y + curve.Angles.y, curve.Angles.z);
+
+            // Create curve for interpolating Z angle
+            var zCurve = GetCurve1D(
+                new float[4] {
+                    i - 2 >= 0 ? curves[i - 2].Angles.z : 0.0f,
+                    i - 1 >= 0 ? curves[i - 1].Angles.z : 0.0f,
+                    curve.Angles.z,
+                    i + 1 < curves.Count ? curves[i + 1].Angles.z : 0.0f
+                }, 
+                BankAngleInterpolation);
 
             switch (curve.Type)
             {
@@ -781,13 +849,14 @@ public class Racetrack : MonoBehaviour {
                         dirDelta = new Vector3(
                             RacetrackUtil.LocalAngle(curve.Angles.x - dir.x),
                             curve.Angles.y,
-                            RacetrackUtil.LocalAngle(curve.Angles.z - dir.z)
+                            0
                         ) / curve.Length * SegmentLength;
 
                         // Generate segments
                         for (float d = 0.0f; d < curve.Length; d += SegmentLength)
                         {
                             segPosDelta = Matrix4x4.Rotate(Quaternion.Euler(dir)).MultiplyVector(posDelta);
+                            dir.z = zCurve.GetPt(d / curve.Length);
 
                             var segment = new Segment
                             {
@@ -808,6 +877,7 @@ public class Racetrack : MonoBehaviour {
 
                     hostServices.ObjectChanging(curve);
                     curve.EndPosition = pos;
+                    dir.z = curve.Angles.z;
 
                     break;
 
@@ -831,13 +901,11 @@ public class Racetrack : MonoBehaviour {
                             endPos);
 
                         // Build distance lookup with t values for each segment length
-                        float length;
-                        var lookup = bezier.BuildDistanceLookup(0.0001f, SegmentLength, out length);
+                        var lookup = bezier.BuildDistanceLookup(0.0001f, SegmentLength);
                         hostServices.ObjectChanging(curve);
-                        curve.Length = length;
+                        curve.Length = lookup.Count * SegmentLength;
 
                         // Generate curve segments along bezier
-                        float dirZDelta = (curve.Angles.z - dir.z) / length * SegmentLength;
                         foreach (var t in lookup)
                         {
                             // Get position and tangent
@@ -849,7 +917,7 @@ public class Racetrack : MonoBehaviour {
                             dir.y = Mathf.Atan2(segPosDelta.x, segPosDelta.z) * Mathf.Rad2Deg;
                             float xz = Mathf.Sqrt(segPosDelta.x * segPosDelta.x + segPosDelta.z * segPosDelta.z);
                             dir.x = -Mathf.Atan2(segPosDelta.y, xz) * Mathf.Rad2Deg;
-                            dir.z += dirZDelta;
+                            dir.z = zCurve.GetPt(t);
 
                             var segment = new Segment
                             {
@@ -882,6 +950,37 @@ public class Racetrack : MonoBehaviour {
             Length = SegmentLength,
             Curve = curves.LastOrDefault()
         };
+    }
+
+    /// <summary>
+    /// Get curve from z[1] to z[2]
+    /// </summary>
+    /// <param name="z">
+    /// Start and end of curve (z[1] and z[2]) 
+    /// plus their preceding and following values (z[0] and z[3] respectively)
+    /// </param>
+    /// <param name="interpolation">Interpolation type to use</param>
+    /// <remarks>z[0] and z[3] are supplied for smooth curve algorithms, e.g. bezier</remarks>
+    /// <returns>An ICurve1D object implementing the curve</returns>
+    private ICurve1D GetCurve1D(float[] z, Racetrack1DInterpolationType interpolation)
+    {
+        switch (interpolation)
+        {
+            case Racetrack1DInterpolationType.Bezier:
+                // Create a 1D cubic bezier with control points 1/3rd of the way down.
+                float startControlPt = z[1] + (z[2] - z[0]) / 2.0f * 0.3333f;
+                float endControlPt = z[2] - (z[3] - z[1]) / 2.0f * 0.3333f;
+
+                // Ensure control points don't fall outside range spanned by points around their corresponding point
+                startControlPt = Mathf.Clamp(startControlPt, Mathf.Min(z[0], z[1], z[2]), Mathf.Max(z[0], z[1], z[2]));
+                endControlPt = Mathf.Clamp(endControlPt, Mathf.Min(z[1], z[2], z[3]), Mathf.Max(z[1], z[2], z[3]));
+
+                return new Bezier1D(z[1], startControlPt, endControlPt, z[2]);
+
+            default:
+                // Otherwise just use linear interpolation
+                return new Linear1D(z[1], z[2]);
+        }
     }
 
     /// <summary>
@@ -931,6 +1030,10 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Cached list of curves for performance.
+    /// Caching is used at runtime only.
+    /// </summary>
     private List<RacetrackCurve> cachedCurves;
 
     /// <summary>
@@ -957,7 +1060,7 @@ public class Racetrack : MonoBehaviour {
     }
 
     /// <summary>
-    /// Shallow copy mesh object
+    /// Shallow copy a mesh object
     /// </summary>
     private static Mesh CloneMesh(Mesh src)
     {
@@ -991,11 +1094,20 @@ public class Racetrack : MonoBehaviour {
         return dst;
     }
 
-    private bool scheduleCreate;
-    private int scheduleFrom;
-    private int scheduleTo;
-    private int scheduleBezier;
+    // Logic to schedule a pending recreate of curve meshes.
+    // Used by editor logic when it is known that the track meshes will need to be rebuilt, but
+    // cannot be done so immediately.
 
+    private bool scheduleCreate;        // True if create is scheduled
+    private int scheduleFrom;           // Inclusive index of first curve to rebuild meshes for
+    private int scheduleTo;             // Exclusive index of last curve to rebuild meshes for
+    private int scheduleBezier;         // Index of next Bezier curve to also update meshes for. -1 if not applicable.
+
+    /// <summary>
+    /// Schedule curve meshes to be recreated
+    /// </summary>
+    /// <param name="curve">The first curve</param>
+    /// <param name="isSingleCurveOnly">True to rebuild just the curve (and it's immediate neighbours). False to rebuild the rest of the track</param>
     public void ScheduleCreateMeshes(RacetrackCurve curve, bool isSingleCurveOnly)
     {
         var curves = Curves;
@@ -1013,6 +1125,11 @@ public class Racetrack : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Schedule explicit range of curve meshes to be recreated
+    /// </summary>
+    /// <param name="fromIndex">Inclusive index of first curve to rebuild meshes for</param>
+    /// <param name="toIndex">Exclusive index of last curve to rebuild meshes for</param>
     private void ScheduleCreateMeshes(int fromIndex, int toIndex)
     {
         scheduleCreate = true;
@@ -1021,6 +1138,9 @@ public class Racetrack : MonoBehaviour {
         scheduleBezier = -1;
     }
 
+    /// <summary>
+    /// Recreate any meshes that have been scheduled 
+    /// </summary>
     public void CreateScheduledMeshes()
     {
         // Rebuild scheduled curve(s)
@@ -1041,11 +1161,17 @@ public class Racetrack : MonoBehaviour {
             }
             finally
             {
+                // CreateScheduledMeshes is called often by the editor.
+                // We must always clear the schedule flag even if an exception is thrown, otherwise
+                // we can get nasty loops.
                 scheduleCreate = false;
             }
         }
     }
 
+    /// <summary>
+    /// Hook up the host services
+    /// </summary>
     public void SetHostServices(IRacetrackHostServices services)
     {
         hostServices = services;
@@ -1138,10 +1264,22 @@ public class Racetrack : MonoBehaviour {
     }
 }
 
+/// <summary>
+/// Algorithm for interpolating between 1D floating point values
+/// </summary>
+public enum Racetrack1DInterpolationType
+{
+    Linear,
+    Bezier
+}
+
+/// <summary>
+/// What to do with the mesh that extends beyond the end of the last curve
+/// </summary>
 public enum RacetrackMeshOverrunOption
 {
-    Extrapolate,
-    Loop
+    Extrapolate,                // Mesh continues on in a straight line
+    Loop                        // Loop around and follow the first curve (intended for closed-loop racetracks)
 }
 
 /// <summary>

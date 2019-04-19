@@ -79,8 +79,22 @@ public class OculusSpatializerReflectionCustomGUI : IAudioEffectPluginGUI
         plugin.GetFloatParameter("Shared Rev Max", out fval);
         plugin.SetFloatParameter("Shared Rev Max", EditorGUILayout.Slider("Maximum", fval, 1.0f, 10000.0f));
 
-		// We will override the controls with our own, so return false
-		return false;
+        Separator();
+        Label("SHARED REVERB WET MIX (-60.0 - 20.0 dB)");
+        Label("");
+        plugin.GetFloatParameter("Shared Rev Wet", out fval);
+        plugin.SetFloatParameter("Shared Rev Wet", EditorGUILayout.Slider(" ", fval, -60.0f, 20.0f));
+
+		Separator();
+        Label("PROPAGATION QUALITY LEVEL (0.0 - 200.0%)");
+        Label("");
+        plugin.GetFloatParameter("Prop Quality", out fval);
+        plugin.SetFloatParameter("Prop Quality", EditorGUILayout.Slider(" ", fval, 0.0f, 200.0f));
+		
+		Separator();
+
+        // We will override the controls with our own, so return false
+        return false;
     }
 
 	// Separator

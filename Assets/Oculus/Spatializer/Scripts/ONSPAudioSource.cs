@@ -44,9 +44,9 @@ public class ONSPAudioSource : MonoBehaviour
     private static extern void ONSP_GetGlobalRoomReflectionValues(ref bool reflOn, ref bool reverbOn, 
                                                                   ref float width, ref float height, ref float length);
 
-	// Public
+    // Public
 
-	[SerializeField]
+    [SerializeField]
 	private bool enableSpatialization = true;
 	public  bool EnableSpatialization
 	{
@@ -130,7 +130,22 @@ public class ONSPAudioSource : MonoBehaviour
         }
     }
 
-	[SerializeField]
+    [SerializeField]
+    private float reverbSend = 0.0f;
+    public float ReverbSend
+    {
+        get
+        {
+            return reverbSend;
+        }
+        set
+        {
+            reverbSend = Mathf.Clamp(value, -60.0f, 20.0f);
+        }
+    }
+
+
+    [SerializeField]
 	private bool enableRfl = false;
 	public  bool EnableRfl
 	{
@@ -197,31 +212,49 @@ public class ONSPAudioSource : MonoBehaviour
         }
     }
 
-	/// <summary>
-	/// Sets the parameters.
-	/// </summary>
-	/// <param name="source">Source.</param>
-	public void SetParameters(ref AudioSource source)
+    enum Parameters : int
+    {
+        P_GAIN = 0,
+        P_USEINVSQR,
+        P_NEAR,
+        P_FAR,
+        P_RADIUS,
+        P_DISABLE_RFL,
+        P_VSPEAKERMODE,
+        P_AMBISTAT,
+        P_READONLY_GLOBAL_RFL_ENABLED, // READ-ONLY
+        P_READONLY_NUM_VOICES, // READ-ONLY
+        P_SENDLEVEL,
+        P_NUM
+    };
+
+    /// <summary>
+    /// Sets the parameters.
+    /// </summary>
+    /// <param name="source">Source.</param>
+    public void SetParameters(ref AudioSource source)
 	{
         // See if we should enable spatialization
         source.spatialize = enableSpatialization;
 		
-        source.SetSpatializerFloat(0, gain);
+        source.SetSpatializerFloat((int)Parameters.P_GAIN, gain);
 		// All inputs are floats; convert bool to 0.0 and 1.0
 		if(useInvSqr == true)
-			source.SetSpatializerFloat(1, 1.0f);
+			source.SetSpatializerFloat((int)Parameters.P_USEINVSQR, 1.0f);
 		else
-			source.SetSpatializerFloat(1, 0.0f);
+			source.SetSpatializerFloat((int)Parameters.P_USEINVSQR, 0.0f);
 
-		source.SetSpatializerFloat(2, near);
-		source.SetSpatializerFloat(3, far);
+		source.SetSpatializerFloat((int)Parameters.P_NEAR, near);
+		source.SetSpatializerFloat((int)Parameters.P_FAR, far);
 
-	        source.SetSpatializerFloat(4, volumetricRadius);
+	    source.SetSpatializerFloat((int)Parameters.P_RADIUS, volumetricRadius);
 
 		if(enableRfl == true)
-			source.SetSpatializerFloat(5, 0.0f);
+			source.SetSpatializerFloat((int)Parameters.P_DISABLE_RFL, 0.0f);
 		else
-			source.SetSpatializerFloat(5, 1.0f);
+			source.SetSpatializerFloat((int)Parameters.P_DISABLE_RFL, 1.0f);
+
+        source.SetSpatializerFloat((int)Parameters.P_SENDLEVEL, reverbSend);
 	}
 
     private static ONSPAudioSource RoomReflectionGizmoAS = null; 

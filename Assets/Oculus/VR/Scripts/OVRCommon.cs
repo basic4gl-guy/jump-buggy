@@ -234,64 +234,59 @@ public static class OVRNodeStateProperties
 #if UNITY_2017_1_OR_NEWER
 				if (GetUnityXRNodeStateVector3(nodeType, NodeStatePropertyType.Acceleration, out retVec))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus)
 				{
 					retVec = OVRPlugin.GetNodeAcceleration(ovrpNodeType, stepType).FromFlippedZVector3f();
 					return true;
 				}
-#endif
 				break;
 
 			case NodeStatePropertyType.AngularAcceleration:
 #if UNITY_2017_2_OR_NEWER
 				if (GetUnityXRNodeStateVector3(nodeType, NodeStatePropertyType.AngularAcceleration, out retVec))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus)
 				{
 					retVec = OVRPlugin.GetNodeAngularAcceleration(ovrpNodeType, stepType).FromFlippedZVector3f();
 					return true;
 				}
-#endif
 				break;
 
 			case NodeStatePropertyType.Velocity:
 #if UNITY_2017_1_OR_NEWER
 				if (GetUnityXRNodeStateVector3(nodeType, NodeStatePropertyType.Velocity, out retVec))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus)
 				{
 					retVec = OVRPlugin.GetNodeVelocity(ovrpNodeType, stepType).FromFlippedZVector3f();
 					return true;
 				}
-#endif
 				break;
 
 			case NodeStatePropertyType.AngularVelocity:
 #if UNITY_2017_2_OR_NEWER
 				if (GetUnityXRNodeStateVector3(nodeType, NodeStatePropertyType.AngularVelocity, out retVec))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus)
 				{
 					retVec = OVRPlugin.GetNodeAngularVelocity(ovrpNodeType, stepType).FromFlippedZVector3f();
 					return true;
 				}
-#endif
 				break;
 
 			case NodeStatePropertyType.Position:
 #if UNITY_2017_1_OR_NEWER
 				if (GetUnityXRNodeStateVector3(nodeType, NodeStatePropertyType.Position, out retVec))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus){
 					retVec = OVRPlugin.GetNodePose(ovrpNodeType, stepType).ToOVRPose().position;
 					return true;
 				}
-#endif
 				break;
 		}
 
@@ -307,12 +302,11 @@ public static class OVRNodeStateProperties
 #if UNITY_2017_1_OR_NEWER
 				if (GetUnityXRNodeStateQuaternion(nodeType, NodeStatePropertyType.Orientation, out retQuat))
 					return true;
-#else
+#endif
 				if (OVRManager.loadedXRDevice == OVRManager.XRDevice.Oculus){
 					retQuat = OVRPlugin.GetNodePose(ovrpNodeType, stepType).ToOVRPose().orientation;
 					return true;
 				}
-#endif
 				break;
 		}
 		return false;

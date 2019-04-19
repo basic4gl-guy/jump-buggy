@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+namespace OVR
+{
+
 /*
 -----------------------
  
@@ -111,3 +114,5 @@ public class AmbienceEmitter : MonoBehaviour {
 	}
 
 }
+
+} // namespace OVR

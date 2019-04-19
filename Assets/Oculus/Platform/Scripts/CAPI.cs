@@ -409,6 +409,15 @@ namespace Oculus.Platform
     public static extern int ovr_Party_PluginGetSharedMemHandle();
 
     [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
+    public static extern VoipMuteState ovr_Party_PluginGetVoipMicrophoneMuted();
+
+    [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
+    public static extern bool ovr_Party_PluginGetVoipPassthrough();
+
+    [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
+    public static extern SystemVoipStatus ovr_Party_PluginGetVoipStatus();
+
+    [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
     public static extern void ovr_Voip_Accept(UInt64 userID);
 
     [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
@@ -2712,6 +2721,9 @@ namespace Oculus.Platform
 
     [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl, EntryPoint="ovr_TestUser_GetUserAlias")]
     private static extern IntPtr ovr_TestUser_GetUserAlias_Native(IntPtr obj);
+
+    [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
+    public static extern UInt64 ovr_TestUser_GetUserFbid(IntPtr obj);
 
     [DllImport(DLL_NAME, CallingConvention=CallingConvention.Cdecl)]
     public static extern UInt64 ovr_TestUser_GetUserId(IntPtr obj);

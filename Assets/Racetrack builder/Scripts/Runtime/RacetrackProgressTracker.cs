@@ -19,7 +19,6 @@ public class RacetrackProgressTracker : MonoBehaviour
     public float OffRoadTimeout = 10.0f;        // # of seconds player is off the road before they will be placed back on.
     public bool AutoReset = true;               // Enables the auto-respawn logic
 
-    // Working
     [Header("Working")]
     public int currentCurve = 0;
     public int lapCount = 0;
@@ -30,6 +29,9 @@ public class RacetrackProgressTracker : MonoBehaviour
     public float LastLapTime = 0.0f;
     public float BestLapTime = 0.0f;
     public float CurrentLapTime = 0.0f;
+
+    [Header("Misc")]
+    public Vector3 RayOffset = Vector3.zero;
 
     void Start()
     {
@@ -48,9 +50,11 @@ public class RacetrackProgressTracker : MonoBehaviour
         for (int i = 0; i < CurveSearchAhead; i++)
         {
             // Ray cast from center of car in opposite direction to curve
-            var ray = new Ray(carBody.transform.position, -road.CurveInfos[curveIndex].Normal);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            var ray = new Ray(carBody.transform.TransformPoint(RayOffset), -road.CurveInfos[curveIndex].Normal);
+            var hit = Physics.RaycastAll(ray)
+                .Select(h => h.transform.GetComponent<RacetrackSurface>())
+                .FirstOrDefault(c => c != null);
+            if (hit != null)
             {
                 // RoadMeshInfo component indicates we've hit the road.
                 var roadInfo = hit.transform.GetComponent<RacetrackSurface>();
