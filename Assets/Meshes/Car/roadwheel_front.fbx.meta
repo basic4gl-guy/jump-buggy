@@ -6,17 +6,27 @@ ModelImporter:
     100000: Export_FrontRightTyre
     100002: Export_FrontRightWheel
     100004: //RootNode
+    100006: FrontRightTyre.001
+    100008: FrontRightWheel.001
     400000: Export_FrontRightTyre
     400002: Export_FrontRightWheel
     400004: //RootNode
+    400006: FrontRightTyre.001
+    400008: FrontRightWheel.001
     2100000: FrontTyreMat
     2100002: RearWheelMat
     2300000: Export_FrontRightTyre
     2300002: Export_FrontRightWheel
+    2300004: FrontRightTyre.001
+    2300006: FrontRightWheel.001
     3300000: Export_FrontRightTyre
     3300002: Export_FrontRightWheel
+    3300004: FrontRightTyre.001
+    3300006: FrontRightWheel.001
     4300000: Export_FrontRightTyre
     4300002: Export_FrontRightWheel
+    4300004: FrontRightTyre.001
+    4300006: FrontRightWheel.001
   externalObjects: {}
   materials:
     importMaterials: 1

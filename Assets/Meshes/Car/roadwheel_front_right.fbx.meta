@@ -19,14 +19,17 @@ ModelImporter:
     2300002: FrontTyre
     2300004: Export_FrontRightTyre
     2300006: Export_FrontRightWheel
+    2300008: //RootNode
     3300000: FrontRightWheel
     3300002: FrontTyre
     3300004: Export_FrontRightTyre
     3300006: Export_FrontRightWheel
+    3300008: //RootNode
     4300000: FrontTyre
     4300002: FrontRightWheel
     4300004: Export_FrontRightTyre
     4300006: Export_FrontRightWheel
+    4300008: FrontRightWheel.001
   externalObjects:
   - first:
       type: UnityEngine:Material

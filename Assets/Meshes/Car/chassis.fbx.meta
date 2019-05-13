@@ -34,6 +34,7 @@ ModelImporter:
     4300006: Cylinder.012
     4300008: Cylinder.013
     4300010: Export_Chassis
+    4300012: ChassisExport
   externalObjects:
   - first:
       type: UnityEngine:Material

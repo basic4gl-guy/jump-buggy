@@ -8,25 +8,40 @@ ModelImporter:
     100004: FrontRightUpright.002
     100006: SteeringBalljoint.001
     100008: //RootNode
+    100010: BalljointRightLower.002
+    100012: BalljointRightUpper.002
+    100014: FrontRightUpright.003
     400000: BalljointRightLower.001
     400002: BalljointRightUpper.001
     400004: FrontRightUpright.002
     400006: SteeringBalljoint.001
     400008: //RootNode
+    400010: BalljointRightLower.002
+    400012: BalljointRightUpper.002
+    400014: FrontRightUpright.003
     2100000: UprightMat
     2100002: BalljointMat
     2300000: BalljointRightLower.001
     2300002: BalljointRightUpper.001
     2300004: FrontRightUpright.002
     2300006: SteeringBalljoint.001
+    2300008: BalljointRightLower.002
+    2300010: BalljointRightUpper.002
+    2300012: FrontRightUpright.003
     3300000: BalljointRightLower.001
     3300002: BalljointRightUpper.001
     3300004: FrontRightUpright.002
     3300006: SteeringBalljoint.001
+    3300008: BalljointRightLower.002
+    3300010: BalljointRightUpper.002
+    3300012: FrontRightUpright.003
     4300000: FrontRightUpright.002
     4300002: BalljointRightUpper.001
     4300004: BalljointRightLower.001
     4300006: SteeringBalljoint.001
+    4300008: FrontRightUpright.003
+    4300010: BalljointRightUpper.002
+    4300012: BalljointRightLower.002
   externalObjects: {}
   materials:
     importMaterials: 1
