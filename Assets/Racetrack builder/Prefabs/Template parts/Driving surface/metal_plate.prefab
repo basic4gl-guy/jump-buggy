@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4898898505072383934}
   - component: {fileID: 7949623285037089992}
   - component: {fileID: 6351986791607526275}
+  - component: {fileID: 828935573661231133}
   m_Layer: 0
   m_Name: metal_plate
   m_TagString: Untagged
@@ -93,3 +94,21 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300000, guid: 0fcdddb184707fb4a97cd723f0b237f0, type: 3}
+--- !u!114 &828935573661231133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8940510924759554966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2396622943001c345b3386658d8f04d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Materials:
+  - {fileID: 2100000, guid: 644b5dd0f6dd8a648baba623e5e1ca7b, type: 2}
+  Side: 2
+  MaxAngle: 30
+  Scale: {x: 15, y: 15}
+  Offset: {x: 0, y: 0}

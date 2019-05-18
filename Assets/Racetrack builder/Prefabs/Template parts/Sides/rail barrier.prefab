@@ -78,6 +78,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65deb72a762f9a945a1187e2d3141a54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RemoveInternalFaces: 1
+  InternalFaceZThreshold: 0.001
 --- !u!1 &2449813578774583146
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,6 +173,7 @@ MonoBehaviour:
   IsVertical: 0
   MaxZAngle: 90
   MaxXAngle: 90
+  ApplyWidening: 1
 --- !u!1 &5471296335779712963
 GameObject:
   m_ObjectHideFlags: 0

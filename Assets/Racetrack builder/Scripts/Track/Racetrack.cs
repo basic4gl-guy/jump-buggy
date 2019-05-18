@@ -21,6 +21,9 @@ public class Racetrack : MonoBehaviour {
     [Tooltip("How to interpolate between curve bank (Z) angles")]
     public Racetrack1DInterpolationType BankAngleInterpolation;
 
+    [Tooltip("Automatically remove internal faces between consecutive mesh templates of the same type")]
+    public bool RemoveInternalFaces = false;
+
     [Tooltip("Height above road for car respawn points. Used by RacetrackProgressTracker")]
     public float RespawnHeight = 0.75f;
     public float RespawnZOffset = 2.0f;
@@ -322,6 +325,7 @@ public class Racetrack : MonoBehaviour {
         {
             curve.Length = lastCurve.Length;
             curve.Angles = lastCurve.Angles;
+            curve.Widening = lastCurve.Widening;
             curve.IsJump = lastCurve.IsJump;
             curve.CanRespawn = lastCurve.CanRespawn;
             if (lastCurve.Type == RacetrackCurveType.Bezier)
@@ -480,6 +484,7 @@ public class Racetrack : MonoBehaviour {
         // Work down the curve. Add meshes as we go.
         var totalLength = Segments.Count * SegmentLength;
         var curveIndex = startCurveIndex;
+        bool isFirstTemplateInCurve = true;
         while (meshZOffset < totalLength)
         {
             // Find segment where mesh starts
@@ -500,6 +505,7 @@ public class Racetrack : MonoBehaviour {
                     MeshZOffset = meshZOffset
                 };
                 curveIndex++;
+                isFirstTemplateInCurve = true;
             }
 
             // Stop if end curve reached
@@ -531,7 +537,53 @@ public class Racetrack : MonoBehaviour {
                 // Pass 1: Generate continuous meshes
                 bool isFirstMesh = true;
                 float mainMeshLength = 0.0f;
-                foreach (var subtree in template.FindSubtrees<RacetrackContinuous>())
+
+                // Find subtrees marked with "RacetrackContinous" components in template
+                var continuous = template.FindSubtrees<RacetrackContinuous>();
+
+                // Calculate the main mesh length
+                var mainMesh = continuous.Select(c => c.GetComponentsInChildren<MeshFilter>().FirstOrDefault())
+                                         .FirstOrDefault(m => m != null);
+                if (mainMesh != null)
+                {
+                    Matrix4x4 templateFromMesh = template.GetTemplateFromSubtreeMatrix(mainMesh);
+                    var mesh = mainMesh.sharedMesh;
+                    float meshMinZ = mesh.vertices.Min(v => templateFromMesh.MultiplyPoint(v).z);
+                    float meshMaxZ = mesh.vertices.Max(v => templateFromMesh.MultiplyPoint(v).z);
+                    mainMeshLength = meshMaxZ - meshMinZ;
+                }
+
+                // Determine whether we can see the start or end faces.
+                // This applies to the first/last template copy for the curve if the previous/next curve:
+                //  * Has a different template, OR
+                //  * Is a jump
+                bool canSeeStartFaces;
+                if (!isFirstTemplateInCurve)
+                    canSeeStartFaces = false;
+                else if (curve.Template != null)
+                    canSeeStartFaces = true;
+                else if (curve.Index == 0)
+                    canSeeStartFaces = true;
+                else if (curves[curve.Index - 1].IsJump)
+                    canSeeStartFaces = true;
+                else
+                    canSeeStartFaces = false;
+
+                float nextMeshZOffset = meshZOffset + mainMeshLength;
+                int nextMeshSegIndex = Mathf.FloorToInt(nextMeshZOffset / SegmentLength);
+                bool canSeeEndFaces;
+                if (nextMeshSegIndex > Segments.Count)                                              // End of track
+                    canSeeEndFaces = true;
+                else if (Segments[nextMeshSegIndex].Curve == curve)                                 // Last template in curve
+                    canSeeEndFaces = false;
+                else if (Segments[nextMeshSegIndex].Curve.Template != null)
+                    canSeeEndFaces = true;
+                else if (Segments[nextMeshSegIndex].Curve.IsJump)
+                    canSeeEndFaces = true;
+                else
+                    canSeeEndFaces = false;
+
+                foreach (var subtree in continuous)
                 {
                     // Duplicate subtree
                     var subtreeCopy = Instantiate(subtree);
@@ -541,34 +593,49 @@ public class Racetrack : MonoBehaviour {
                     GetSegmentTransform(seg, subtreeCopy.transform);
 
                     // Need to take into account relative position of continuous subtree within template object
-                    // Note: The subtree's transformation is effectively cancelled out, however we multiply back in the scale (lossyScale)
-                    // as this allows setting the scale on the template object itself, which is useful.
-                    // (Otherwise you would have to create a sub-object in order to perform scaling)
-                    Matrix4x4 templateFromSubtree = Matrix4x4.Scale(template.transform.lossyScale) * template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
+                    Matrix4x4 templateFromSubtree = template.GetTemplateFromSubtreeMatrix(subtree);
+
+                    // Determine whether to remove internal faces.
+                    // By default remove them if enabled in the RacetrackContinuous component, and the mesh template has not changed,
+                    // - so long as flag is set on racetrack and mesh template.
+                    bool removeStartInternalFaces = RemoveInternalFaces && subtree.RemoveInternalFaces && !canSeeStartFaces;
+                    bool removeEndInternalFaces = RemoveInternalFaces && subtree.RemoveInternalFaces && !canSeeEndFaces;
+
+                    // Can override at the curve level
+                    if (curve.RemoveStartInternalFaces != RemoveInternalFacesOption.Auto)
+                        removeStartInternalFaces = curve.RemoveStartInternalFaces == RemoveInternalFacesOption.Yes;
+                    if (curve.RemoveEndInternalFaces != RemoveInternalFacesOption.Auto)
+                        removeEndInternalFaces = curve.RemoveEndInternalFaces == RemoveInternalFacesOption.Yes;
 
                     // Clone and warp displayed meshes
                     var meshFilters = subtreeCopy.GetComponentsInChildren<MeshFilter>();
                     foreach (var mf in meshFilters)
                     {
                         mf.sharedMesh = CloneMesh(mf.sharedMesh);
-                        Matrix4x4 subtreeFromMesh = subtreeCopy.transform.localToWorldMatrix.inverse * mf.transform.localToWorldMatrix;
+                        Matrix4x4 subtreeFromMesh = RacetrackUtil.GetAncestorFromDescendentMatrix(subtreeCopy, mf);
                         Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
                         Matrix4x4 meshFromWorld = mf.transform.localToWorldMatrix.inverse;
-                        float meshLength = WarpMeshToCurves(mf.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
-#if UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID
-                        Unwrapping.GenerateSecondaryUVSet(mf.sharedMesh);
-#endif
+                        WarpMeshToCurves(
+                            mf.sharedMesh,
+                            meshZOffset,
+                            templateFromMesh,
+                            meshFromWorld,
+                            GetWidenRangeMesh(template, subtree, subtreeCopy, mf),
+                            mf.GetComponents<RacetrackUVGenerator>(),
+                            removeStartInternalFaces,
+                            removeEndInternalFaces,
+                            subtree.InternalFaceZThreshold);
+                        hostServices.GenerateSecondaryUVSet(mf.sharedMesh);
 
                         // First continuous mesh is considered to be the main track surface,
                         // and determines the length of the template copy
                         if (isFirstMesh)
                         {
                             var surface = mf.gameObject.AddComponent<RacetrackSurface>();
-                            int endSegIndex = Mathf.FloorToInt((meshZOffset + meshLength) / SegmentLength - 0.00001f);
+                            int endSegIndex = Mathf.FloorToInt((meshZOffset + mainMeshLength) / SegmentLength - 0.00001f);
                             Segment endSeg = Segments[Math.Min(endSegIndex, Segments.Count - 1)];
                             surface.StartCurveIndex = seg.Curve.Index;
                             surface.EndCurveIndex = endSeg.Curve.Index;
-                            mainMeshLength = meshLength;
                             isFirstMesh = false;
                         }
                     }
@@ -582,7 +649,12 @@ public class Racetrack : MonoBehaviour {
                         Matrix4x4 subtreeFromMesh = subtreeCopy.transform.localToWorldMatrix.inverse * mc.transform.localToWorldMatrix;
                         Matrix4x4 templateFromMesh = templateFromSubtree * subtreeFromMesh;
                         Matrix4x4 meshFromWorld = mc.transform.localToWorldMatrix.inverse;
-                        float meshLength = WarpMeshToCurves(mc.sharedMesh, meshZOffset, templateFromMesh, meshFromWorld);
+                        WarpMeshToCurves(
+                            mc.sharedMesh, 
+                            meshZOffset, 
+                            templateFromMesh, 
+                            meshFromWorld,
+                            GetWidenRangeMesh(template, subtree, subtreeCopy, mc));
                     }
                 };
 
@@ -643,17 +715,32 @@ public class Racetrack : MonoBehaviour {
                         subtreeCopy.name += " Spacing group " + spacingGroup.Index;
 
                         // Calculate local to track tranform matrix for subtree.
-                        Matrix4x4 templateFromSubtree = Matrix4x4.Scale(template.transform.lossyScale) * template.transform.localToWorldMatrix.inverse * subtree.transform.localToWorldMatrix;
-                        Matrix4x4 trackFromSubtree = 
-                              spaceSeg.GetSegmentToTrack(spaceZOffset - spaceSegIndex * SegmentLength)      // Segment -> Track
-                            * templateFromSubtree;                                                          // Subtree -> Segment
+                        Matrix4x4 templateFromSubtree = template.GetTemplateFromSubtreeMatrix(subtree);
+
+                        // Adjust horizontal position
+                        float segZ = spaceZOffset - spaceSegIndex * SegmentLength;
+                        if (subtree.ApplyWidening)
+                        {
+                            // Adjust X for track widening
+                            var widening = spaceSeg.GetWidening(segZ);
+                            Vector3 templatePos = RacetrackUtil.ToVector3(templateFromSubtree.GetColumn(3));
+                            var widenRanges = GetWidenRangeSubtree(template, subtree);
+                            float adjustedX = widenRanges.Apply(templatePos.x, widening);
+
+                            // Multiply in translation adjustment
+                            if (adjustedX != templatePos.x)
+                                templateFromSubtree = Matrix4x4.Translate(new Vector3(adjustedX - templatePos.x, 0.0f, 0.0f)) * templateFromSubtree;
+                        }
+
+                        Matrix4x4 trackFromSubtree = spaceSeg.GetSegmentToTrack(segZ)                   // Segment -> Track
+                                                   * templateFromSubtree;                               // Subtree -> Segment
 
                         if (subtree.IsVertical)
                         {
                             // Disassemble matrix
-                            Vector3 basisX = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(0));
-                            Vector3 basisY = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(1));
-                            Vector3 basisZ = RacetrackUtil.ToVector3(trackFromSubtree.GetRow(2));
+                            Vector3 basisX = RacetrackUtil.ToVector3(trackFromSubtree.GetColumn(0));
+                            Vector3 basisY = RacetrackUtil.ToVector3(trackFromSubtree.GetColumn(1));
+                            Vector3 basisZ = RacetrackUtil.ToVector3(trackFromSubtree.GetColumn(2));
 
                             // Align Y vector with global Y axis
                             basisY = Vector3.up * basisY.magnitude;
@@ -697,10 +784,49 @@ public class Racetrack : MonoBehaviour {
                 group.ZOffset = group.ZOffsetThisTemplate;
             }
 
+            isFirstTemplateInCurve = false;
+
             // Ensure Z offset is advanced at least to the next segment.
             // (Otherwise 0 length templates would cause an infinite loop)
             meshZOffset = Mathf.Max(meshZOffset, (segIndex + 1) * SegmentLength);
         }
+    }
+
+    private static RacetrackWidenRanges.Ranges GetWidenRangeMesh(RacetrackMeshTemplate template, RacetrackContinuous subtree, RacetrackContinuous subtreeCopy, Component mesh)
+    {
+        // Search upwards from mesh to subtree for RacetrackHorizontalExtRanges component
+        var rangeComponent = RacetrackUtil.FindEffectiveComponent<RacetrackWidenRanges>(mesh, subtreeCopy);
+        if (rangeComponent != null)
+        {
+            // Calculate range -> template transformation matrix.
+            // We actually want this for the original range, rather than the range we've found in the subtree copy.
+            // However we know that the range copy->subtree copy matrix is the same as the original range->subtree matrix.
+            Matrix4x4 subtreeCopyFromRange = RacetrackUtil.GetAncestorFromDescendentMatrix(subtreeCopy, rangeComponent);
+            Matrix4x4 templateFromSubtree = template.GetTemplateFromSubtreeMatrix(subtree);
+
+            // Apply transform to ranges
+            return rangeComponent.GetRanges().Transform(templateFromSubtree * subtreeCopyFromRange);
+        }
+
+        // Otherwise search from subtree to template
+        return GetWidenRangeSubtree(template, subtree);
+    }
+
+    private static RacetrackWidenRanges.Ranges GetWidenRangeSubtree(RacetrackMeshTemplate template, Component subtree)
+    {
+        // Search upwards from subtree to template for RacetrackHorizontalExtRanges component
+        var rangeComponent = RacetrackUtil.FindEffectiveComponent<RacetrackWidenRanges>(subtree, template);
+        if (rangeComponent != null)
+        {
+            // Calculate range to template transformation
+            Matrix4x4 templateFromRange = template.GetTemplateFromSubtreeMatrix(rangeComponent);
+
+            // Apply transform to ranges
+            return rangeComponent.GetRanges().Transform(templateFromRange);
+        }
+
+        // Default when no explicit RacetrackHorizontalExtRanges found
+        return RacetrackWidenRanges.Ranges.zero;
     }
 
     /// <summary>
@@ -708,29 +834,107 @@ public class Racetrack : MonoBehaviour {
     /// </summary>
     /// <param name="mesh">The mesh to warp. Vertex, normal and tangent arrays will be cloned and modified.</param>
     /// <param name="meshZOffset">The distance along all curves where mesh begins</param>
-    /// <param name="meshToTemplate">Transformation from mesh space to mesh template space</param>
-    /// <param name="worldToMesh">Transformation from world space to mesh space</param>
-    /// <returns>Length of mesh in template space</returns>
-    private float WarpMeshToCurves(Mesh mesh, float meshZOffset, Matrix4x4 meshToTemplate, Matrix4x4 worldToMesh)
+    /// <param name="templateFromMesh">Transformation from mesh space to mesh template space</param>
+    /// <param name="meshFromWorld">Transformation from world space to mesh space</param>
+    private void WarpMeshToCurves(
+        Mesh mesh, 
+        float meshZOffset, 
+        Matrix4x4 templateFromMesh, 
+        Matrix4x4 meshFromWorld,
+        RacetrackWidenRanges.Ranges horizontalExtRanges,
+        RacetrackUVGenerator[] uvGenerators = null,
+        bool removeStartInternalFaces = false, 
+        bool removeEndInternalFaces = false,
+        float internalFaceZThreshold = 0.0f)
     {
-        // Find length of mesh            
-        float meshMaxZ = mesh.vertices.Max(v => meshToTemplate.MultiplyPoint(v).z);
-        float meshMinZ = mesh.vertices.Min(v => meshToTemplate.MultiplyPoint(v).z);
-        float meshLength = meshMaxZ - meshMinZ;
+        // Find start Z of mesh
+        float meshMinZ = mesh.vertices.Min(v => templateFromMesh.MultiplyPoint(v).z); 
+        float meshMaxZ = mesh.vertices.Max(v => templateFromMesh.MultiplyPoint(v).z);
 
         // Lookup first segment
         int segIndex = Mathf.FloorToInt(meshZOffset / SegmentLength);
         Segment seg = Segments[segIndex];
 
+        // Remove internal faces if required
+        if (removeStartInternalFaces || removeEndInternalFaces)
+        {
+            var remover = new InternalFaceRemover(
+                mesh.vertices,
+                templateFromMesh,
+                removeStartInternalFaces,
+                removeEndInternalFaces,
+                meshMinZ + internalFaceZThreshold,
+                meshMaxZ - internalFaceZThreshold);
+
+            // Filter main triangles
+            //mesh.triangles = remover.Apply(mesh.triangles);
+
+            // Filter sub meshes
+            for (int i = 0; i < mesh.subMeshCount; i++)
+                mesh.SetTriangles(remover.Apply(mesh.GetTriangles(i)), i);
+        }
+
+        // Transform vertices into template space
+        var vertices = new Vector3[mesh.vertices.Length];
+        for (int i = 0; i < mesh.vertices.Length; i++)
+            vertices[i] = templateFromMesh.MultiplyPoint(mesh.vertices[i]);
+
+        // Determine which vertices to calculate UVs for.
+        Debug.Assert(mesh.vertices.Length == mesh.uv.Length || mesh.uv.Length == 0);
+        var uvIndices = new Dictionary<int, int>();
+        if (uvGenerators != null && mesh.uv != null && mesh.uv.Length > 0)
+        {
+            for (int gi = 0; gi < uvGenerators.Length; gi++)
+            {
+                var uvGenerator = uvGenerators[gi];
+                float cosMaxAngle = Mathf.Cos(uvGenerator.MaxAngle * Mathf.Deg2Rad);
+                var meshRenderer = uvGenerator.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                {
+                    // For each material in the UV generator, find the corresponding material 
+                    // in the mesh renderer. The index of the material is the index of the corresponding
+                    // submesh.
+                    int[] submeshes = uvGenerator.Materials.Select(m => RacetrackUtil.FindIndex(meshRenderer.sharedMaterials, m))
+                                                              .Where(i => i >= 0)
+                                                              .Distinct()
+                                                              .ToArray();
+                    foreach (var submesh in submeshes)
+                    {
+                        // Iterate submesh triangles
+                        int[] triangles = mesh.GetTriangles(submesh);
+                        for (int i = 0; i < triangles.Length - 2; i += 3)
+                        {
+                            // Find triangle vertices in template space
+                            Vector3 v1 = vertices[triangles[i]];
+                            Vector3 v2 = vertices[triangles[i + 1]];
+                            Vector3 v3 = vertices[triangles[i + 2]];
+
+                            // Calculate triangle surface normal
+                            // Check if it is within "MaxAngle" of up vector
+                            Vector3 normal = Vector3.Cross(v2 - v1, v3 - v1).normalized;
+                            if ((uvGenerator.Side == RacetrackUVGenerationSide.Top    || uvGenerator.Side == RacetrackUVGenerationSide.TopAndBottom) &&  normal.y >= cosMaxAngle
+                             || (uvGenerator.Side == RacetrackUVGenerationSide.Bottom || uvGenerator.Side == RacetrackUVGenerationSide.TopAndBottom) && -normal.y >= cosMaxAngle)
+                            {
+                                // Add vertex indices to dictionary. Value is index of generator.
+                                uvIndices[triangles[i]] = gi;
+                                uvIndices[triangles[i + 1]] = gi;
+                                uvIndices[triangles[i + 2]] = gi;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Warp vertices around road curve
         Debug.Assert(mesh.vertices.Length == mesh.normals.Length);
         Debug.Assert(mesh.vertices.Length == mesh.tangents.Length);
-        var vertices = new Vector3[mesh.vertices.Length];
         var normals = new Vector3[mesh.normals.Length];
+        var uv = uvIndices.Any() ? new Vector2[mesh.uv.Length] : null;                      // Replace UVs only if any need to be generated
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
-            Vector3 v = meshToTemplate.MultiplyPoint(mesh.vertices[i]);
-            Vector3 n = meshToTemplate.MultiplyVector(mesh.normals[i]);
+            Vector3 v = vertices[i];
+            Vector3 n = templateFromMesh.MultiplyVector(mesh.normals[i]);
 
             // z determines index in meshSegments array
             float z = v.z - meshMinZ + meshZOffset;                                         // Total Z along all curves
@@ -738,28 +942,61 @@ public class Racetrack : MonoBehaviour {
             var vertSeg = GetSegment(vertSegIndex);
 
             // Calculate warped position
-            Vector3 segPos = new Vector3(v.x, v.y, z - vertSegIndex * SegmentLength);       // Position in segment space
+            float segZ = z - vertSegIndex * SegmentLength;                                  // Z position relative to segment
+            Vector3 segPos = new Vector3(v.x, v.y, segZ);                                   // Position in segment space
+
+            // Apply widening
+            var segExtension = vertSeg.GetWidening(segZ);
+            segPos.x = horizontalExtRanges.Apply(segPos.x, segExtension);
+
+            // Generate UVs based on segment position after widening applied
+            if (uv != null)
+            {
+                // Check if vertex UV is generated, and lookup corresponding UV generator
+                int gi;
+                if (uvIndices.TryGetValue(i, out gi))
+                {
+                    // Calculate UV based on segment position
+                    var uvgenerator = uvGenerators[gi];
+                    Vector2 t = new Vector2(segPos.x, z);
+
+                    // Apply rotation   
+                    if (uvgenerator.Rotation != 0.0f)
+                    {
+                        float rad = uvgenerator.Rotation * Mathf.Deg2Rad;
+                        float sin = Mathf.Sin(rad);
+                        float cos = Mathf.Cos(rad);
+                        t = new Vector2(t.y * sin + t.x * cos, t.y * cos - t.x * sin);
+                    }
+
+                    // Apply scaling and offset
+                    uv[i] = t / uvgenerator.Scale + uvgenerator.Offset;
+                }
+                else
+                    uv[i] = mesh.uv[i];
+            }
+
             Matrix4x4 segToTrack = vertSeg.GetSegmentToTrack(segPos.z);
             Vector3 trackPos = segToTrack.MultiplyPoint(segPos);                            // => Track space
             Vector3 worldPos = transform.TransformPoint(trackPos);                          // => World space
-            vertices[i] = worldToMesh.MultiplyPoint(worldPos);                              // => Mesh space
+            vertices[i] = meshFromWorld.MultiplyPoint(worldPos);                            // => Mesh space
 
             // Warp normal
             Vector3 segNorm = n;                                                            // Normal in segment space
             Vector3 trackNorm = segToTrack.MultiplyVector(segNorm);                         // => Track space
             Vector3 worldNorm = transform.TransformVector(trackNorm);                       // => World space
-            normals[i] = worldToMesh.MultiplyVector(worldNorm).normalized;                  // => Mesh space
+            normals[i] = meshFromWorld.MultiplyVector(worldNorm).normalized;                // => Mesh space
         }
 
         // Replace mesh vertices and normals
         mesh.vertices = vertices;
         mesh.normals = normals;
+        if (uv != null)
+            mesh.uv = uv;
 
         // Recalculate tangents and bounds
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
-
-        return meshLength;
     }
 
     /// <summary>
@@ -821,9 +1058,11 @@ public class Racetrack : MonoBehaviour {
         Vector3 pos = Vector3.zero;
         Vector3 dir = Vector3.zero;
         Vector3 segPosDelta = Vector3.zero;
+        RacetrackWidening widening = RacetrackWidening.zero;
 
         Vector3 dirDelta = Vector3.zero;
         Vector3 posDelta = Vector3.forward * SegmentLength;
+        RacetrackWidening extensionDelta = RacetrackWidening.zero;
         for (int i = 0; i < curves.Count; i++)
         {
             var curve = curves[i];
@@ -851,6 +1090,7 @@ public class Racetrack : MonoBehaviour {
                             curve.Angles.y,
                             0
                         ) / curve.Length * SegmentLength;
+                        extensionDelta = (curve.Widening - widening) / curve.Length * SegmentLength;
 
                         // Generate segments
                         for (float d = 0.0f; d < curve.Length; d += SegmentLength)
@@ -864,6 +1104,8 @@ public class Racetrack : MonoBehaviour {
                                 PositionDelta = segPosDelta,
                                 Direction = dir,
                                 DirectionDelta = dirDelta,
+                                Widening = widening,
+                                WideningDelta = extensionDelta,
                                 Length = SegmentLength,
                                 Curve = curve
                             };
@@ -872,6 +1114,7 @@ public class Racetrack : MonoBehaviour {
                             // Advance to start of next segment
                             pos += segPosDelta;
                             dir += dirDelta;
+                            widening += extensionDelta;
                         }
                     }
 
@@ -905,6 +1148,8 @@ public class Racetrack : MonoBehaviour {
                         hostServices.ObjectChanging(curve);
                         curve.Length = lookup.Count * SegmentLength;
 
+                        extensionDelta = (curve.Widening - widening) / curve.Length * SegmentLength;
+
                         // Generate curve segments along bezier
                         foreach (var t in lookup)
                         {
@@ -924,11 +1169,16 @@ public class Racetrack : MonoBehaviour {
                                 Position = pos,
                                 PositionDelta = segPosDelta,
                                 Direction = dir,
-                                DirectionDelta = Vector3.zero,  // TODO!
+                                DirectionDelta = Vector3.zero,  // Note: This is calculated by the calling code in a separate pass
+                                Widening = widening,
+                                WideningDelta = extensionDelta,
                                 Length = SegmentLength,
                                 Curve = curve
                             };
                             yield return segment;
+
+                            // Advance to start of next segment
+                            widening += extensionDelta;
                         }
 
                         // Update dir to end-of-curve direction.
@@ -947,6 +1197,8 @@ public class Racetrack : MonoBehaviour {
             PositionDelta = segPosDelta,
             Direction = dir,
             DirectionDelta = dirDelta,
+            Widening = widening,
+            WideningDelta = extensionDelta,
             Length = SegmentLength,
             Curve = curves.LastOrDefault()
         };
@@ -1006,6 +1258,8 @@ public class Racetrack : MonoBehaviour {
                     PositionDelta = lastSeg.PositionDelta,
                     Direction = lastSeg.Direction,
                     DirectionDelta = Vector3.zero,
+                    Widening = lastSeg.Widening,
+                    WideningDelta = RacetrackWidening.zero,
                     Length = lastSeg.Length,
                     Curve = lastSeg.Curve
                 };
@@ -1020,6 +1274,8 @@ public class Racetrack : MonoBehaviour {
                     PositionDelta = loopedSeg.PositionDelta,
                     Direction = loopedSeg.Direction,
                     DirectionDelta = loopedSeg.DirectionDelta,
+                    Widening = loopedSeg.Widening,
+                    WideningDelta = loopedSeg.WideningDelta,
                     Length = loopedSeg.Length,
                     Curve = Segments.Last().Curve
                 };
@@ -1183,11 +1439,13 @@ public class Racetrack : MonoBehaviour {
     public class Segment
     {
         public Vector3 Position;
-        public Vector3 PositionDelta;       // Added to position to get next segment's position
-        public Vector3 Direction;           // Direction as Euler angles
-        public Vector3 DirectionDelta;      // Added to Direction to get next segment's direction (and used to lerp between them)
-        public float Length;                // Copy of Racetrack.SegmentLength for convenience
-        public RacetrackCurve Curve;        // Curve to which segment belongs
+        public Vector3 PositionDelta;               // Added to position to get next segment's position
+        public Vector3 Direction;                   // Direction as Euler angles
+        public Vector3 DirectionDelta;              // Added to Direction to get next segment's direction (and used to lerp between them)
+        public RacetrackWidening Widening;          // Left/right side widening amount
+        public RacetrackWidening WideningDelta;     // Added to Widening to get next segment's widening (and used to lerp between them)
+        public float Length;                        // Copy of Racetrack.SegmentLength for convenience
+        public RacetrackCurve Curve;                // Curve to which segment belongs
 
         /// <summary>
         /// Get matrix converting from segment space to racetrack space
@@ -1200,6 +1458,12 @@ public class Racetrack : MonoBehaviour {
             float adjZDir = Direction.z + DirectionDelta.z * f;                                 // Adjust Z axis rotation based on distance down segment
             Vector3 adjDir = new Vector3(Direction.x, Direction.y, adjZDir);
             return Matrix4x4.Translate(Position) * Matrix4x4.Rotate(Quaternion.Euler(adjDir));
+        }
+
+        public RacetrackWidening GetWidening(float segZ = 0.0f)
+        {
+            float f = segZ / Length;                                                            // Fractional distance along segment
+            return Widening + WideningDelta * f;
         }
     }
 
@@ -1262,6 +1526,82 @@ public class Racetrack : MonoBehaviour {
                 SpacingGroups[i] = new SpacingGroupBaseState();
         }
     }
+
+    /// <summary>
+    /// Helper object to remove internal faces between consecutive mesh templates of the same type
+    /// </summary>
+    private class InternalFaceRemover
+    {
+        // Parameters
+        private readonly Vector3[] vertices;
+        private readonly Matrix4x4 transform;
+        private readonly bool removeStartFaces;
+        private readonly bool removeEndFaces;
+        private readonly float startZCutoff;
+        private readonly float endZCutoff;
+
+        // Working
+        private readonly Vector3[] triVerts = new Vector3[3];
+
+        /// <summary>
+        /// Create a face remover fro the given mesh instance
+        /// </summary>
+        /// <param name="vertices">Mesh vertices</param>
+        /// <param name="transform">Transformation to apply to vertices (in order to calculate effective Z coordinate)</param>
+        /// <param name="removeStartFaces">Whether to remove faces from the start of the mesh</param>
+        /// <param name="removeEndFaces">Whether to remove faces from the end of the mesh</param>
+        /// <param name="startZCutoff">A face is considered an internal start face if all vertex Z coordinates are before this value</param>
+        /// <param name="endZCutoff">A face is considered an internal end face if all vertex Z coordinates are after this value</param>
+        public InternalFaceRemover(Vector3[] vertices, Matrix4x4 transform, bool removeStartFaces, bool removeEndFaces, float startZCutoff, float endZCutoff)
+        {
+            this.vertices = vertices;
+            this.transform = transform;
+            this.removeStartFaces = removeStartFaces;
+            this.removeEndFaces = removeEndFaces;
+            this.startZCutoff = startZCutoff;
+            this.endZCutoff = endZCutoff;
+        }
+
+        public int[] Apply(int[] triangles)
+        {
+            // Build array of filtered triangles
+            var filteredTriangles = new int[triangles.Length];
+            int count = 0;
+            for (int current = 0; current < triangles.Length; current += 3)
+            {
+                // Find triangle vertices
+                triVerts[0] = transform.MultiplyPoint(vertices[triangles[current]]);
+                triVerts[1] = transform.MultiplyPoint(vertices[triangles[current + 1]]);
+                triVerts[2] = transform.MultiplyPoint(vertices[triangles[current + 2]]);
+
+                // Determine whether to remove triangle
+                bool remove = false;
+                if (removeStartFaces)
+                    remove = remove || triVerts.All(v => v.z <= startZCutoff);      // Remove if close to start
+                if (removeEndFaces)
+                    remove = remove || triVerts.All(v => v.z >= endZCutoff);        // Remove if close to end
+
+                // Copy triangle if not removed
+                if (!remove)
+                {
+                    filteredTriangles[count] = triangles[current];
+                    filteredTriangles[count + 1] = triangles[current + 1];
+                    filteredTriangles[count + 2] = triangles[current + 2];
+                    count += 3;
+                }
+            }
+
+            // Return filtered array if any removed
+            if (count != triangles.Length)
+            {
+                Array.Resize(ref filteredTriangles, count);     // Truncate array to length
+                return filteredTriangles;
+            }
+
+            // Otherwise return original array
+            return triangles;
+        }
+    }
 }
 
 /// <summary>
@@ -1308,35 +1648,12 @@ public interface IRacetrackHostServices
     /// Set transformation's parent
     /// </summary>
     void SetTransformParent(Transform transform, Transform parent);
-}
 
-/// <summary>
-/// Default runtime implementation (no Undo tracking etc)
-/// </summary>
-public sealed class RuntimeRacetrackHostServices : IRacetrackHostServices
-{
-    public static readonly RuntimeRacetrackHostServices Instance = new RuntimeRacetrackHostServices();
-
-    private RuntimeRacetrackHostServices() { }
-
-    public void DestroyObject(UnityEngine.Object o)
-    {
-        if (Application.isEditor)
-            UnityEngine.Object.DestroyImmediate(o);
-        else
-            UnityEngine.Object.Destroy(o);
-    }
-
-    public void ObjectChanging(UnityEngine.Object o)
-    {
-    }
-
-    public void ObjectCreated(UnityEngine.Object o)
-    {
-    }
-
-    public void SetTransformParent(Transform transform, Transform parent)
-    {
-        transform.parent = parent;
-    }
+    /// <summary>
+    /// Generate secondary UV set.
+    /// In editor this should call Unwrapping.GenerateSecondaryUVSet(mesh).
+    /// Runtime implementation can simply do nothing.
+    /// </summary>
+    /// <param name="mesh">Mesh to update</param>
+    void GenerateSecondaryUVSet(Mesh mesh);
 }

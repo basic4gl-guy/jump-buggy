@@ -6,20 +6,15 @@
 /// </summary>
 public class RacetrackSpaced : MonoBehaviour
 {
-    /// <summary>
-    /// Force vertical. (Align Y axis with world space Y.)
-    /// </summary>
+    [Tooltip("Force vertical. (Align Y axis with world space Y.)")]
     public bool IsVertical = false;
 
-    /// <summary>
-    /// Maximum bank angle (positive or negative).
-    /// Subtree will not be cloned if track exceeds this angle.
-    /// </summary>
+    [Tooltip("Maximum bank angle (positive or negative). Subtree will not be cloned if track exceeds this angle.")]
     public float MaxZAngle = 90.0f;
 
-    /// <summary>
-    /// Maximum pitch angle (positive or negative).
-    /// Subtree will not be cloned if track exceeds this angle.
-    /// </summary>
+    [Tooltip("Maximum pitch angle (positive or negative). Subtree will not be cloned if track exceeds this angle.")]
     public float MaxXAngle = 90.0f;
+
+    [Tooltip("Should this object be moved horizontally when the track is widened")]
+    public bool ApplyWidening = false;
 }

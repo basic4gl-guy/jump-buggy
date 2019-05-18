@@ -1723,6 +1723,11 @@ PrefabInstance:
       propertyPath: PreferredSpeed.Range
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 9110295666096315820, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 68562132611164726, guid: 87209c428a5c97a4eb9bcbf879faa6cf,
         type: 3}
       propertyPath: Car

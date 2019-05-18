@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +18,19 @@ public class RacetrackMeshTemplate : MonoBehaviour
     public IEnumerable<T> FindSubtrees<T>() where T: MonoBehaviour
     {
         return FindSubtrees<T>(gameObject);
+    }
+
+    /// <summary>
+    /// Get template space from subtree space transformation matrix
+    /// </summary>
+    /// <param name="subtree">Component in the subtree object</param>
+    /// <returns>Corresponding transformation matrix</returns>
+    public Matrix4x4 GetTemplateFromSubtreeMatrix(Component subtree)
+    {
+        // Note: Rotation and transformation of this object is effectively cancelled out.
+        // However we multiply back in the scale factor, as this allows mesh templates to
+        // be scaled easily which is useful.
+        return Matrix4x4.Scale(transform.lossyScale) * RacetrackUtil.GetAncestorFromDescendentMatrix(this, subtree);
     }
 
     /// <summary>

@@ -154,6 +154,7 @@ MonoBehaviour:
   IsVertical: 0
   MaxZAngle: 90
   MaxXAngle: 90
+  ApplyWidening: 0
 --- !u!1 &4291160173259570249
 GameObject:
   m_ObjectHideFlags: 0
@@ -328,6 +329,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3589971663313169479, guid: 4d9eafeaf89ce2f4daa5872a1841d39a,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: d7fe0b04ebfe43944acc88c23798757c, type: 3}
+    - target: {fileID: 6433012570514028735, guid: 4d9eafeaf89ce2f4daa5872a1841d39a,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: bf1556f658afb8344a3b13f8ed3164c6, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4d9eafeaf89ce2f4daa5872a1841d39a, type: 3}
 --- !u!1001 &5704600335898218545

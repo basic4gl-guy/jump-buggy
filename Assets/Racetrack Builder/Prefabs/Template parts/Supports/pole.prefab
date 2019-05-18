@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &4566488529787315973
 Transform:
@@ -110,7 +110,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &1199618281942280691
 Transform:
@@ -134,11 +134,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1199618281942280691}
     m_Modifications:
-    - target: {fileID: 7019501765480475127, guid: c1cd4a199eb7ea5478f1d3d2a0a00951,
-        type: 3}
-      propertyPath: m_Name
-      value: pole mesh
-      objectReference: {fileID: 0}
     - target: {fileID: 9198138927190500092, guid: c1cd4a199eb7ea5478f1d3d2a0a00951,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -193,6 +188,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019501765480475127, guid: c1cd4a199eb7ea5478f1d3d2a0a00951,
+        type: 3}
+      propertyPath: m_Name
+      value: pole mesh
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019501765480475127, guid: c1cd4a199eb7ea5478f1d3d2a0a00951,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c1cd4a199eb7ea5478f1d3d2a0a00951, type: 3}

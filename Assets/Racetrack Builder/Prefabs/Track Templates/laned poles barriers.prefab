@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4742459526882756913
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3565860757650411053, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_Name
+      value: laned poles barriers
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6617796693674223686, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5810753245929741898, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_Name
+      value: asphalt painted
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197473622910721383, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 926308729f4b40e428d040cebf1eeb8a, type: 2}
+    - target: {fileID: 3016782055884639674, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: Scale.x
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016782055884639674, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: Scale.y
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016782055884639674, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: Offset.x
+      value: -0.015
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016782055884639674, guid: 95a1c9f0062c3f441ae86cee8ebbd13c,
+        type: 3}
+      propertyPath: Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 926308729f4b40e428d040cebf1eeb8a, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 95a1c9f0062c3f441ae86cee8ebbd13c, type: 3}

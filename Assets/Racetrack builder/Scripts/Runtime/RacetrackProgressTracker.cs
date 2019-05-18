@@ -52,6 +52,7 @@ public class RacetrackProgressTracker : MonoBehaviour
             // Ray cast from center of car in opposite direction to curve
             var ray = new Ray(carBody.transform.TransformPoint(RayOffset), -road.CurveInfos[curveIndex].Normal);
             var hit = Physics.RaycastAll(ray)
+                .OrderBy(h => h.distance)
                 .Select(h => h.transform.GetComponent<RacetrackSurface>())
                 .FirstOrDefault(c => c != null);
             if (hit != null)

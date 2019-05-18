@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6433012570514028735}
   - component: {fileID: 5648609339562545368}
   - component: {fileID: 3589971663313169479}
+  - component: {fileID: 3584863530439983109}
   m_Layer: 0
   m_Name: asphalt
   m_TagString: Untagged
@@ -93,3 +94,21 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300000, guid: 147b361de3926a148809a24883092260, type: 3}
+--- !u!114 &3584863530439983109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5242696165684745205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2396622943001c345b3386658d8f04d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Materials:
+  - {fileID: 2100000, guid: 1c8d1f7ea236e6f4197a1f9c63519fb7, type: 2}
+  Side: 2
+  MaxAngle: 30
+  Scale: {x: 15, y: 15}
+  Offset: {x: 0, y: 0}

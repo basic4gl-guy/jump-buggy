@@ -38,6 +38,8 @@ public class RacetrackCurve : MonoBehaviour {
     [RacetrackCurveAngles]
     public Vector3 Angles = new Vector3();
 
+    public RacetrackWidening Widening;
+
     [Header("Flags")]
 
     /// <summary>
@@ -62,6 +64,10 @@ public class RacetrackCurve : MonoBehaviour {
     [Header("Meshes")]
     [Tooltip("The template object supplying the meshes to warp to the racetrack curves. If null, will use the previous curve's template.")]
     public RacetrackMeshTemplate Template;
+
+    [Header("Remove internal faces")]
+    public RemoveInternalFacesOption RemoveStartInternalFaces;
+    public RemoveInternalFacesOption RemoveEndInternalFaces;
 
     /// <summary>
     /// The index of this curve within the Racetrack sequence
@@ -90,4 +96,11 @@ public enum RacetrackCurveType
 {
     Arc,            // Circle arc curve, defined by angle and length
     Bezier          // Bezier curve, defined by end point, angles and control points
+}
+
+public enum RemoveInternalFacesOption
+{
+    Auto,
+    Yes,
+    No
 }
