@@ -1,15 +1,14 @@
 fileFormatVersion: 2
-guid: 109487ba6de818c42a20248311555e9b
+guid: 47a392a70efd6534cb085e8ed3d7eee3
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: WishboneMat
+    2100000: BlockMat
     2300000: //RootNode
     3300000: //RootNode
-    4300000: RightUpperWishbone.010
-    4300002: RightLowerWishbone.001
+    4300000: SteeringRodRight.001
   externalObjects: {}
   materials:
     importMaterials: 1

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 109487ba6de818c42a20248311555e9b
+guid: 63533421e6e72b944ada135fc98d36e9
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
@@ -8,8 +8,8 @@ ModelImporter:
     2100000: WishboneMat
     2300000: //RootNode
     3300000: //RootNode
-    4300000: RightUpperWishbone.010
-    4300002: RightLowerWishbone.001
+    4300000: CoilOverLower.002
+    2186277476908879412: ImportLogs
   externalObjects: {}
   materials:
     importMaterials: 1
