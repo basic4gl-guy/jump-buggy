@@ -55,7 +55,7 @@ sysinfo.txt
 *.unitypackage
 
 # Racetrack builder stuff
-Documentation/
+Documentation/Racetrack/
 Assets/Racetrack Builder/Scripts/Runtime/Editor/
 Assets/Racetrack Builder/Scripts/Track/Editor/
 Assets/Racetrack Builder/Textures/EditorAssets/
