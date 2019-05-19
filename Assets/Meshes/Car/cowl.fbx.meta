@@ -10,6 +10,7 @@ ModelImporter:
     3300000: //RootNode
     4300000: Export_Cowl
     4300002: CowlMid.001
+    4300004: CowlMid.002
   externalObjects:
   - first:
       type: UnityEngine:Material
