@@ -57,5 +57,6 @@ sysinfo.txt
 # Racetrack builder stuff
 Documentation/Racetrack/
 Assets/Racetrack Builder/Scripts/Runtime/Editor/
+Assets/Racetrack Builder/Scripts/Template/Editor/
 Assets/Racetrack Builder/Scripts/Track/Editor/
 Assets/Racetrack Builder/Textures/EditorAssets/
