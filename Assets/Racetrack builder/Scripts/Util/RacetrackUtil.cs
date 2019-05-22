@@ -19,12 +19,12 @@ public static class RacetrackUtil {
         return angle;
     }
 
-    public static Vector3 ToVector3(Vector4 v)
+    public static Vector3 ToVector3(this Vector4 v)
     {
         return new Vector3(v.x, v.y, v.z);
     }
 
-    public static Vector4 ToVector4(Vector3 v, float w = 0.0f)
+    public static Vector4 ToVector4(this Vector3 v, float w = 0.0f)
     {
         return new Vector4(v.x, v.y, v.z, w);
     }
