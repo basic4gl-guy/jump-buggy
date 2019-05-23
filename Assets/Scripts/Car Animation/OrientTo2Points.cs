@@ -18,8 +18,9 @@ public class OrientTo2Points : MonoBehaviour
     [Tooltip("Point outside this object's subtree to align 'Reference Pt 2' to")]
     public Transform TargetPt2;
 
-    [Tooltip("Whether to stretch this object so that 'Reference Pt 2' aligns with 'Target Pt 2'.\nOtherwise 'Reference Pt 1' will be aligned to 'Target Pt 1' and the object oriented so that 'Reference Pt 2' lies on the line to 'Target Pt 2', but no stretching will be done")]
-    public bool CanStretch;
+    public OrientType Orient;
+
+    public OtherAxisType PrimaryOtherAxis = OtherAxisType.Y;
 
     private Matrix4x4 refToPoint;
     private Matrix4x4 originalLocalTransform;
@@ -39,7 +40,7 @@ public class OrientTo2Points : MonoBehaviour
 
         // Define "point space" such that point 1 is the origin (0,0,0) and point 2 is at (0,0,1)
         // Calculate reference space to point space matrix
-        Matrix4x4 pointToRef = ComputePointToLocal(r1Local, r2Local, false);
+        Matrix4x4 pointToRef = ComputePointToLocal(r1Local, r2Local, OrientType.AnchorPt1);
         refToPoint = pointToRef.inverse;
     }
 
@@ -53,7 +54,7 @@ public class OrientTo2Points : MonoBehaviour
 
         // Define "point space" such that point 1 is the origin (0,0,0) and point 2 is at (0,0,1)
         // Calculate point space to target space matrix
-        Matrix4x4 pointToTarget = ComputePointToLocal(t1Local, t2Local, CanStretch);
+        Matrix4x4 pointToTarget = ComputePointToLocal(t1Local, t2Local, Orient);
 
         // Transform from reference space into point space, then from point space into target space
         Matrix4x4 T = pointToTarget * refToPoint;
@@ -62,23 +63,50 @@ public class OrientTo2Points : MonoBehaviour
         SetTransformFromMatrix(transform, T * originalLocalTransform);
     }
 
-    private Matrix4x4 ComputePointToLocal(Vector3 p1, Vector3 p2, bool stretch)
+    private Matrix4x4 ComputePointToLocal(Vector3 p1, Vector3 p2, OrientType orient)
     {
         // Calculate basis vectors
+        // Origin is p1.
         // Z vector is from p1 to p2.
         // Use cross product to get remaining vectors
+        Vector3 o = p1;
         Vector3 z = p2 - p1;
-        if (!stretch)
+
+        // Adjust origin and z vector based on orientation type
+        if (orient != OrientType.Stretch)
+        {
+            float targetDistance = z.magnitude;
             z = z.normalized * refDistance;
-        Vector3 x = Vector3.Cross(Vector3.up, z).normalized * refDistance;
-        Vector3 y = Vector3.Cross(z, x).normalized * refDistance;
+            switch (orient)
+            {
+                case OrientType.AnchorPt2:
+                    o = p2 - z;
+                    break;
+                case OrientType.Center:
+                    o = p1 + z.normalized * (targetDistance - refDistance) * 0.5f;
+                    break;
+            }
+        }
+
+        Vector3 x;
+        Vector3 y;
+        if (PrimaryOtherAxis == OtherAxisType.Y)
+        {
+            x = Vector3.Cross(Vector3.up, z).normalized * refDistance;
+            y = Vector3.Cross(z, x).normalized * refDistance;
+        }
+        else
+        {
+            y = Vector3.Cross(z, Vector3.right).normalized * refDistance;
+            x = Vector3.Cross(y, z).normalized * refDistance;
+        }
 
         // Build matrix
         Matrix4x4 M = new Matrix4x4();
         M.SetColumn(0, x.ToVector4());
         M.SetColumn(1, y.ToVector4());
         M.SetColumn(2, z.ToVector4());
-        M.SetColumn(3, p1.ToVector4(1.0f));
+        M.SetColumn(3, o.ToVector4(1.0f));
 
         return M;
     }
@@ -95,5 +123,19 @@ public class OrientTo2Points : MonoBehaviour
         t.localPosition = p;
         t.localRotation = Quaternion.LookRotation(z, y);
         t.localScale = new Vector3(x.magnitude, y.magnitude, z.magnitude);
+    }
+
+    public enum OrientType
+    {
+        AnchorPt1,
+        AnchorPt2,
+        Stretch,
+        Center
+    }
+
+    public enum OtherAxisType
+    {
+        X,
+        Y
     }
 }
