@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RearWheelAnimator : MonoBehaviour
 {
@@ -9,8 +7,6 @@ public class RearWheelAnimator : MonoBehaviour
     public Transform ReferenceRightWheel;
 
     [Header("Animated pieces")]
-    public Transform Differential;
-    public Transform DriveShaft;
     public Transform LeftWheel;
     public Transform RightWheel;
 
@@ -29,10 +25,8 @@ public class RearWheelAnimator : MonoBehaviour
         isConfigured = 
             ReferenceLeftWheel != null &&
             ReferenceRightWheel != null &&
-            Differential != null &&
             LeftWheel != null &&
-            RightWheel != null &&
-            DriveShaft != null;
+            RightWheel != null;
         if (!isConfigured)
             Debug.LogError("RearWheelAnimator is not fully configured");
     }
@@ -65,16 +59,5 @@ public class RearWheelAnimator : MonoBehaviour
         // Rotate wheels
         LeftWheel.rotation = ReferenceLeftWheel.rotation;
         RightWheel.rotation = ReferenceRightWheel.rotation;
-
-        // Position differential between wheels
-        Differential.position = (LeftWheel.position + RightWheel.position) / 2.0f;
-
-        // Link drive shaft to differential
-        Vector3 delta = Differential.localPosition - DriveShaft.localPosition;
-        float ang = Mathf.Atan(delta.y / delta.z);
-        float angDeg = ang * Mathf.Rad2Deg;
-
-        Vector3 driveAngles = DriveShaft.localRotation.eulerAngles;
-        DriveShaft.localRotation = Quaternion.Euler(angDeg, driveAngles.y, driveAngles.z);
     }
 }
