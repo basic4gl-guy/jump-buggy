@@ -844,10 +844,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 4526842978731716146}
   ReferencePt2: {fileID: 8316598235608889769}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 3001009997821231080}
   TargetPt2: {fileID: 3056993176045636681}
   Orient: 2
-  PrimaryOtherAxis: 1
 --- !u!1 &863835735665072208
 GameObject:
   m_ObjectHideFlags: 0
@@ -1254,6 +1254,36 @@ Transform:
   m_Father: {fileID: 4535262674351492853}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1413118091102495855
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4557941854943095652}
+  m_Layer: 0
+  m_Name: RightSteeringRodEndPt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4557941854943095652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1413118091102495855}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.041, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4027949730228562570}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1705677710667867189
 GameObject:
   m_ObjectHideFlags: 0
@@ -1373,6 +1403,36 @@ Transform:
   - {fileID: 6221505506909605550}
   m_Father: {fileID: 6886189448818535924}
   m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1960648015289403703
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7841567472212261585}
+  m_Layer: 0
+  m_Name: LeftSteeringRodEndPt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7841567472212261585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1960648015289403703}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.041, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4640305190242588492}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1995409704179471503
 GameObject:
@@ -2568,10 +2628,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 5637976689925268837}
   ReferencePt2: {fileID: 6559947049162453550}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 7804071381989765270}
   TargetPt2: {fileID: 6221505506909605550}
   Orient: 0
-  PrimaryOtherAxis: 1
 --- !u!1 &3795521924512497752
 GameObject:
   m_ObjectHideFlags: 0
@@ -2613,7 +2673,7 @@ GameObject:
   - component: {fileID: 4027949730228562570}
   - component: {fileID: 4027949730227235498}
   - component: {fileID: 4027949730226137194}
-  - component: {fileID: 6752944347805674175}
+  - component: {fileID: 446450764691341709}
   m_Layer: 0
   m_Name: RightSteeringRod
   m_TagString: Untagged
@@ -2631,7 +2691,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.000049996375, y: -0.04425, z: -0.0002999991}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 4557941854943095652}
   m_Father: {fileID: 2697845330973810835}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: -90.00001, y: 90, z: 0}
@@ -2680,7 +2741,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &6752944347805674175
+--- !u!114 &446450764691341709
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2689,15 +2750,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 4027949730228139690}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbfde6ed3bf6d3346b7d8b595b1beae7, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a44e169cc08e96438e8fe2266543145, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ReferencePt1: {fileID: 4640305190242588492}
-  ReferencePt2: {fileID: 4027949730228562570}
-  TargetPt1: {fileID: 1698067390937020393}
-  TargetPt2: {fileID: 2558374584232016289}
-  Orient: 1
+  ReferencePt1: {fileID: 4027949730228562570}
+  ReferencePt2: {fileID: 4557941854943095652}
   PrimaryOtherAxis: 0
+  TargetPt: {fileID: 2558374584232016289}
+  LineCenterPt: {fileID: 6832404179846380438}
+  LineOtherPt: {fileID: 6519826359312686870}
 --- !u!1 &4155337878693620840
 GameObject:
   m_ObjectHideFlags: 0
@@ -2876,7 +2937,7 @@ GameObject:
   - component: {fileID: 4640305190242588492}
   - component: {fileID: 4640305190245488492}
   - component: {fileID: 4640305190244357548}
-  - component: {fileID: 8177404998655158455}
+  - component: {fileID: 579131039201484874}
   m_Layer: 0
   m_Name: LeftSteeringRod
   m_TagString: Untagged
@@ -2894,7 +2955,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -1, w: 0}
   m_LocalPosition: {x: 0.000049996375, y: 0.0442, z: -0.0002999991}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 7841567472212261585}
   m_Father: {fileID: 2697845330973810835}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -90.00001, y: -90, z: 0}
@@ -2943,7 +3005,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &8177404998655158455
+--- !u!114 &579131039201484874
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2952,15 +3014,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 4640305190242093932}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbfde6ed3bf6d3346b7d8b595b1beae7, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a44e169cc08e96438e8fe2266543145, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 4640305190242588492}
-  ReferencePt2: {fileID: 4027949730228562570}
-  TargetPt1: {fileID: 1698067390937020393}
-  TargetPt2: {fileID: 2558374584232016289}
-  Orient: 0
+  ReferencePt2: {fileID: 7841567472212261585}
   PrimaryOtherAxis: 0
+  TargetPt: {fileID: 1698067390937020393}
+  LineCenterPt: {fileID: 6832404179846380438}
+  LineOtherPt: {fileID: 6519826359312686870}
 --- !u!1 &4653763853929813479
 GameObject:
   m_ObjectHideFlags: 0
@@ -3130,10 +3192,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 5637976689925268837}
   ReferencePt2: {fileID: 6559947049162453550}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 7804071381989765270}
   TargetPt2: {fileID: 6221505506909605550}
   Orient: 2
-  PrimaryOtherAxis: 1
 --- !u!1 &5121154000027648023
 GameObject:
   m_ObjectHideFlags: 0
@@ -3581,6 +3643,36 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &5960375163753252913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6519826359312686870}
+  m_Layer: 0
+  m_Name: SteeringRackAxisRefPt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6519826359312686870
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5960375163753252913}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.01, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 6832404179846380438}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5998879214289827643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3780,10 +3872,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 4526842978731716146}
   ReferencePt2: {fileID: 8316598235608889769}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 3001009997821231080}
   TargetPt2: {fileID: 3056993176045636681}
   Orient: 1
-  PrimaryOtherAxis: 1
 --- !u!1 &6658432461354834259
 GameObject:
   m_ObjectHideFlags: 0
@@ -3890,7 +3982,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 6519826359312686870}
   m_Father: {fileID: 2697845330973810835}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90.00001, y: 90, z: 0}
@@ -3946,17 +4039,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6832404179846473654}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbfde6ed3bf6d3346b7d8b595b1beae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 4640305190242588492}
   ReferencePt2: {fileID: 4027949730228562570}
+  PrimaryOtherAxis: 0
   TargetPt1: {fileID: 1698067390937020393}
   TargetPt2: {fileID: 2558374584232016289}
   Orient: 3
-  PrimaryOtherAxis: 0
 --- !u!1 &6832763153646044131
 GameObject:
   m_ObjectHideFlags: 0
@@ -4138,10 +4231,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 4526842978731716146}
   ReferencePt2: {fileID: 8316598235608889769}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 3001009997821231080}
   TargetPt2: {fileID: 3056993176045636681}
   Orient: 0
-  PrimaryOtherAxis: 1
 --- !u!1 &7844162020415459317
 GameObject:
   m_ObjectHideFlags: 0
@@ -7289,10 +7382,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferencePt1: {fileID: 5637976689925268837}
   ReferencePt2: {fileID: 6559947049162453550}
+  PrimaryOtherAxis: 1
   TargetPt1: {fileID: 7804071381989765270}
   TargetPt2: {fileID: 6221505506909605550}
   Orient: 1
-  PrimaryOtherAxis: 1
 --- !u!1 &8413279256713983186
 GameObject:
   m_ObjectHideFlags: 0
