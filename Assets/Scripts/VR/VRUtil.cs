@@ -13,7 +13,7 @@ public static class VRUtil
         // Initialise once, to prevent multiple string manipulations
         if (!isInitialised)
         {
-            var vrProduct = OVRPlugin.productName.ToLower();
+            var vrProduct = (OVRPlugin.productName ?? "").ToLower();
             isGo = vrProduct.StartsWith("oculus go");
             isGearVR = vrProduct.StartsWith("gear vr");
             isInitialised = true;
