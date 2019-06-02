@@ -50,6 +50,9 @@ public class RacetrackAIData : MonoBehaviour
         float curveEndZ = curveInfos[ci].zOffset + curves[ci].Length;
         for (int i = 0; i < segmentDatas.Length; i++)
         {
+            if (ci >= curves.Count)
+                ci = curves.Count - 1;
+
             var seg = segments[i];
 
             // Defaults
@@ -97,6 +100,10 @@ public class RacetrackAIData : MonoBehaviour
                             // Find end of next curve
                             int nextI = Mathf.FloorToInt((curveInfos[nextCI].zOffset + curves[nextCI].Length) / Racetrack.SegmentLength);
                             float s = GetJumpSpeed(curveInfos, segments, seg, segments[nextI]);
+
+                            float f = AICarParams.StayOnRoadFactor;
+                            f /= (1.0f + Mathf.Abs(curves[ci].Angles.y) / 60.0f);
+
                             s *= AICarParams.StayOnRoadFactor;
                             if (s > 0.0f && s < max)
                                 max = s;
@@ -222,10 +229,10 @@ public class RacetrackAIData : MonoBehaviour
         //      T = Road tangent at jump
         //      g = Gravity acceleration
         //      s = Minimum speed required to complete the jump
-        //       ________________
-        //      /   g(Dx/Tx)^2
-        // s = / ---------------
-        //   \/   2(Dx/Tx - Dy)
+        //         _______________
+        //        /      g
+        // s = Dx/ ---------------
+        //     \/   2Tx(TyDx-DyTx)
         Vector3 diff = nextSeg.Position - seg.Position;
         Vector2 D = new Vector2(new Vector2(diff.x, diff.z).magnitude, diff.y);
         Vector3 dir = seg.GetSegmentToTrack().MultiplyVector(Vector3.forward).normalized;
@@ -235,12 +242,10 @@ public class RacetrackAIData : MonoBehaviour
         // Jump must have a horizontal component. Otherwise the mathematics breaks down.
         if (T.x > 0.01f)
         {
-            float f = D.x / T.x;
-            float denom = 2.0f * (f - D.y);
+            float denom = 2.0f * T.x * (T.y * D.x - D.y * T.x);
             if (denom > 0.01f)
             {
-                float num = g * f * f;
-                return Mathf.Sqrt(num / denom);
+                return D.x * Mathf.Sqrt(g / denom);
             }
         }
 
