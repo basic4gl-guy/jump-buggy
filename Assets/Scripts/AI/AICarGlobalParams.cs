@@ -27,7 +27,7 @@ public class AICarGlobalParams : MonoBehaviour
     [Tooltip("Jump maximum speeds are multiplied by this factor")]
     public float JumpMaxFactor = 2.0f;
     
-    public float StayOnRoadFactor = 1.5f;
+    public float StayOnRoadFactor = 1.0f;
 
     public float GetAccel(float velocity, float slope)
     {
@@ -37,8 +37,9 @@ public class AICarGlobalParams : MonoBehaviour
         // Calculate acceleration based on gravity and slope of road.
         // Note slope = sin(angle), where angle = 0 for flat road, 90 vertical etc.
         float gravityAccel = GravityAccel * -slope;
-                
-        return engineAccel * AccelFactor + gravityAccel;
+
+        float friction = Mathf.Sqrt(Mathf.Max(1.0f - slope * slope, 0.0f));                
+        return engineAccel * AccelFactor * friction + gravityAccel;
     }
 
     public float GetBrake(float velocity, float slope)
