@@ -11,6 +11,8 @@ public abstract class WanderingParams<T> : MonoBehaviour where T: MonoBehaviour
 {
     public WanderWave[] Waves;
 
+    public float Factor = 1.0f;
+
     private T component;
 
     private ParamMapping[] mappings;
@@ -49,7 +51,7 @@ public abstract class WanderingParams<T> : MonoBehaviour where T: MonoBehaviour
             // Sum waves and clamp
             float paramTime = time + mapping.Wander.TimeOffset;
             float delta = Waves.Sum(w => w.GetValue(paramTime));
-            delta = Mathf.Clamp(delta, -1.0f, 1.0f);
+            delta = Mathf.Clamp(delta, -1.0f, 1.0f) * Factor;
 
             // Update parameter
             float value = mapping.Wander.GetValue(delta);

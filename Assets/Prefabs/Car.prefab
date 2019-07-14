@@ -4897,7 +4897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46b27095a6ac20b4197cda419509dc5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SteeringWheel: {fileID: 0}
+  SteeringWheel: {fileID: 446728717629674408}
   RacetrackAIData: {fileID: 0}
   DebugSegmentIndex: 0
   DebugVelocity: 0
@@ -6267,6 +6267,12 @@ GameObject:
 --- !u!1 &2248789015487772710 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1995409704179471503, guid: 2c1cf9769778ba74e9b7a149dcd254b6,
+    type: 3}
+  m_PrefabInstance: {fileID: 325476590979837097}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &446728717629674408 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 195706863269363457, guid: 2c1cf9769778ba74e9b7a149dcd254b6,
     type: 3}
   m_PrefabInstance: {fileID: 325476590979837097}
   m_PrefabAsset: {fileID: 0}

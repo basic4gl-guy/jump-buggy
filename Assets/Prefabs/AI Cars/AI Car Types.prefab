@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8697105956977907564
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2320556845330635363}
+  - component: {fileID: 418465673956353778}
+  m_Layer: 0
+  m_Name: AI Car Types
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2320556845330635363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697105956977907564}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -178.09363, y: 341.39633, z: -333.874}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &418465673956353778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697105956977907564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52221023439b5464ebad24d8d4a3926a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Entries:
+  - UniqueID: FAST
+    Name: Fast Freddy
+    Easy: {fileID: 8958918638486746062, guid: 9d5c9bdd4653f0a40ad270240b410325, type: 3}
+    Medium: {fileID: 8285516089351295124, guid: 952b880bbe08e7d4c80da91ca3ccf7f1,
+      type: 3}
+    Hard: {fileID: 7572418621684543946, guid: a06a56763096af640abc21d3e2889a5b, type: 3}
+  - UniqueID: PRED
+    Name: Predictable Patty
+    Easy: {fileID: 3818463119736762946, guid: 0d4a75c6d7e462c4c8f78ed000661ca0, type: 3}
+    Medium: {fileID: 6334523639027376168, guid: 6b50c1418090a2e4ebf26c2de1a058ee,
+      type: 3}
+    Hard: {fileID: 636154759817920543, guid: e63552f77e24b5547a042a4a2a514f84, type: 3}
