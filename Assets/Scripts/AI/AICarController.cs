@@ -24,9 +24,16 @@ public class AICarController : MonoBehaviour
     public float DebugX;
     public float DebugAngle;
     public float DebugDistToJump;
+
+    public float InputX;
+    public float InputY;
 #endif
 
     private float prevInputX = 0.0f;
+
+    // Sometimes the car gets stuck.. for no obvious reason. Reversing slightly seems to fix this.
+    private float stuckTimer = 0.0f;
+    private bool isReversingBecauseStuck = false;
 
     private void Awake()
     {
@@ -84,7 +91,7 @@ public class AICarController : MonoBehaviour
         if (Mathf.Abs(state.Velocity.z) > 0.01f)
         {
             float targetX = Mathf.Clamp(state.Position.x, -aiParams.CenterXOffsetLimit, aiParams.CenterXOffsetLimit);     // TODO: Comfortable X range variable
-            
+
             // Attempt to drive around the car infront if necessary
             if (nextCarState != null)
             {
@@ -95,7 +102,7 @@ public class AICarController : MonoBehaviour
                 // Determine whether to avoid the other car
                 bool avoid = false;
                 float dist = relPos.z;
-                if (dist > -aiParams.CarLength /2.0f)                             
+                if (dist > -aiParams.CarLength / 2.0f)
                 {
                     if (dist < aiParams.CarLength)                           // Car next to us
                         avoid = true;
@@ -108,16 +115,16 @@ public class AICarController : MonoBehaviour
                     const float PassingRoom = 0.5f;                         // TODO: Make parameter
 
                     // Determine left and right hand side limits
-                    float roadLeft = -aiParams.RoadWidth /2.0f;
-                    float roadRight = aiParams.RoadWidth /2.0f;
-                    float carLeft = Mathf.Min(roadRight, nextState.Position.x - aiParams.CarWidth /2.0f);
-                    float carRight = Mathf.Max(roadLeft, nextState.Position.x + aiParams.CarWidth /2.0f);
+                    float roadLeft = -aiParams.RoadWidth / 2.0f;
+                    float roadRight = aiParams.RoadWidth / 2.0f;
+                    float carLeft = Mathf.Min(roadRight, nextState.Position.x - aiParams.CarWidth / 2.0f);
+                    float carRight = Mathf.Max(roadLeft, nextState.Position.x + aiParams.CarWidth / 2.0f);
 
                     // Subtract space to account for width of current car and required passing room
-                    roadLeft    += aiParams.CarWidth / 2.0f + PassingRoom;
-                    roadRight   -= aiParams.CarWidth / 2.0f + PassingRoom;
-                    carRight    += aiParams.CarWidth / 2.0f + PassingRoom;
-                    carLeft     -= aiParams.CarWidth / 2.0f + PassingRoom;
+                    roadLeft += aiParams.CarWidth / 2.0f + PassingRoom;
+                    roadRight -= aiParams.CarWidth / 2.0f + PassingRoom;
+                    carRight += aiParams.CarWidth / 2.0f + PassingRoom;
+                    carLeft -= aiParams.CarWidth / 2.0f + PassingRoom;
 
                     // Determine actual room
                     float roomLeft = carLeft - roadLeft;
@@ -154,7 +161,7 @@ public class AICarController : MonoBehaviour
                     // Slow down if necessary to prevent a crash
                     if (dist + relVel.z * aiParams.CatchupDurationBrakeLimit < aiParams.CarLength && Mathf.Abs(relPos.x) < aiParams.BrakeXOffsetLimit)
                         preventCollisionSpeed = Mathf.Max(nextState.Velocity.z, 0.0f);
-                }                
+                }
             }
 
             // Calculate angle required to get to targetX in RecenterTime
@@ -186,10 +193,10 @@ public class AICarController : MonoBehaviour
             if (segData.MaxSpeed - segData.MinSpeed < aiParams.MinMaxSpeedBuffer * 2.0f)
             {
                 // No room for buffer, just aim for middle of range
-                targetVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;                
+                targetVel = (segData.MaxSpeed + segData.MinSpeed) / 2.0f;
             }
             else
-            {                
+            {
                 // Clamp to speed range
                 targetVel = Mathf.Clamp(targetVel, segData.MinSpeed + aiParams.MinMaxSpeedBuffer, segData.MaxSpeed - aiParams.MinMaxSpeedBuffer);
             }
@@ -198,9 +205,17 @@ public class AICarController : MonoBehaviour
         // Accelerate or brake to seek target velocity
         inputY = Mathf.Sign(targetVel - state.Velocity.z);      // TODO: Smoother input?
 
+        // Stuck mitigation logic
+        inputY = DoCarStuckLogic(state, inputY);
+
         // Feed input into car
         carController.Move(inputX / 90.0f, inputY, inputY, 0.0f);
         prevInputX = inputX;
+
+#if DEBUG_CARAI
+        InputX = inputX / 90.0f;
+        InputY = inputY;
+#endif
 
         // Set steering wheel position
         if (SteeringWheel != null)
@@ -208,5 +223,38 @@ public class AICarController : MonoBehaviour
             Vector3 r = SteeringWheel.localRotation.eulerAngles;
             SteeringWheel.localRotation = Quaternion.Euler(r.x, r.y, -inputX);
         }
+    }
+
+    private float DoCarStuckLogic(CarState state, float inputY)
+    {
+        // Detect if the car is stuck for more than 1 second.
+        stuckTimer += Time.fixedDeltaTime;
+        if (isReversingBecauseStuck)
+        {
+            // Reverse for 0.2 seconds
+            inputY = -1.0f;
+            if (stuckTimer > 0.2f)
+            {
+                isReversingBecauseStuck = false;
+                stuckTimer = 0.0f;
+            }
+        }
+        else
+        {
+            if (stuckTimer > 1.0f)
+            {
+                // Car has been stuck for a full second. Trigger reverse logic
+                isReversingBecauseStuck = true;
+                stuckTimer = 0.0f;
+                Debug.LogFormat("{0} is reversing because they appear to be stuck", gameObject.name);
+            }
+            else if (Mathf.Abs(state.Velocity.magnitude) > 0.001f || inputY == 0.0f)
+            {
+                // Car is moving, or not trying to move => not stuck
+                stuckTimer = 0.0f;
+            }
+        }
+
+        return inputY;
     }
 }
