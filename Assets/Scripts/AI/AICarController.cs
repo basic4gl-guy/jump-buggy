@@ -9,6 +9,7 @@ public class AICarController : MonoBehaviour
 {
     public Transform SteeringWheel;
     public RacetrackAIData RacetrackAIData;
+    public CarMode Mode;
 
     private CarController carController; // the car controller we want to use
     private RacetrackCarState carState;
@@ -88,7 +89,7 @@ public class AICarController : MonoBehaviour
 
         // Steering
         float preventCollisionSpeed = 1000.0f;
-        if (Mathf.Abs(state.Velocity.z) > 0.01f)
+        if (Mathf.Abs(state.Velocity.z) > 0.01f && Mode != CarMode.Parked)
         {
             float targetX = Mathf.Clamp(state.Position.x, -aiParams.CenterXOffsetLimit, aiParams.CenterXOffsetLimit);     // TODO: Comfortable X range variable
 
@@ -187,8 +188,9 @@ public class AICarController : MonoBehaviour
 
         // Acceleration/braking
         inputY = 1.0f;
-        float targetVel = Mathf.Min(aiParams.PreferredSpeed, preventCollisionSpeed);             // Start with preferred speed, reduced if necessary to prevent a collision
-        if (segData != null)                                                            // Apply AI data min/max speeds
+        float preferredSpeed = Mode == CarMode.Driving ? aiParams.PreferredSpeed : 0.0f;
+        float targetVel = Mathf.Min(preferredSpeed, preventCollisionSpeed);                     // Start with preferred speed, reduced if necessary to prevent a collision
+        if (segData != null)                                                                    // Apply AI data min/max speeds
         {
             if (segData.MaxSpeed - segData.MinSpeed < aiParams.MinMaxSpeedBuffer * 2.0f)
             {
@@ -257,4 +259,11 @@ public class AICarController : MonoBehaviour
 
         return inputY;
     }
+}
+
+public enum CarMode
+{
+    Driving,
+    Stopping,
+    Parked
 }
