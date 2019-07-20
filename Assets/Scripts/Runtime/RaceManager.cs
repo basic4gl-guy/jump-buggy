@@ -307,6 +307,9 @@ public class RaceManager : MonoBehaviour
             car.progressTracker.offRoadTimer = 0.0f;
             car.progressTracker.isAboveRoad = false;
             car.progressTracker.isTimerRunning = false;
+
+            // Prevent cars from moving
+            car.Mode = CarMode.Parked;
         }
     }
 
