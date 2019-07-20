@@ -211,7 +211,7 @@ public class AICarController : MonoBehaviour
         inputY = DoCarStuckLogic(state, inputY);
 
         // Feed input into car
-        carController.Move(inputX / 90.0f, inputY, inputY, 0.0f);
+        carController.Move(inputX / 90.0f, inputY, inputY, Mode == CarMode.Parked ? 1.0f : 0.0f);
         prevInputX = inputX;
 
 #if DEBUG_CARAI

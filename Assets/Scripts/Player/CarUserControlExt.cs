@@ -65,7 +65,7 @@ public class CarUserControlExt : MonoBehaviour
         }
 
         // Pass to car
-        m_Car.Move(h, v, v, 0f /* park */);     // Note: Applying handbrake slows the car down even after the handbrake input is stopped (!?)
+        m_Car.Move(h, v, v, park);              // Note: Applying handbrake slows the car down even after the handbrake input is stopped (!?)
     }
 
     private float GetSteeringAssistCorrection(CarState state)
