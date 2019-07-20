@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +11,8 @@ using UnityEngine.SceneManagement;
 public class RaceManager : MonoBehaviour
 {
     // Parameters
+    public int Laps = 3;
+
     public AICarDifficulty AICarDifficulty = AICarDifficulty.Medium;
 
     [Tooltip("ID codes of AI cars. Must match cars defined in AI Car Types")]
@@ -20,6 +24,7 @@ public class RaceManager : MonoBehaviour
     public float StartGridZSpacing = 5.0f;
     public float StartGridXSpacing = 4.0f;
     public float StartGridY = 0.5f;
+    public float StartGridZOffset = 5.0f;
 
     // Internal state
     private static RaceManager instance;
@@ -36,6 +41,8 @@ public class RaceManager : MonoBehaviour
 
     private CarInfo[] aiCars = null;
 
+    private RaceStateType state;
+
     private bool isInitialised = false;
 
     private void Awake()
@@ -51,6 +58,31 @@ public class RaceManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void FixedUpdate()
+    {
+        if (state == RaceStateType.InProgress)
+        {
+            foreach (var car in AllCars())
+            {
+                // Check if car has completed race
+                if (car.finalPosition == null && car.progressTracker.lapCount >= Laps)
+                {
+                    // Set final position
+                    car.finalPosition = AllCars().Max(c => c.finalPosition ?? 0) + 1;
+                    Debug.LogFormat("{0} has finished in position {1}", car, car.finalPosition);
+                    car.Mode = CarMode.Stopping;
+                }
+            }
+
+            // Is race complete?
+            if (AllCars().All(c => c.finalPosition != null))
+            {
+                state = RaceStateType.Completed;
+                RaceHasCompleted();
+            }
+        }
+    }
+
     // Initialise on on level load
 
     private void OnEnable()
@@ -61,6 +93,40 @@ public class RaceManager : MonoBehaviour
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnLevelLoaded;
+    }
+
+    /// <summary>
+    /// Start (or restart) race
+    /// </summary>
+    public void StartRace()
+    {
+        Debug.Log("StartRace()");
+        if (!isInitialised) return;
+        if (state == RaceStateType.PreRaceSequence)
+        {
+            Debug.LogError("Race is already starting");
+            return;
+        }
+
+        SetupForRace();
+
+        // Run the pre-race sequence
+        state = RaceStateType.PreRaceSequence;
+        StartCoroutine(StartRaceSequence().Then(() =>
+        {
+            // Enable the cars
+            foreach (var car in AllCars())
+            {
+                car.Mode = CarMode.Driving;
+                car.body.velocity = car.carObj.transform.TransformVector(Vector3.forward * 1.0f);
+                car.progressTracker.isTimerRunning = true;
+            }
+
+            // Switch to in progress
+            state = RaceStateType.InProgress;
+            RaceHasStarted();
+        }));
+        PreRaceSequenceStarted();
     }
 
     /// <summary>
@@ -78,9 +144,31 @@ public class RaceManager : MonoBehaviour
         PositionCarsOnStartGrid();
     }
 
+    private IEnumerator StartRaceSequence()
+    {
+        // TODO: Animated pre-race sequence
+        yield return new WaitForSeconds(5.0f);
+    }
+
+    private void PreRaceSequenceStarted()
+    {
+        Debug.Log("Pre race sequence has started");
+    }
+
+    private void RaceHasStarted()
+    {
+        Debug.Log("Race has started");
+    }
+
+    private void RaceHasCompleted()
+    {
+        Debug.Log("Race has completed");
+    }    
+
     private void OnLevelLoaded(Scene arg0, LoadSceneMode arg1)
     {
         InitRaceManager();
+        StartRace();
     }
 
     private void InitRaceManager()
@@ -88,6 +176,7 @@ public class RaceManager : MonoBehaviour
         // Reset
         isInitialised = false;
         aiCars = null;
+        state = RaceStateType.NotStarted;
 
         // Find required objects
         playerCar = null;
@@ -149,17 +238,13 @@ public class RaceManager : MonoBehaviour
 
     private void WireupCars()
     {
-        WireupCar(playerCar);
-        foreach (var aiCar in aiCars)
-            WireupCar(aiCar);
-    }
-
-    private void WireupCar(CarInfo car)
-    {
-        car.carState.Track = carStates;
-        if (car.aiCarController != null)
+        foreach (var car in AllCars())
         {
-            car.aiCarController.RacetrackAIData = racetrackAIData;
+            car.carState.Track = carStates;
+            if (car.aiCarController != null)
+            {
+                car.aiCarController.RacetrackAIData = racetrackAIData;
+            }
         }
     }
 
@@ -191,8 +276,8 @@ public class RaceManager : MonoBehaviour
             }
 
             // Calculate position to place car
-            int pos = aiCars.Length + 1 - i;
-            float z = pos * StartGridZSpacing;
+            int pos = aiCars.Length - i;
+            float z = pos * StartGridZSpacing + StartGridZOffset;
             float x = (pos & 1) == 0 ? -StartGridXSpacing : StartGridXSpacing;
 
             // Find corresponding position in racetrack space
@@ -218,8 +303,20 @@ public class RaceManager : MonoBehaviour
             car.progressTracker.lapCount = 0;
             car.progressTracker.CurrentLapTime = 0.0f;
             car.progressTracker.BestLapTime = 0.0f;
-            car.progressTracker.LastLapTime = 0.0f;            
+            car.progressTracker.LastLapTime = 0.0f;
+            car.progressTracker.offRoadTimer = 0.0f;
+            car.progressTracker.isAboveRoad = false;
+            car.progressTracker.isTimerRunning = false;
         }
+    }
+
+    private IEnumerable<CarInfo> AllCars()
+    {
+        yield return playerCar;
+        if (aiCars != null)
+            foreach (var aiCar in aiCars)
+                if (aiCar != null)
+                    yield return aiCar;
     }
 
     private class CarInfo
@@ -234,6 +331,7 @@ public class RaceManager : MonoBehaviour
                 progressTracker = carObj.GetComponent<RacetrackProgressTracker>();
                 carState = carObj.GetComponent<RacetrackCarState>();
                 aiCarController = carObj.GetComponent<AICarController>();
+                playerCarController = carObj.GetComponent<CarUserControlExt>();
             }
         }
 
@@ -245,6 +343,10 @@ public class RaceManager : MonoBehaviour
         public RacetrackProgressTracker progressTracker;
         public RacetrackCarState carState;
         public AICarController aiCarController;             // Optional for player car. Required for AI cars.
+        public CarUserControlExt playerCarController;       // Required for player car.
+
+        // State
+        public int? finalPosition;
 
         public bool Validate()
         {
@@ -266,13 +368,50 @@ public class RaceManager : MonoBehaviour
                     if (aiCarController == null)
                         Debug.LogErrorFormat("Car game object {0} has no RacetrackCarState", carObj);
                 }
+                else
+                {
+                    if (playerCarController == null)
+                        Debug.LogErrorFormat("Player car game object {0} has no CarUserControllerExt", carObj);
+                }
             }
 
             return carObj != null && 
                 body != null && 
                 progressTracker != null &&
                 carState != null &&
-                (aiCarType == null || aiCarController != null);
+                (aiCarType == null || aiCarController != null) &&
+                (aiCarType != null || playerCarController != null);
+        }
+
+        public CarMode Mode
+        {
+            get
+            {
+                return playerCarController != null ? playerCarController.Mode : aiCarController.Mode;
+            }
+            set
+            {
+                if (playerCarController != null)
+                    playerCarController.Mode = value;
+                if (aiCarController != null)
+                    aiCarController.Mode = value;
+            }
+        }
+
+        public override string ToString()
+        {
+            if (aiCarType == null)
+                return "Player";
+            else
+                return aiCarType.Name;
         }
     }
+}
+
+public enum RaceStateType
+{
+    NotStarted,
+    PreRaceSequence,
+    InProgress,
+    Completed
 }

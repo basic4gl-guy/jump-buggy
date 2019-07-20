@@ -19,6 +19,8 @@ public class RacetrackProgressTracker : MonoBehaviour
     public float OffRoadTimeout = 10.0f;        // # of seconds player is off the road before they will be placed back on.
     public bool AutoReset = true;               // Enables the auto-respawn logic
 
+    public bool isTimerRunning = true;
+
     [Header("Working")]
     public int currentCurve = 0;
     public int lapCount = 0;
@@ -77,15 +79,18 @@ public class RacetrackProgressTracker : MonoBehaviour
         }
 
         // Off-road timer logic
-        if (isAboveRoad || !AutoReset)
+        if (isTimerRunning)
         {
-            offRoadTimer = 0.0f;
-        }
-        else
-        {
-            offRoadTimer += Time.fixedDeltaTime;
-            if (offRoadTimer > OffRoadTimeout)
-                StartCoroutine(PutCarOnRoadCoroutine());
+            if (isAboveRoad || !AutoReset)
+            {
+                offRoadTimer = 0.0f;
+            }
+            else
+            {
+                offRoadTimer += Time.fixedDeltaTime;
+                if (offRoadTimer > OffRoadTimeout)
+                    StartCoroutine(PutCarOnRoadCoroutine());
+            }
         }
 
         // Update lap timer

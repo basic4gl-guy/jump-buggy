@@ -6,6 +6,8 @@ using System;
 [RequireComponent(typeof(CarController))]
 public class CarUserControlExt : MonoBehaviour
 {
+    public CarMode Mode = CarMode.Driving;
+
     [Header("Animation")]
     public Transform SteeringWheel;
 
@@ -39,7 +41,14 @@ public class CarUserControlExt : MonoBehaviour
         // Get input
         float h;
         float v;
+        float park = 0.0f;
         GetInput(out h, out v);
+
+        if (Mode == CarMode.Parked)
+        {
+            park = 1.0f;
+            v = 0.0f;
+        }
 
         // Steering assist
         if (EnableSteeringAssist && carState != null)
@@ -56,7 +65,7 @@ public class CarUserControlExt : MonoBehaviour
         }
 
         // Pass to car
-        m_Car.Move(h, v, v, 0f);
+        m_Car.Move(h, v, v, 0f /* park */);     // Note: Applying handbrake slows the car down even after the handbrake input is stopped (!?)
     }
 
     private float GetSteeringAssistCorrection(CarState state)

@@ -10,9 +10,9 @@ public class RaceManagerEditor : Editor
         DrawDefaultInspector();
 
         GUILayout.Space(20);
-        if (GUILayout.Button("Setup for race"))
+        if (GUILayout.Button("Restart race"))
         {
-            manager.SetupForRace();
+            manager.StartRace();
         }
     }
 }
